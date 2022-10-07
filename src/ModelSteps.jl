@@ -29,7 +29,7 @@ function testreport(config::MITgcm_config,ext="")
     for nm in lst
         c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm) $ext`
         isempty(ext) ? c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm)` : nothing
-        @suppress run(c)
+        run(c)
     end
     cd(pth)
     return true
@@ -66,7 +66,7 @@ code files, headers, etc  in the `build/` folder before compiling the model
 """
 function build(config::MITgcm_config)
     nam=config.configuration
-    # what was this originally in a try? 
+    # why was this originally in a try? 
     try
         pth=pwd()
     catch e
@@ -284,7 +284,7 @@ function setup(config::MITgcm_config)
             symlink(joinpath(pth_log,fil),joinpath(pth_run,fil))
         end
 
-        ClimateModels.git_log_prm(config)
+        # ClimateModels.git_log_prm(config)
     end
 
     #add model run to scheduled tasks
@@ -301,7 +301,7 @@ Go to `run/` folder and effectively call `mitgcmuv > output.txt`
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function MITgcm_launch(config::MITgcm_config)
-    println("using MITgcm_launch in ModelSteps.jl")
+    @info Threads.threadid() "using MITgcm_launch in ModelSteps.jl"
     try
         pth=pwd()
     catch e
@@ -311,11 +311,12 @@ function MITgcm_launch(config::MITgcm_config)
     cd(joinpath(config.folder,string(config.ID),"run"))
     tmp=["STOP NORMAL END"]
     try
-        println("launching in ModelSteps!")
-        run(pipeline(`./mitgcmuv`,"output.txt"))
-        println("run did not fail!!!!! ")
+        @info Threads.threadid() "launching in ModelSteps!"
+        # TODO: pipe output into its own file with thread number 
+        run(pipeline(`./mitgcmuv`,stdout="thread-$(Threads.threadid())-output.txt"))
+        @info Threads.threadid() "run did not fail!!!!! "
     catch e
-        println(e)
+        @info Threads.threadid() e
         tmp[1]="model run may have failed"
     end
     cd(pth)
