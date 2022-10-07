@@ -19,7 +19,7 @@ MITgcm_namelist(groups=nml.groups,params=nml.params)
 MITgcm_namelist(groups=nml.groups)
 ```
 """
-Base.@kwdef struct MITgcm_namelist
+Base.@kwdef struct MITgcm_namelist 
     groups :: Array{Symbol,1} = Array{Symbol,1}(undef, 0)
     params :: Array{OrderedDict{Symbol,Any},1} = Array{OrderedDict{Symbol,Any},1}(undef, 0)
 end
