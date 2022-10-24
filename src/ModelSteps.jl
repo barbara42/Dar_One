@@ -78,6 +78,33 @@ function build(config::MITgcm_config)
     println("BUILD Current Dir: ", build_dir)
     println("Building with genmake2...")
     # TODO: do not suppress? proper error message 
+    run(`../../../tools/genmake2 -mods=../code`) #$ext
+    println("Genmake2 build done.")
+    @suppress run(`make clean`)
+    println("Running make depend...")
+    @suppress run(`make depend`)
+    println("Make depend done.")
+    println("Running make -j 4")
+    run(`make -j 4`)
+    println("Make done! SUCCESSFUL BUILD!")
+    cd(pth)
+    return true
+end
+
+function build(config_name::String)
+    nam=config_name
+    # why was this originally in a try? 
+    try
+        pth=pwd()
+    catch e
+        cd()
+    end
+    pth=pwd()
+    build_dir = joinpath(MITgcm_path[1], "verification", nam, "build")
+    cd(build_dir)
+    println("BUILD Current Dir: ", build_dir)
+    println("Building with genmake2...")
+    # TODO: do not suppress? proper error message 
     @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
     println("Genmake2 build done.")
     @suppress run(`make clean`)
@@ -311,7 +338,7 @@ function MITgcm_launch(config::MITgcm_config)
     cd(joinpath(config.folder,string(config.ID),"run"))
     tmp=["STOP NORMAL END"]
     try
-        @info Threads.threadid() "launching in ModelSteps!"
+        @info "$(Threads.threadid()) launching in ModelSteps!"
         # TODO: pipe output into its own file with thread number 
         run(pipeline(`./mitgcmuv`,stdout="thread-$(Threads.threadid())-output.txt"))
         @info Threads.threadid() "run did not fail!!!!! "

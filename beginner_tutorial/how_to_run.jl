@@ -14,19 +14,24 @@ using ClimateModels
 # The output will be in a folder called "ecco_gud_DATE_0001" where 
 # DATE is the day you initialized the run
 
-##################
-# TODO: copy and paste in the correct config_id
-# (from the output of darwin-setup)
-##################
-MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" # CHANGE ME 
-config_id = "tutorial_test_9" # CHANGE ME
+
+# the path to the Darwin version of the MITgcm 
+MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
+
+# unique name for your run 
+config_id = "docker_test" # CHANGE ME
 
 # reload the config 
 # TODO: create method, put in helpers 
-config_name = base_configuration
-folder = joinpath(MITgcm_path[1], "verification/darwin-single-box/run")
-config_obj = MITgcm_config(configuration=config_name, ID=config_id, folder=folder)
-rundir = joinpath(folder, config_id, "run")
+# config_name = base_configuration
+# folder = joinpath(MITgcm_path[1], "verification/$(config_name)/run")
+# config_obj = MITgcm_config(configuration=config_name, ID=config_id, folder=folder)
+# rundir = joinpath(folder, config_id, "run")
+
+config_obj, rundir = create_MITgcm_config(config_id)
+
+# Set up! Creating file structure and linking stuff
+setup(config_obj)
 
 ##################
 # Modify runtime parameters here

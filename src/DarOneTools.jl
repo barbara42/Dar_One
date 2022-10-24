@@ -17,9 +17,9 @@ include("NamelistHelpers.jl")
 # ModelSteps
 
 # NamelistHelpers
-export update_param 
+export update_param, create_MITgcm_config
 
-export MITgcm_path, base_configuration
+export MITgcm_path, base_configuration, filexe
 export MITgcm_config, MITgcm_namelist, MITgcm_launch
 export testreport, build, compile, setup, clean
 #export pause, stop, clock, monitor, train, help
@@ -45,5 +45,7 @@ meant to facilitate comparisons between e.g. MITgcm releases when needed.
 
 
 MITgcm_path = ["/Users/birdy/Documents/eaps_research/darwin3"]
-base_configuration = "darwin-single-box"
+base_configuration = "dar_one_config"
+filexe=joinpath(MITgcm_path[1],"verification",base_configuration,"build","mitgcmuv")
+
 end # module

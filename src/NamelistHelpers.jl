@@ -146,3 +146,20 @@ end
     O2 = 19
     CDOM = 20
 end 
+
+"""
+    create_MITgcm_config(config_id)
+
+    - config_id: unique name for your dar_one run  
+
+    Returns
+    - config_obj::MITgcm_config
+    - rundir::AbstractString - folder where output will be 
+"""
+function create_MITgcm_config(config_id::AbstractString)
+    config_name = base_configuration
+    folder = joinpath(MITgcm_path[1], "verification/$(config_name)/run")
+    config_obj = MITgcm_config(configuration=config_name, ID=config_id, folder=folder)
+    rundir = joinpath(folder, config_id, "run")
+    return config_obj, rundir 
+end
