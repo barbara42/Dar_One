@@ -46,12 +46,29 @@ common time steps in seconds
     month = 2592000
 end # enum 
 
+"""
+    update_diagnostic_freq(diagnostic_num, frequency, config_obj)   
+
+Speficy a frequency in seconds at which to write to a diagnostic file 
+
+Arguments:
+- diagnostic_num: the integer identifier for the diagnostic file you want to modify 
+- frequency: new frequency at which to write to that file, in seconds 
+- config_obj: the MITgcm_config you are working with 
+"""
 # TODO: create enums for diagnostic names (and name them better?)
 # TODO: what should the initial frequency be? - in file
 function update_diagnostic_freq(diagnostic_num, frequency, config_obj)
     update_param("data.diagnostics", "diagnostics_list", "frequency($diagnostic_num)", frequency, config_obj)
 end
 
+"""
+    update_temperature(new_temp, config_obj)    
+
+Arguments:
+- new_temp: new temperature in celsius 
+- config_obj: the MITgcm_config you are working with 
+"""
 function update_temperature(new_temp, config_obj)
     update_param("data", "PARM01", "tRef", new_temp, config_obj)
 end
@@ -92,14 +109,13 @@ function update_tracers(tracer_ids, ds::NCDataset, x, y, z, t, config_obj, multi
 end
 
 function dar_one_run(config_obj)
-    println("launching... on thread $(Threads.threadid())")
+    @info "$(Threads.threadid()) launching..."
     t = @elapsed begin
         MITgcm_launch(config_obj)
     end
-    println("run completed")
-    println("time elapse: ", t, " seconds")
-    println()
-    # println("Output in directory $rundir, most recent ecco folder ")
+    @info "$(Threads.threadid()) run completed"
+    @info "$(Threads.threadid()) time elapsed: $(t) seconds"
+    @info "$(Threads.threadid()) Output in directory $(rundir), most recent ecco folder "
     # TODO: print out the subfolder (i.e. "ecco_gud_DATE_0001")
 end
 
@@ -150,11 +166,12 @@ end
 """
     create_MITgcm_config(config_id)
 
-    - config_id: unique name for your dar_one run  
+Arguments:
+- config_id: unique name for your dar_one run  
 
-    Returns
-    - config_obj::MITgcm_config
-    - rundir::AbstractString - folder where output will be 
+Returns
+- config_obj::MITgcm_config
+- rundir::AbstractString - folder where output will be 
 """
 function create_MITgcm_config(config_id::AbstractString)
     config_name = base_configuration

@@ -21,13 +21,7 @@ MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 # unique name for your run 
 config_id = "docker_test" # CHANGE ME
 
-# reload the config 
-# TODO: create method, put in helpers 
-# config_name = base_configuration
-# folder = joinpath(MITgcm_path[1], "verification/$(config_name)/run")
-# config_obj = MITgcm_config(configuration=config_name, ID=config_id, folder=folder)
-# rundir = joinpath(folder, config_id, "run")
-
+# create config object 
 config_obj, rundir = create_MITgcm_config(config_id)
 
 # Set up! Creating file structure and linking stuff
@@ -58,9 +52,4 @@ update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,21)", 1e-3, co
 ##################
 # run model
 ##################
-println("launching...")
-t = @elapsed begin
-    MITgcm_launch(config_obj)
-end
-println("run completed")
-println("time elapse: ", t, " seconds")
+dar_one_run(config_obj)
