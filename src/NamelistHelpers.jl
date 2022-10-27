@@ -9,7 +9,14 @@ using NCDatasets
 # export tracer_name_to_id
 # export update_diagnostic_freq
 # export update_temperature
+"""
+    update_param(file_name, group_name, param_name, new_param_value, config_obj)  
 
+Speficy a parameter to update  
+
+Arguments:
+- TODO
+"""
 function update_param(file_name, group_name, param_name, new_param_value, config_obj)
     rundir = joinpath(config_obj.folder, config_obj.ID, "run")
     # read the contents of the data file into a namelist 
@@ -87,7 +94,7 @@ end
 """
     tracer_name_to_id(name)
     
-Return the int in the tracer name. i.e. tracer_name_to_id("TRAC21") will return 21      
+Return the int in the tracer name. i.e. `tracer_name_to_id("TRAC21")` will return 21      
 """
 function tracer_name_to_id(name)
     return parse(Int64, name[5:6])

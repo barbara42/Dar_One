@@ -10,6 +10,8 @@ include("ReadFiles.jl")
 include("ModelSteps.jl")
 include("NamelistHelpers.jl")
 
+export MITgcm_path, base_configuration, filexe
+
 # Types 
 export MITgcm_config, MITgcm_namelist
 
@@ -22,9 +24,6 @@ export testreport, build, compile, setup, clean, MITgcm_launch
 export update_param, update_tracers, update_tracer, update_temperature, update_diagnostic_freq
 export create_MITgcm_config, dar_one_run
 export tracer_name_to_id, tracer_id_to_name
-
-
-export MITgcm_path, base_configuration, filexe
 
 #export pause, stop, clock, monitor, train, help
 export verification_experiments, read_namelist, write_namelist

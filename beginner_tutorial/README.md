@@ -10,3 +10,9 @@ for [local machine setup](../README.md/#setting-up-on-local-machine). (HIGHLY re
 If you're using dar_one_docker...
 - you don't have to do anything! I already built the mitgcm executable for the docker container
 - the executable is called `mitgcmuv` and lives in the `darwin3/verification/dar_one_config/build` directory 
+
+If you're doing it locally... 
+- run `julia how-to-build.jl`
+- TODO: more info and troubleshooting to come
+
+## Running 
