@@ -10,14 +10,14 @@ using NCDatasets
 # export update_diagnostic_freq
 # export update_temperature
 """
-    update_param(file_name, group_name, param_name, new_param_value, config_obj)  
+    update_param(config_obj, file_name, group_name, param_name, new_param_value)  
 
 Speficy a parameter to update  
 
 Arguments:
 - TODO
 """
-function update_param(file_name, group_name, param_name, new_param_value, config_obj)
+function update_param(config_obj, file_name, group_name, param_name, new_param_value)
     rundir = joinpath(config_obj.folder, config_obj.ID, "run")
     # read the contents of the data file into a namelist 
     data_file = file_name
@@ -54,7 +54,7 @@ common time steps in seconds
 end # enum 
 
 """
-    update_diagnostic_freq(diagnostic_num, frequency, config_obj)   
+    update_diagnostic_freq(config_obj, diagnostic_num, frequency)   
 
 Speficy a frequency in seconds at which to write to a diagnostic file 
 
@@ -62,22 +62,24 @@ Arguments:
 - diagnostic_num: the integer identifier for the diagnostic file you want to modify 
 - frequency: new frequency at which to write to that file, in seconds 
 - config_obj: the MITgcm_config you are working with 
-"""
 # TODO: create enums for diagnostic names (and name them better?)
 # TODO: what should the initial frequency be? - in file
-function update_diagnostic_freq(diagnostic_num, frequency, config_obj)
-    update_param("data.diagnostics", "diagnostics_list", "frequency($diagnostic_num)", frequency, config_obj)
+"""
+function update_diagnostic_freq(config_obj, diagnostic_num, frequency)
+    update_param(config_obj, "data.diagnostics", "diagnostics_list", "frequency($diagnostic_num)", frequency)
 end
 
 """
-    update_temperature(new_temp, config_obj)    
+    update_temperature(config_obj, new_temp)    
 
-Arguments:
+Set the temperature (in celcius). This temperature will be constant throughout the run.
+TODO: how do you set a variable temperature? i.e. seasonal?  
+# Arguments:
 - new_temp: new temperature in celsius 
 - config_obj: the MITgcm_config you are working with 
 """
-function update_temperature(new_temp, config_obj)
-    update_param("data", "PARM01", "tRef", new_temp, config_obj)
+function update_temperature(config_obj, new_temp)
+    update_param(config_obj, "data", "PARM01", "tRef", new_temp)
 end
 
 """
@@ -100,18 +102,18 @@ function tracer_name_to_id(name)
     return parse(Int64, name[5:6])
 end
 
-function update_tracer(tracer_num::Int64, new_value::Float32, config_obj)
-    update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$tracer_num)", new_value, config_obj)
+function update_tracer(config_obj, tracer_num::Int64, new_value::Float32)
+    update_param(config_obj, "data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$tracer_num)", new_value)
 end
 
-function update_tracer(tracer_num::Int64, new_value::Float64, config_obj)
-    update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$tracer_num)", new_value, config_obj)
+function update_tracer(config_obj, tracer_num::Int64, new_value::Float64)
+    update_param(config_obj, "data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$tracer_num)", new_value)
 end
 
-function update_tracers(tracer_ids, ds::NCDataset, x, y, z, t, config_obj, multiplier=1)
+function update_tracers(config_obj, tracer_ids, ds::NCDataset, x, y, z, t, multiplier=1)
     for tracer_id in tracer_ids
         tracer_name = tracer_id_to_name(tracer_id)
-        update_tracer(tracer_id, ds[tracer_name][x,y,z,t]*multiplier, config_obj)
+        update_tracer(config_obj, tracer_id, ds[tracer_name][x,y,z,t]*multiplier)
     end
 end
 
@@ -168,6 +170,8 @@ end
     ALK = 18
     O2 = 19
     CDOM = 20
+    Pro=21
+    Syn = 22
 end 
 
 """
@@ -186,4 +190,73 @@ function create_MITgcm_config(config_id::AbstractString)
     config_obj = MITgcm_config(configuration=config_name, ID=config_id, folder=folder)
     rundir = joinpath(folder, config_id, "run")
     return config_obj, rundir 
+end
+
+"""
+    update_end_time(end_time, config_obj)    
+
+Set how long the simulation will run, in iterations. Each iteration is 3 hours, or 10800 seconds.
+One year is 2880 iterations, which is the default. 
+
+# Arguments:
+- end_time: how many iterations to run the model for
+- config_obj: the MITgcm_config you are working with 
+"""
+function update_end_time(config_obj, end_time)
+    update_param(config_obj, "data", "PARM03", "nenditer", end_time)
+end
+
+"""
+    update_NO3(config_obj, new_val)    
+
+# Arguments:
+- `config_obj``: the MITgcm_config you are working with 
+- `new_val`: amount of NO3 for the model's initial condition
+"""
+function update_NO3(config_obj, new_val)
+    update_tracer(config_obj,Int(NO3), new_val)
+end
+
+"""
+    update_PO4(config_obj, new_val)    
+
+# Arguments:
+- `config_obj``: the MITgcm_config you are working with 
+- `new_val`: amount of PO4 for the model's initial condition
+"""
+function update_PO4(config_obj, new_val)
+    update_tracer(config_obj, Int(PO4), new_val)
+end
+
+"""
+    update_FeT(config_obj, new_val)    
+
+# Arguments:
+- `config_obj``: the MITgcm_config you are working with 
+- `new_val`: amount of FeT for the model's initial condition
+"""
+function update_FeT(config_obj, new_val)
+    update_tracer(config_obj, Int(FeT), new_val)
+end
+
+"""
+    update_pro(config_obj, new_val)    
+
+# Arguments:
+- `config_obj``: the MITgcm_config you are working with 
+- `new_val`: amount of Prochlorococcus for the model's initial condition
+"""
+function update_pro(config_obj, new_val)
+    update_tracer(config_obj, Int(Pro), new_val)
+end
+
+"""
+    update_syn(config_obj, new_val)    
+
+# Arguments:
+- `config_obj``: the MITgcm_config you are working with 
+- `new_val`: amount of Synechococcus for the model's initial condition
+"""
+function update_syn(config_obj, new_val)
+    update_tracer(config_obj, Int(Syn), new_val)
 end

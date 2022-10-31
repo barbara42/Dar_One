@@ -1,7 +1,6 @@
 
 include("../src/DarOneTools.jl")
 using .DarOneTools
-
 # other packages 
 using ClimateModels
 
@@ -14,12 +13,16 @@ using ClimateModels
 # The output will be in a folder called "ecco_gud_DATE_0001" where 
 # DATE is the day you initialized the run
 
+##################
+# set everything up 
+##################
 
-# the path to the Darwin version of the MITgcm 
-MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
+# the path to the Darwin version of the MITgcm
+MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/dar_one_docker/darwin3" 
+#MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 
 # unique name for your run 
-config_id = "docker_test" # CHANGE ME
+config_id = "beginner_tutorial_8" # CHANGE ME
 
 # create config object 
 config_obj, rundir = create_MITgcm_config(config_id)
@@ -28,26 +31,31 @@ config_obj, rundir = create_MITgcm_config(config_id)
 setup(config_obj)
 
 ##################
-# Modify runtime parameters here
-# file > group > parameter
+# Modify runtime parameters 
 ##################
 
-# timing 
-update_param("data", "PARM03", "nenditer", 2880, config_obj) # end after 1 year
+# length of run 
+end_time = 2880 # one year, in iterations
+update_end_time(config_obj, end_time)
 
 # temperature
-update_param("data", "PARM01", "tRef", 30.0, config_obj)
+new_temp = 30 # celius
+update_temperature(config_obj, new_temp)
 
-# nutrients 
+# nutrients (mmol per m^3)
 # NO3
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :, 2)", 2, config_obj)
+new_NO3_val = 2.0
+update_NO3(config_obj, new_NO3_val)
 #PO4
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :, 5)", 0.1, config_obj)
+new_PO4_val = 0.1
+update_PO4(config_obj, new_PO4_val)
 # FeT
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :, 6)", 1e-3, config_obj)
+new_FeT_val = 1e-3
+update_FeT(config_obj, new_FeT_val)
 
-# Prochlorococcus
-update_param("data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,21)", 1e-3, config_obj)
+# Prochlorococcus (mmol per m^3)
+pro_val = 1e-3
+update_pro(config_obj, pro_val)
 
 ##################
 # run model
