@@ -118,6 +118,7 @@ function update_tracers(config_obj, tracer_ids, ds::NCDataset, x, y, z, t, multi
 end
 
 function dar_one_run(config_obj)
+    rundir = joinpath(config_obj.folder, config_obj.ID, "run")
     @info "$(Threads.threadid()) launching..."
     t = @elapsed begin
         MITgcm_launch(config_obj)

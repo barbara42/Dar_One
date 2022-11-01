@@ -38,14 +38,14 @@ is written to a file, called a "diagnostic". The more frequently you write to th
 the longer the run will take. 
 
 To update the diagnostic write frequency, use the method [`update_diagnostic_freq`](@ref). The value 
-it takes is in seconds, so to get output every month you would use 2592000. Every year would be 
-31104000. 
+it takes is in seconds, so to get output every month you would use 2592000. Every year would be 31104000. 
+
 For now, `diagnostic_num` refers to which diagnostic you're changing. `Dar_One` output many diagnostic files 
 that contain various info, but the most commonly used one is the `3d` file. This file contains all the tracer information, such as nutrient concentrations and plankton biomass. For `3d` the `diagnostic_num` is 1.
 
 ```
 month = 2592000
-update_diagnostic_freq(1, month, config_id)
+update_diagnostic_freq(config_obj, 1, month)
 ```
 The default frequency is to write to all diagnostics once a month. 
 
@@ -54,7 +54,7 @@ The default frequency is to write to all diagnostics once a month.
 Updating the temperature of the model is easy! Simply use the [`update_temperature`](@ref) function. 
 
 ```
-update_temperature(25.5, config_obj)
+update_temperature(config_obj, 25.5)
 ```
 
 ## Nutrients 
@@ -74,9 +74,26 @@ gonna have to make files and change params
 
 ummm idk yet 
 
-## Generic Parameter Updates 
+## Update Generic Parameter  
 
 ```@docs
 update_param
 ```
+
+## Output Description 
+
+Explanation of all the different output files 
+
+2d.0000000000.t001.nc			chl.0000002880.t001.nc
+2d.0000002880.t001.nc			grid.t001.nc
+3d.0000000000.t001.nc			nutr_tend.0000000000.t001.nc
+GR.0000000000.t001.nc			nutr_tend.0000002880.t001.nc
+GR.0000002880.t001.nc			par.0000000000.t001.nc
+GRGN.0000000000.t001.nc			par.0000002880.t001.nc
+GRGN.0000002880.t001.nc			ptr_flux_tave.0000002880.t001.nc
+PC.0000000000.t001.nc			ptr_tave.0000002880.t001.nc
+PC.0000002880.t001.nc			ptracers.0000000000.t001.nc
+PP.0000000000.t001.nc			ptracers.0000002880.t001.nc
+PP.0000002880.t001.nc			tave.0000002880.t001.nc
+chl.0000000000.t001.nc
 

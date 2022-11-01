@@ -18,11 +18,11 @@ using ClimateModels
 ##################
 
 # the path to the Darwin version of the MITgcm
-MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/dar_one_docker/darwin3" 
+MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" 
 #MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 
 # unique name for your run 
-config_id = "beginner_tutorial_8" # CHANGE ME
+config_id = "beginner_tutorial" # CHANGE ME
 
 # create config object 
 config_obj, rundir = create_MITgcm_config(config_id)
