@@ -305,24 +305,26 @@ Go to `run/` folder and effectively call `mitgcmuv > output.txt`
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function MITgcm_launch(config::MITgcm_config)
-    @info "$(Threads.threadid()) using MITgcm_launch in ModelSteps.jl"
-    try
-        pth=pwd()
-    catch e
-        cd()
-    end
-    pth=pwd()
-    cd(joinpath(config.folder,string(config.ID),"run"))
+    # try
+    #     pth=pwd()
+    # catch e
+    #     cd()
+    # end
+    # pth=pwd()
+    # cd(joinpath(config.folder,string(config.ID),"run"))
+    rundir = joinpath(config.folder,string(config.ID),"run")
     tmp=["STOP NORMAL END"]
     try
-        @info "$(Threads.threadid()) launching in ModelSteps!"
-        # TODO: pipe output into its own file with thread number 
-        run(pipeline(`./mitgcmuv`,stdout="thread-$(Threads.threadid())-output.txt"))
-        @info "$(Threads.threadid()) run did not fail!!!!! "
+        @info "$(Threads.threadid()) launching $(config.ID) with rundir $rundir  in ModelSteps!"
+        output_file = joinpath(rundir, "thread-$(Threads.threadid())-output.txt")
+        executable = joinpath(rundir, "mitgcmuv")
+        #run(pipeline(`./mitgcmuv`,stdout=output_file))
+        run(pipeline(`$executable`,stdout=output_file))
+        @info "$(Threads.threadid()) $(config.ID) run did not fail!!!!! "
     catch e
         @info Threads.threadid() e
         tmp[1]="model run may have failed"
     end
-    cd(pth)
+    # cd(pth)
     return tmp[1]
 end

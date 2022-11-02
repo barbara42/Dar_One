@@ -155,7 +155,9 @@ Let's look at the contents of this folder
 You'll see a lot of files, but look for the folder that starts with `ecco_gud_[DATE]_0001`. 
 
 Let's move inside this folder and look at its contents. 
+
 `# cd ecco_gud_[DATE]_0001`
+
 `# ls` 
 
 Here's all our output, in [netCDF](https://www.unidata.ucar.edu/software/netcdf/) form! You can tell by the `.nc` filetype extension at the end of each file name. Each of these files contains different information about whats going on inside `Dar_One`, but for now **we are just going to focus on the `3d.some_number.nc` file.** (For a more in-depth description of all the forms of output we get, see [DOCUMENTATION](TODO: LINK))
