@@ -18,7 +18,7 @@ config_objs = Vector{MITgcm_config}()
 # Set up the configs for each run 
 for num in 1:num_simulations
     # set up the config 
-    project_name = "sim-$num"
+    project_name = "b-sim-$num"
     config_obj, rundir = create_MITgcm_config(project_name)
     setup(config_obj)
     println("done with setting up configuration $project_name")

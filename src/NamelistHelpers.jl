@@ -51,6 +51,7 @@ common time steps in seconds
     one_week=604800 
     two_weeks=604800*2
     month = 2592000
+    year = 31104000
 end # enum 
 
 """
