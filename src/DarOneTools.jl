@@ -21,11 +21,13 @@ export MITgcm_config, MITgcm_namelist
 export testreport, build, compile, setup, clean, MITgcm_launch
 
 # NamelistHelpers
-export update_param, update_tracers, update_tracer, update_temperature, update_diagnostic_freq
+export update_param, update_tracers, update_tracer, update_temperature
+export update_diagnostic_freq, update_all_diagnostic_freqs
 export create_MITgcm_config, dar_one_run
 export tracer_name_to_id, tracer_id_to_name
 export update_end_time, update_PO4, update_NO3, update_FeT, update_pro
-export TRACER_IDS
+export TRACER_IDS, SECONDS
+export update_radtrans
 
 #export pause, stop, clock, monitor, train, help
 export verification_experiments, read_namelist, write_namelist

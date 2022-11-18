@@ -45,6 +45,46 @@ function update_param(config_obj, file_name, group_name, param_name, new_param_v
 end # update_param
 
 """
+    update_params(config_obj, file_name, group_names, param_names, new_param_values)  
+
+Update multiple parameters in the same file.
+
+Arguments:
+- TODO
+"""
+function update_params(config_obj, file_name, group_names, param_names, new_param_values)
+    rundir = joinpath(config_obj.folder, config_obj.ID, "run")
+    # read the contents of the data file into a namelist 
+    data_file = file_name
+    fil = joinpath(rundir, data_file)
+    nml = read(fil, MITgcm_namelist())
+
+    for i in eachindex(group_names)
+        group_name = group_names[i]
+        param_name = param_names[i]
+        new_param_value = new_param_values[i]
+
+        nmlgroup = group_name
+        group_idx =findall(nml.groups.==Symbol(nmlgroup))[1]
+        parms = nml.params[group_idx]
+    
+        # what parameter do you want to modify?
+        p_name = param_name
+        p_value = new_param_value
+
+        # update param
+        nml.params[group_idx][Symbol(p_name)] = p_value
+    end
+    
+    # remove old file and write updated params to new file 
+    tmpfil=joinpath(rundir,data_file)
+    rm(tmpfil)
+    write(tmpfil,nml)
+    tmpfil=joinpath("tracked_parameters",data_file)
+    # ClimateModels.git_log_fil(config_obj,tmpfil,"updated $(p_name) parameter file in $(data_file) to $(p_value)")
+end # update_params
+
+"""
 common time steps in seconds 
 """
 @enum SECONDS begin
@@ -68,6 +108,23 @@ Arguments:
 """
 function update_diagnostic_freq(config_obj, diagnostic_num, frequency)
     update_param(config_obj, "data.diagnostics", "diagnostics_list", "frequency($diagnostic_num)", frequency)
+end
+
+"""
+    update_all_diagnostic_freqs(config_obj, frequency)   
+
+Speficy a frequency in seconds at which to write all diagnostic files 
+
+Arguments:
+- config_obj: the MITgcm_config you are working with 
+- frequency: new frequency at which to write to the files, in seconds 
+"""
+function update_all_diagnostic_freqs(config_obj, frequency, diagnostic_nums=[1,2,4,5,6,7,8,10,11])
+    file_name = "data.diagnostics"
+    group_names = repeat(["diagnostics_list"], length(diagnostic_nums))
+    param_names = ["frequency($diagnostic_num)" for diagnostic_num in diagnostic_nums]
+    new_param_values = repeat([frequency], length(diagnostic_nums))
+    update_params(config_obj, file_name, group_names, param_names, new_param_values)
 end
 
 """
@@ -261,4 +318,60 @@ end
 """
 function update_syn(config_obj, new_val)
     update_tracer(config_obj, Int(Syn), new_val)
+end
+
+"""
+    update_radtrans(config_obj, ds::NCDataset, x, y, z, t)    
+
+# Arguments:
+- `config_obj``: the MITgcm_config you are working with 
+- `new_val`: amount of Synechococcus for the model's initial condition
+"""
+function update_radtrans(config_obj, ds::NCDataset, x, y, z, t)
+    file_name = "data.radtrans"
+    group_names = repeat(["RADTRANS_FORCING_PARAMS"], 26)
+    param_names = []
+    new_param_values = []
+    for i in 1:13
+        if i < 10
+            ed_param_name = "RT_Ed_const( $i)"
+            es_param_name = "RT_Es_const( $i)"
+        else
+            ed_param_name = "RT_Ed_const($i)"
+            es_param_name = "RT_Es_const($i)"
+        end
+        ed = ed_id_to_name(i)
+        es = es_id_to_name(i)
+        ed_val = ds[ed][x,y,z,t]
+        es_val = ds[es][x,y,z,t]
+        println(ed, ed_val)
+        println(es, es_val)
+
+        append!(param_names, [ed_param_name, es_param_name])
+        append!(new_param_values, [ed_val, es_val])
+    end
+    update_params(config_obj, file_name, group_names, param_names, new_param_values)
+end
+
+
+"""
+    es_id_to_name(id)
+
+Return the string "Es"+id      
+"""
+function es_id_to_name(id)
+    radtrans_id = length(string(id)) < 2 ? "00"*string(id) : "0"*string(id)
+    radtrans_name = "Es"*radtrans_id 
+    return radtrans_name
+end
+
+"""
+    ed_id_to_name(id)
+
+Return the string "Ed"+id      
+"""
+function ed_id_to_name(id)
+    radtrans_id = length(string(id)) < 2 ? "00"*string(id) : "0"*string(id)
+    radtrans_name = "Ed"*radtrans_id 
+    return radtrans_name
 end
