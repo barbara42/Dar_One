@@ -375,3 +375,43 @@ function ed_id_to_name(id)
     radtrans_name = "Ed"*radtrans_id 
     return radtrans_name
 end
+
+"""
+TODO
+"""
+function update_ptracers_initialFile(config_obj, tracer_id, new_val)
+    file_name = "data.ptracers"
+    group_name = "PTRACERS_PARM01"
+    param_name = tracer_id>9 ? "PTRACERS_initialFile( $tracer_id)" : "PTRACERS_initialFile(  $tracer_id)"
+    update_param(config_obj, file_name, group_name, param_name, new_val)
+end
+
+"""
+TODO
+"""
+function update_temperature_initialFile(config_obj, new_val)
+    file_name = "data"
+    group_name = "PARM05"
+    param_name = "hydrogThetaFile"
+    update_param(config_obj, file_name, group_name, param_name, new_val)
+end
+
+"""
+TODO
+"""
+function update_radtrans_initialFile(config_obj, param_name, new_val)
+    file_name = "data.radtrans"
+    group_name = "RADTRANS_FORCING_PARAMS"
+    update_param(config_obj, file_name, group_name, param_name, new_val)
+end
+
+"""
+TODO
+"""
+function update_delX_delY_for_grid(config_obj, x_size, y_size)
+    file_name = "data"
+    group_names = repeat(["PARM04"], 2)
+    param_names = ["delX", "delY"]
+    new_param_values = ["$x_size*1.E0", "$y_size*1.E0"]
+    update_params(config_obj, file_name, group_names, param_names, new_param_values)
+end

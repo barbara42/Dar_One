@@ -22,7 +22,7 @@ MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3"
 #MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 
 # unique name for your run 
-config_id = "beginner_tutorial" # CHANGE ME
+config_id = "beginner_tutorial-pro-syn-2" # CHANGE ME
 
 # create config object 
 config_obj, rundir = create_MITgcm_config(config_id)
@@ -38,8 +38,12 @@ setup(config_obj)
 end_time = 2880 # one year, in iterations
 update_end_time(config_obj, end_time)
 
+# output frequency 
+frequency = 2592000 # monthly 
+update_all_diagnostic_freqs(config_obj, frequency)
+
 # temperature
-new_temp = 30 # celius
+new_temp = 20 # celius
 update_temperature(config_obj, new_temp)
 
 # nutrients (mmol per m^3)
@@ -56,6 +60,7 @@ update_FeT(config_obj, new_FeT_val)
 # Prochlorococcus (mmol per m^3)
 pro_val = 1e-3
 update_pro(config_obj, pro_val)
+update_syn(config_obj, pro_val)
 
 ##################
 # run model
