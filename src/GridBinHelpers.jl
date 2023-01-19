@@ -168,3 +168,30 @@ function init_radtrans_grid(config_obj, ds, x, y_range, z, t_range)
         update_radtrans_initialFile(config_obj, es_param_name, es_output_file)
     end # for loop
 end # function 
+
+"""
+TODO
+note: made specifically for selecting range of latitudes and longitudes at fixed t and z
+"""
+function init_radtrans_grid_xy(config_obj, ds, x, y, z, t)
+    # for each radtrands band....
+    for i in 1:13
+        if i < 10
+            ed_param_name = "RT_EdFile( $i)"
+            es_param_name = "RT_EsFile( $i)"
+        else
+            ed_param_name = "RT_EdFile($i)"
+            es_param_name = "RT_EsFile($i)"
+        end
+        ed = ed_id_to_name(i)
+        es = es_id_to_name(i)
+        println(ed, es)
+        ed_matrix = ds[ed][x,y,z,t]
+        es_matrix = ds[es][x,y,z,t]
+        ed_output_file = write_init_bin_file(config_obj, "par", "ed$i.bin", ed_matrix)
+        es_output_file = write_init_bin_file(config_obj, "par", "es$i.bin", es_matrix)
+        println(ed_output_file, es_output_file)
+        update_radtrans_initialFile(config_obj, ed_param_name, ed_output_file)
+        update_radtrans_initialFile(config_obj, es_param_name, es_output_file)
+    end # for loop
+end # function 

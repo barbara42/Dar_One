@@ -32,7 +32,7 @@ export update_radtrans
 export update_delX_delY_for_grid
 
 # GridBinHelpers
-export init_tracer_grid, init_temperature_grid, init_radtrans_grid
+export init_tracer_grid, init_temperature_grid, init_radtrans_grid, init_radtrans_grid_xy
 
 #export pause, stop, clock, monitor, train, help
 export verification_experiments, read_namelist, write_namelist
