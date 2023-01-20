@@ -13,7 +13,7 @@ project_name = "dar_one_example"
 config_obj, rundir = create_MITgcm_config(project_name)
 setup(config_obj)
 ```
-See [`create_MITgcm_config`](@ref) and [setup](@ref).
+See [`create_MITgcm_config`](@ref) and setup ref TODO
 
 !!! note
     You can only run the `setup` function once per unique project name! If you try to run it again with a non-unique project name it will throw an error. Once the filesystem is set up, you can comment out that
