@@ -1,3 +1,5 @@
+import ClimateModels: compile, build, setup, clean
+
 """
     testreport(nam::String,ext="")
 
@@ -35,8 +37,6 @@ function testreport(config::MITgcm_config,ext="")
     return true
 end
 
-import ClimateModels: compile, build, setup, clean
-
 """
     clean(config::MITgcm_config)
 
@@ -52,7 +52,6 @@ function clean(config::MITgcm_config)
     #clean up run directory
     pp=joinpath(config.folder,string(config.ID),"run")
     isdir(pp) ? rm(pp,recursive=true) : nothing
-    #
     return "no task left in pipeline"
 end
 
@@ -66,6 +65,12 @@ code files, headers, etc  in the `build/` folder before compiling the model
 """
 function build(config::MITgcm_config)
     nam=config.configuration
+    build(nam)
+    return true
+end
+
+function build(config_name::String)
+    nam=config_name
     # why was this originally in a try? 
     try
         pth=pwd()
@@ -75,18 +80,18 @@ function build(config::MITgcm_config)
     pth=pwd()
     build_dir = joinpath(MITgcm_path[1], "verification", nam, "build")
     cd(build_dir)
-    println("BUILD Current Dir: ", build_dir)
-    println("Building with genmake2...")
+    @info "$(Threads.threadid()) Build Directory: $(build_dir)!"
+    @info "$(Threads.threadid()) building with genmake2..."
     # TODO: do not suppress? proper error message 
-    @suppress run(`../../../tools/genmake2 -mods=../code`) #$ext
-    println("Genmake2 build done.")
+    run(`../../../tools/genmake2 -mods=../code`) #$ext
+    @info "$(Threads.threadid()) genmake2 build done"
     @suppress run(`make clean`)
-    println("Running make depend...")
+    @info "$(Threads.threadid()) Running make depend..."
     @suppress run(`make depend`)
-    println("Make depend done.")
-    println("Running make -j 4")
+    @info "$(Threads.threadid()) make depend done"
+    @info "$(Threads.threadid()) running make -j 4"
     run(`make -j 4`)
-    println("Make done! SUCCESSFUL BUILD!")
+    @info "$(Threads.threadid()) Make done! SUCCESSFUL BUILD!"
     cd(pth)
     return true
 end
@@ -162,8 +167,7 @@ function setup(config::MITgcm_config)
         [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
     end
 
-    # links data* files in /run/UUID/run to /darwin-sinle-box/input 
-    # .... but they end up linked to log/tracked_parameters ? 
+    # links data* files in /run/UUID/run to /{config}/input 
     p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
     tmpA=readdir(p)
     f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
@@ -301,24 +305,26 @@ Go to `run/` folder and effectively call `mitgcmuv > output.txt`
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function MITgcm_launch(config::MITgcm_config)
-    @info Threads.threadid() "using MITgcm_launch in ModelSteps.jl"
-    try
-        pth=pwd()
-    catch e
-        cd()
-    end
-    pth=pwd()
-    cd(joinpath(config.folder,string(config.ID),"run"))
+    # try
+    #     pth=pwd()
+    # catch e
+    #     cd()
+    # end
+    # pth=pwd()
+    # cd(joinpath(config.folder,string(config.ID),"run"))
+    rundir = joinpath(config.folder,string(config.ID),"run")
     tmp=["STOP NORMAL END"]
     try
-        @info Threads.threadid() "launching in ModelSteps!"
-        # TODO: pipe output into its own file with thread number 
-        run(pipeline(`./mitgcmuv`,stdout="thread-$(Threads.threadid())-output.txt"))
-        @info Threads.threadid() "run did not fail!!!!! "
+        @info "$(Threads.threadid()) launching $(config.ID) with rundir $rundir  in ModelSteps!"
+        output_file = joinpath(rundir, "thread-$(Threads.threadid())-output.txt")
+        executable = joinpath(rundir, "mitgcmuv")
+        #run(pipeline(`./mitgcmuv`,stdout=output_file))
+        run(pipeline(`$executable`,stdout=output_file))
+        @info "$(Threads.threadid()) $(config.ID) run did not fail!!!!! "
     catch e
         @info Threads.threadid() e
         tmp[1]="model run may have failed"
     end
-    cd(pth)
+    # cd(pth)
     return tmp[1]
 end
