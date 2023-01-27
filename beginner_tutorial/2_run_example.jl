@@ -56,6 +56,8 @@ update_FeT(config_obj, new_FeT_val)
 pro_val = 1e-3
 update_pro(config_obj, pro_val)
 
+# YOUR TURN: add in some Synechococcus! aka "syn" 
+
 ##################
 # run model
 ##################
