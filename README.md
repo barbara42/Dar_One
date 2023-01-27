@@ -1,19 +1,21 @@
-# Dar_One
+# DAR1
 
 Built off of Gael Forget's MITgcmTools! (https://github.com/gaelforget/MITgcmTools.jl)
 
 
 ##  Overview of program structure 
 
-Dar_One is a Julia interface for using the [MITgcm](https://mitgcm.org/) with a [Darwin](https://darwinproject.mit.edu/) configuration to include biogeochemical forcing for marine microbes. This means it's composed of two main parts
-- [Dar_One](https://github.com/barbara42/Dar_One) - Julia interface for organizing experiments and setting up parameters for model runs 
+
+DAR1 is a tool for designing and running experiments simulating the marine microbiome within a single cube of water. The biogeochemical forcing is powered by the [MIT Darwin Model](https://darwinproject.mit.edu/), and DAR1 provides a Julia interface to build, configure, and run experiments with a simple, streamlined workflow. DAR1 is composed of two main parts:
+
+- [DAR1](https://github.com/barbara42/DAR1) - Julia interface for organizing experiments and setting up parameters for model runs 
     - `MITgcm_path` variable should point to darwin3
 - [darwin3](https://github.com/darwinproject/darwin3) - MITgcm source code set up to include all things Darwin 
-    - `dar_one_config` - folder for the base configuration files for Dar_One, which lives in the darwin3/verification/ folder. ([dar_one_config github](https://github.com/barbara42/dar_one_config))
+    - `DAR1_config` - folder for the base configuration files for DAR1, which lives in the darwin3/verification/ folder. ([DAR1_config github](https://github.com/barbara42/DAR1_config))
 
 
-Dar_One can be run in one of two ways. 
-1) In a **docker container** using the dar_one_docker image, where all dependencies are handled for you 
+DAR1 can be run in one of two ways. 
+1) In a **docker container** using the DAR1_docker image, where all dependencies are handled for you 
 2) On your local machine, where you have to set up the environment, download dependencies, etc 
     - this is more time consuming, and I strongly recommend using the docker image
     - instructions for local setup are below
@@ -22,19 +24,19 @@ Dar_One can be run in one of two ways.
 
 (1) Download and install [docker desktop](https://www.docker.com/).
 
-(2) Get the [dar_one_docker image](https://hub.docker.com/repository/docker/birdy1123/dar_one_docker).
+(2) Get the [DAR1_docker image](https://hub.docker.com/repository/docker/birdy1123/DAR1_docker).
 - using the command line, run 
 
-    `docker pull birdy1123/dar_one_docker`
+    `docker pull birdy1123/DAR1_docker`
 
-- If you go to the "Images" tab in the docker desktop UI, you should see "birdy1123/dar_one_docker"
+- If you go to the "Images" tab in the docker desktop UI, you should see "birdy1123/DAR1_docker"
 
-(3) Run a container based on the dar_one_docker image
+(3) Run a container based on the DAR1_docker image
 - using the command line, run 
 
-    `docker run -it birdy1123/dar_one_docker` 
+    `docker run -it birdy1123/DAR1_docker` 
 - this runs the container in interactive mode (`-i`) with terminal access (`-t`) 
-- you should see the prompt change to `root@some-number:/dar_one_docker#`
+- you should see the prompt change to `root@some-number:/DAR1_docker#`
 
 You're now ready for the [beginner tutorial](beginner_tutorial)!
 # Setting up on local machine
