@@ -14,7 +14,10 @@ config_obj, rundir = create_MITgcm_config(project_name)
 file_3d_name = "3d.0000000000.t001.nc"
 ds = Dataset(joinpath(rundir, ecco_folder_name, file_3d_name))
 
-# TODO: add title and label axes  
-display(plot(ds["TRAC21"][1, 1, 1, :], title="pro"))
+# plot Prochlorococcus abundance over time 
+p = plot(ds["TRAC21"][1, 1, 1, :], title="Prochlorococcus Abundance", xlabel="Time", ylabel="Pro [mmol C]")
+display(p)
 
-# display(plot(ds["TRAC22"][1, 1, 1, :]))
+# YOUR TURN: show the plot for Synechococcus! 
+# TRAC21 = pro, TRAC22 = syn 
+
