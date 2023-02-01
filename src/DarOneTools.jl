@@ -25,7 +25,13 @@ export update_param, update_tracers, update_tracer, update_temperature
 export update_diagnostic_freq, update_all_diagnostic_freqs
 export create_MITgcm_config, dar_one_run
 export tracer_name_to_id, tracer_id_to_name
-export update_end_time, update_PO4, update_NO3, update_FeT, update_pro
+export update_end_time
+# nutrient tracers 
+export update_NO3, update_NO2, update_NH4, update_PO4, update_FeT, update_SiO2
+export update_DOC, update_DON, update_DOP, update_DOFe, update_POC, update_PON, update_POP, update_POFe
+export update_POSi, update_PIC, update_ALK, update_O2, update_CDOM
+# biomass tracers
+export update_pro, update_syn
 export TRACER_IDS, SECONDS
 export update_radtrans
 

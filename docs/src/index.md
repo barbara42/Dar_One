@@ -40,7 +40,7 @@ the longer the run will take.
 To update the diagnostic write frequency, use the method [`update_diagnostic_freq`](@ref). The value 
 it takes is in seconds, so to get output every month you would use 2592000. Every year would be 31104000. 
 
-For now, `diagnostic_num` refers to which diagnostic you're changing. `Dar_One` output many diagnostic files 
+For now, `diagnostic_num` refers to which diagnostic you're changing. `Dar_One` outputs many diagnostic files 
 that contain various info, but the most commonly used one is the `3d` file. This file contains all the tracer information, such as nutrient concentrations and plankton biomass. For `3d` the `diagnostic_num` is 1.
 
 ```
@@ -56,14 +56,62 @@ Updating the temperature of the model is easy! Simply use the [`update_temperatu
 ```
 update_temperature(config_obj, 25.5)
 ```
+## Updating Tracers 
 
-## Nutrients 
+The term "tracer" refers to anything that's in the water that isn't H2O itself. This includes nutients and biomass. There are a number of named functions for nutrients and biomass, which are listed below! 
 
-how to update nutrient params 
+If the tracer you want to update doesn't have its own function, you can update any tracer you know the "id" of using the following function. Tracer IDs can be found under Darwin Background > Tracers (TODO: LINK!)
 
-## Biology 
+```@docs
+update_tracer
+```
 
-live things! 
+Nutrients 
+- [update_NO3](@ref)
+- [update_NO2](@ref)
+- [update_NH4](@ref)
+- [update_PO4](@ref)
+- [update_FeT](@ref)
+- [update_SiO2](@ref)
+- [update_DOC](@ref)
+- [update_DON](@ref)
+- [update_DOP](@ref)
+- [update_DOFe](@ref)
+- [update_POC](@ref)
+- [update_PON](@ref)
+- [update_POP](@ref)
+- [update_POFe](@ref)
+- [update_POSi](@ref)
+- [update_PIC](@ref)
+- [update_ALK](@ref)
+- [update_O2](@ref)
+- [update_CDOM](@ref)
+
+
+Biology 
+- [update_pro](@ref)
+- [update_syn](@ref)
+
+## Updating Tracers in Bulk
+
+Using a "Seed" netCDF File 
+
+Often, I use the output of a global Darwin run to initialize (or seed) the values of DAR1. The tracer values from Darwin are output in a file called `3d.nc` (example linked HERE: TODO) When working with netCDF files, I use the package NCDatasets. 
+
+First, we need to include NCDatasets, then load up the contents of the file into a Dataset.
+```
+using NCDatasets
+
+seed_file_3d = "path/to/file/3d.nc"
+seed_ds_3d = Dataset(seed_file_3d)
+```
+
+
+
+
+Using lists 
+
+
 
 # Advanced Stuff 
 
