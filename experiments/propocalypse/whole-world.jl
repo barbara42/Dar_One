@@ -6,6 +6,7 @@ using NCDatasets
 
 # update SIZE.h 
 # BUILD 
+# build(base_configuration)
 
 # load seed files - these are from global darwin runs 
 seed_file_3d = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/darwin_weekly_seasonal/3d.nc"
@@ -49,7 +50,6 @@ for t in 1:4:52
             x = collect(x_idxs[x_idx][1]:x_idxs[x_idx][2])
             y= collect(y_idxs[y_idx][1]:y_idxs[y_idx][2])
             z=1
-            t=1
             config_name = "globe-MONTH-$t-$x_idx-$y_idx"
             config_obj, rundir = create_MITgcm_config(config_name)
             setup(config_obj)
@@ -91,7 +91,7 @@ for t in 1:4:52
             z=3 # lower value for light - farther into the water column
             init_radtrans_grid_xy(config_obj, seed_ds_par, x, y, z, t)
 
-            # FINALLY! Run! 
+            # FINALLY! Run!
             dar_one_run(config_obj)
         end
     end
