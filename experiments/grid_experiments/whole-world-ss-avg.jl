@@ -6,7 +6,7 @@ using NCDatasets
 
 # update SIZE.h 
 # BUILD 
-build(base_configuration)
+#build(base_configuration)
 
 # load seed files - these are from global darwin runs
 # yearly average!  
@@ -40,24 +40,26 @@ y= collect(1:40)
 x_idxs = [(1,90), (91,180), (181, 270), (271,360)]
 y_idxs = [(1,40), (41,80), (81, 120), (121, 160)]
 t = 1 # yearly averages, only have one timepoint
-for x_idx in 1:4
-    for y_idx in 1:4
+
+# just hawaii quadrant
+for x_idx in [3]
+    for y_idx in [3]
 
         # what slice do we want?
         # these are INDICES so must be INTEGERS
         x = collect(x_idxs[x_idx][1]:x_idxs[x_idx][2])
         y= collect(y_idxs[y_idx][1]:y_idxs[y_idx][2])
         z=1
-        config_name = "globe-yr-avg-$x_idx-$y_idx"
+        config_name = "hawaii-hires"
         config_obj, rundir = create_MITgcm_config(config_name)
         setup(config_obj)
 
         # length of run 
-        end_time = 2880*10 # 2880 is one year, in iterations
+        end_time = 2880*20 # 2880 is one year, in iterations
         update_end_time(config_obj, end_time)
 
         # output frequency 
-        frequency = 2592000*12*2 # 2592000 is one month, in seconds 
+        frequency = 2592000*12 # 2592000 is one month, in seconds 
         update_all_diagnostic_freqs(config_obj, frequency)
 
         # update data > PARM04 > delX and delX
