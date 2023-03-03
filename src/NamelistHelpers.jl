@@ -344,9 +344,6 @@ function update_radtrans(config_obj, ds::NCDataset, x, y, z, t)
         es = es_id_to_name(i)
         ed_val = ds[ed][x,y,z,t]
         es_val = ds[es][x,y,z,t]
-        println(ed, ed_val)
-        println(es, es_val)
-
         append!(param_names, [ed_param_name, es_param_name])
         append!(new_param_values, [ed_val, es_val])
     end
