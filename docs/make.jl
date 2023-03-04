@@ -9,8 +9,8 @@ makedocs(
     pages = [
         "Modify Parameters" => "index.md",
         "All Documentation" => "all_docs.md",
-        "Darwin Background" => "darwin_background.md"
-
+        "Darwin Background" => "darwin_background.md",
+        "Examples" => "case_studies.md"
     ]
 )
 
