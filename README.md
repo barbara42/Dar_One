@@ -8,10 +8,10 @@ Built off of Gael Forget's MITgcmTools! (https://github.com/gaelforget/MITgcmToo
 
 DAR1 is a tool for designing and running experiments simulating the marine microbiome within a single cube of water. The biogeochemical forcing is powered by the [MIT Darwin Model](https://darwinproject.mit.edu/), and DAR1 provides a Julia interface to build, configure, and run experiments with a simple, streamlined workflow. DAR1 is composed of two main parts:
 
-- [DAR1](https://github.com/barbara42/DAR1) - Julia interface for organizing experiments and setting up parameters for model runs 
+- [DAR1](https://github.com/barbara42/Dar_One) - Julia interface for organizing experiments and setting up parameters for model runs 
     - `MITgcm_path` variable should point to darwin3
 - [darwin3](https://github.com/darwinproject/darwin3) - MITgcm source code set up to include all things Darwin 
-    - `DAR1_config` - folder for the base configuration files for DAR1, which lives in the darwin3/verification/ folder. ([DAR1_config github](https://github.com/barbara42/DAR1_config))
+    - `DAR1_config` - folder for the base configuration files for DAR1, which lives in the darwin3/verification/ folder. ([DAR1_config github](https://github.com/barbara42/dar_one_config))
 
 
 DAR1 can be run in one of two ways. 
