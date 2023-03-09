@@ -23,5 +23,7 @@ The yearly averages from a global DARWIN run were used to initialize a grid of D
 
 The simulation was run for 10 years (XXX iterations), with diagnostics being written every XXX years. The final "steady state" values were calculated by averaging the last 2 years. 
 
-Code to run the grid og DAR1s can be found here [LINK], and here [LINK] is the code for stitching the files together. Here [todo LINK] is the ipython notebook for calculating the Bray-Curtis Dissimilarity index between the yearly averages of the global DARWIN run and the steady state DAR1 runs. 
+Code to run the grid of DAR1s can be found here [LINK], and here [LINK] is the code for stitching the files together. Here [todo LINK] is the ipython notebook for calculating the Bray-Curtis Dissimilarity index between the yearly averages of the global DARWIN run and the steady state DAR1 runs. 
+
+
 
