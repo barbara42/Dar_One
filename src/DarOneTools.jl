@@ -3,7 +3,7 @@ module DarOneTools
 # using Dates, Printf, SparseArrays, Artifacts, LazyArtifacts, UUIDs, Suppressor
 # using OrderedCollections, DataFrames, NetCDF, MeshArrays, ClimateModels
 
-using OrderedCollections, Printf, Suppressor, ClimateModels
+using OrderedCollections, Printf, Suppressor, ClimateModels, DelimitedFiles
 
 include("Types.jl")
 include("ReadFiles.jl")
@@ -15,6 +15,9 @@ export MITgcm_path, base_configuration, filexe
 
 # Types 
 export MITgcm_config, MITgcm_namelist
+
+# Build time modifiers
+export update_grid_size
 
 # ReadFiles
 
@@ -69,5 +72,44 @@ The executable should be compiled on whatever machine you're using to run the mo
 unless using the docker container [TODO: link]
 """
 filexe=joinpath(MITgcm_path[1],"verification",base_configuration,"build","mitgcmuv")
+
+
+"""
+Functions to modify the build-time parameters (files in dar_one_config > code)
+NOTE: dangerous! no copies of files are made
+"""
+
+"""
+Default grid size is 1 x 1. 
+
+"""
+function update_grid_size(x, y, file=joinpath(MITgcm_path[1], base_configuration, "code", "SIZE.H"))
+    meta = read(file, String)
+    meta = split(meta, "\n")
+    
+    # find the first parameter line index = p_idx
+    p_idx = findall(x->occursin("PARAMETER",x), meta)[1]
+    
+    # get the lines at sNx and sNy are defined (1st two in the param list)
+    x_line = meta[p_idx+1]
+    y_line = meta[p_idx+2]
+    i = findfirst("=", x_line)
+    
+    # get only the value - print? 
+    current_x_val = replace(x_line, r"[^0-9]" => "")
+    current_y_val = replace(y_line, r"[^0-9]" => "")
+    
+    new_x = x
+    new_y = y
+    # 3 spaces after = is convention for this file
+    new_x_line = x_line[1:i[1]] * "   " * string(new_x) * ","
+    new_y_line = y_line[1:i[1]] * "   " * string(new_y) * "," 
+    
+    meta[p_idx+1] = new_x_line 
+    meta[p_idx+2] = new_y_line
+    
+    # write over file with new values
+    writedlm(file, meta)  
+end
 
 end # module
