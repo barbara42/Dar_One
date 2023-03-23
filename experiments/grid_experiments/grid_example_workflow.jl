@@ -3,12 +3,14 @@ using .DarOneTools
 using NCDatasets
 
 # set up size of your grid 
-
 nX = 30
 nY = 30
 
 # update SIZE.h 
+update_grid_size(nX, nY)
+
 # BUILD 
+build(base_configuration)
 
 # load a seed file
 seed_file = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/jan_7_2022/3d.0000000000.nc"
