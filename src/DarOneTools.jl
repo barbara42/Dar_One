@@ -17,7 +17,7 @@ export MITgcm_path, base_configuration, filexe
 export MITgcm_config, MITgcm_namelist
 
 # Build time modifiers
-export update_grid_size
+export update_grid_size, hold_nutrients_constant
 
 # ReadFiles
 
@@ -108,6 +108,34 @@ function update_grid_size(x, y, file=joinpath(MITgcm_path[1], base_configuration
     meta[p_idx+1] = new_x_line 
     meta[p_idx+2] = new_y_line
     
+    # write over file with new values
+    writedlm(file, meta)  
+end
+
+"""
+hold_nutrients_constant(param_list)
+
+Takes a vector of length 19, for each of the non-plankton tracers, with values of either 0 or 1.
+This function modifies darwin_plankton.F, and mulitplies the computed tendencies of the nutrient tracers by the value passed in.
+    0 = hold constant 
+    1 = allow change 
+
+The appropriate vector to pass in to hold all nutrients constant would be `zeros(19)`.
+To allow all nutrients to vary, the parameter would be `ones(19)`.
+The indices in the param_list correspond to the following nutrients, in order: 
+[DIC, NO3, NO2, NH4, PO4, SiO2, FeT, DOC, DON, DOP, DOFe, PIC, POC, PON, PIP, PISi, POFe, ALK, O2]
+"""
+function hold_nutrients_constant(param_list, file=joinpath(MITgcm_path[1], base_configuration, "code", "darwin_plankton.F"))
+    # TODO: add check that para is 19 long 
+    meta = read(file, String)
+    meta = split(meta, "\n")
+    p_idx = findall(x->occursin("DAR1",x), meta)[1]
+    for i in 1:19
+        line = meta[p_idx+i]
+        l = findfirst("*", line)[1]
+        new_line = line[1:l]*string(param_list[i])
+        meta[p_idx+i] = new_line
+    end
     # write over file with new values
     writedlm(file, meta)  
 end

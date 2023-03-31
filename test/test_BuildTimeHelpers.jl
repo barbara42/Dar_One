@@ -12,3 +12,8 @@ update_grid_size(1,1, test_file)
 # every line except the ones with sNx and sNy should be the same 
 # sNx and sNy lines should have 3 spaces after the =, and then the same values as passed into the function
 
+
+file = "/Users/birdy/Documents/eaps_research/julia stuff/Dar_One/test/resources/test_darwin_plankton.F"
+param_list = zeros(19)
+param_list[2:5] .= 1
+hold_nutrients_constant(param_list, file)
