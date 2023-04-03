@@ -38,7 +38,7 @@ update_all_diagnostic_freqs(config_obj, frequency)
 update_delX_delY_for_grid(config_obj, nX, nY) 
 
 # seeded from N Pacific gyre 
-seed_file = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/jan_7_2022/3d.0000000000.nc"
+seed_file = "/dar_one_docker/3d.nc"
 seed_ds = Dataset(seed_file)
 x = 203
 y = 105
