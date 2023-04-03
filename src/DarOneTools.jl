@@ -83,7 +83,7 @@ NOTE: dangerous! no copies of files are made
 Default grid size is 1 x 1. 
 
 """
-function update_grid_size(x, y, file=joinpath(MITgcm_path[1], "verification", base_configuration, "code", "SIZE.H"))
+function update_grid_size(x, y, file=joinpath(MITgcm_path[1], "verification", base_configuration, "code", "SIZE.h"))
     meta = read(file, String)
     meta = split(meta, "\n")
     
