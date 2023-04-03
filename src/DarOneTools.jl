@@ -125,7 +125,7 @@ To allow all nutrients to vary, the parameter would be `ones(19)`.
 The indices in the param_list correspond to the following nutrients, in order: 
 [DIC, NO3, NO2, NH4, PO4, SiO2, FeT, DOC, DON, DOP, DOFe, PIC, POC, PON, PIP, PISi, POFe, ALK, O2]
 """
-function hold_nutrients_constant(param_list, file=joinpath(MITgcm_path[1], base_configuration, "code", "darwin_plankton.F"))
+function hold_nutrients_constant(param_list, file=joinpath(MITgcm_path[1], "verification", base_configuration, "code", "darwin_plankton.F"))
     # TODO: add check that para is 19 long 
     meta = read(file, String)
     meta = split(meta, "\n")
