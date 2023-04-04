@@ -67,7 +67,7 @@ for tracer_id in 1:20
     init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 end
 
-multipliers = linrange(0,10, nX)
+multipliers = LinRange(0,10, nX)
 # set increasing nitrate availability along x axis 
 tracer_name = tracer_id_to_name(2)
 val = seed_ds[tracer_name][x, y, z, t]
