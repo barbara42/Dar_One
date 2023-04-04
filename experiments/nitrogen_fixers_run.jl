@@ -40,10 +40,12 @@ update_delX_delY_for_grid(config_obj, nX, nY)
 # seeded from N Pacific gyre 
 seed_file = "/dar_one_docker/3d.nc"
 seed_ds = Dataset(seed_file)
+seed_par_file = "/dar_one_docker/par.nc"
+seed_ds_par
 x = 203
 y = 105
 z= 1
-t = 40 # AUG
+t = 1 # using yearly averages 
 
 # start with the same plankton community in each cell 
 for tracer_id in 21:70
