@@ -41,7 +41,7 @@ update_delX_delY_for_grid(config_obj, nX, nY)
 seed_file = "/dar_one_docker/3d.nc"
 seed_ds = Dataset(seed_file)
 seed_par_file = "/dar_one_docker/par.nc"
-seed_ds_par
+seed_ds_par = Dataset(seed_par_file)
 x = 203
 y = 105
 z= 1
