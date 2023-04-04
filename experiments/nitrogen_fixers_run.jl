@@ -82,5 +82,8 @@ init_list = repeat([val], nY) .* multipliers
 dim = "y"
 init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 
+z=3 # lower value for light - farther into the water column
+update_radtrans(config_obj, seed_ds_par, x, y, z, t)
+
 # FINALLY! Run! 
 dar_one_run(config_obj)
