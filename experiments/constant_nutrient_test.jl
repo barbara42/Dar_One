@@ -4,13 +4,16 @@ using .DarOneTools
 using ClimateModels
 
 
-# the path to the Darwin version of the MITgcm
-MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" 
-#MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
-# build(base_configuration)
+# path to local Darwin version of the MITgcm
+MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
+
+# set nutrients constant 
+hold_nutrients_constant(zeros(19))
+
+build(base_configuration)
 
 # unique name for your run 
-config_id = "constant_nutrient_test" # CHANGE ME
+config_id = "constant_nutrient_test_1" # CHANGE ME
 
 # create config object 
 config_obj, rundir = create_MITgcm_config(config_id)
