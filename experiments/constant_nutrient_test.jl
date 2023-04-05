@@ -10,6 +10,9 @@ MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 # set nutrients constant 
 hold_nutrients_constant(zeros(19))
 
+# set grid size 
+update_grid_size(1, 1)
+
 build(base_configuration)
 
 # unique name for your run 
@@ -24,6 +27,8 @@ setup(config_obj)
 ##################
 # Modify runtime parameters 
 ##################
+
+update_delX_delY_for_grid(config_obj, 1, 1) 
 
 # length of run 
 end_time = 2880 # one year, in iterations
