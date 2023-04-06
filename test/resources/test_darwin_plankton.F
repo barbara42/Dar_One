@@ -1,4 +1,4 @@
-"""""""#include """"""""DARWIN_OPTIONS.h"""""""""""""""
+#include "DARWIN_OPTIONS.h"
 
 CBOP
 C !ROUTINE: DARWIN_PLANKTON
@@ -19,14 +19,14 @@ C !DESCRIPTION:
 C !USES: ===============================================================
       IMPLICIT NONE
 #ifdef ALLOW_RADTRANS
-"""""""#include """"""""RADTRANS_SIZE.h"""""""""""""""
+#include "RADTRANS_SIZE.h"
 #endif
-"""""""#include """"""""DARWIN_SIZE.h"""""""""""""""
-"""""""#include """"""""DARWIN_INDICES.h"""""""""""""""
-"""""""#include """"""""DARWIN_DIAGS.h"""""""""""""""
-"""""""#include """"""""DARWIN_RADTRANS.h"""""""""""""""
-"""""""#include """"""""DARWIN_PARAMS.h"""""""""""""""
-"""""""#include """"""""DARWIN_TRAITS.h"""""""""""""""
+#include "DARWIN_SIZE.h"
+#include "DARWIN_INDICES.h"
+#include "DARWIN_DIAGS.h"
+#include "DARWIN_RADTRANS.h"
+#include "DARWIN_PARAMS.h"
+#include "DARWIN_TRAITS.h"
 
 C !INPUT PARAMETERS: ===================================================
 C  Ptr    :: darwin model tracers
@@ -676,7 +676,7 @@ C       PC = PCm*(1-EXP(-alpha_I_growth*chl2c/MAX(EPS, PCm)))
         ENDIF
 
         IF (inhibGeider(j) .GT. 0.0) THEN
-"""""""C         """"""""total"""""""" PAR:"""""""
+C         "total" PAR:
           tmp = alpha_I/alpha_mean(j)
           Ek = PCm/(chl2c*alpha_mean(j))
           EkoverE = Ek / tmp
@@ -1668,8 +1668,9 @@ C to DIC as if it had never been synthesized.
 # endif
 #endif
 
+
 C setting gTr = 0 for all non-plankton tracers
-C DAR1 Nutrients 
+C DAR1 Nutrients
         gTr(iDIC) = gTr(iDIC)*0.0
         gTr(iNO3) = gTr(iNO3)*0.0
         gTr(iNO2) = gTr(iNO2)*0.0
@@ -1691,12 +1692,8 @@ C DAR1 Nutrients
         gTr(iO2) = gTr(iO2)*0.0
 C END_DAR1 Nutrients 
 
-
 #endif /* ALLOW_DARWIN */
 
       RETURN
       END SUBROUTINE
-
-
-
 

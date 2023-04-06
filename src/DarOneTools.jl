@@ -137,7 +137,7 @@ function hold_nutrients_constant(param_list, file=joinpath(MITgcm_path[1], "veri
         meta[p_idx+i] = new_line
     end
     # write over file with new values
-    writedlm(file, meta)  
+    writedlm(file, meta, quotes=false)
 end
 
 end # module
