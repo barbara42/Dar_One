@@ -69,18 +69,23 @@ for tracer_id in 1:20
     init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 end
 
-multipliers = LinRange(0,10, nX)
 # set increasing nitrate availability along x axis 
+multipliers = LinRange(0,10, nX)
 tracer_name = tracer_id_to_name(2)
 val = seed_ds[tracer_name][x, y, z, t]
 init_list = repeat([val], nX) .* multipliers
+# set manually 
+init_list = LinRange(0,48, nX)
 dim = "x"
 init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 
 # set increasing phosphate along y axis 
+multipliers = LinRange(0,10, nX)
 tracer_name = tracer_id_to_name(5)
 val = seed_ds[tracer_name][x, y, z, t]
 init_list = repeat([val], nY) .* multipliers
+# set manually 
+init_list = LinRange(0,3, nX)
 dim = "y"
 init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 

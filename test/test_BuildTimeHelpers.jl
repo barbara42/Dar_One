@@ -24,7 +24,7 @@ hold_nutrients_constant(param_list, new_file)
 # test that new file is same as temp 
 f1 = open(og_file)
 f2 = open(new_file)
-# test fails, unsure why (adding extra newline at end?). Visual inspection looks good 
+# test fails, (adding extra newline at end?). Visual inspection looks good 
 # don't have time for this
 #@test read(f1, String) == read(f2, String)
 close(f1)
