@@ -43,7 +43,7 @@ seed_ds = Dataset(seed_file)
 seed_par_file = "/dar_one_docker/par.nc"
 seed_ds_par = Dataset(seed_par_file)
 x = 203
-y = 105
+y = 135
 z= 1
 t = 1 # using yearly averages 
 
@@ -75,7 +75,7 @@ tracer_name = tracer_id_to_name(2)
 val = seed_ds[tracer_name][x, y, z, t]
 init_list = repeat([val], nX) .* multipliers
 # set manually 
-init_list = LinRange(0,48, nX)
+init_list = LinRange(0,30, nX)
 dim = "x"
 init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 
@@ -85,7 +85,7 @@ tracer_name = tracer_id_to_name(5)
 val = seed_ds[tracer_name][x, y, z, t]
 init_list = repeat([val], nY) .* multipliers
 # set manually 
-init_list = LinRange(0,3, nX)
+init_list = LinRange(0,1, nX)
 dim = "y"
 init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 
