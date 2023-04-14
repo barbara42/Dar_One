@@ -66,6 +66,10 @@ for tracer_id in 1:20
     val = seed_ds[tracer_name][x, y, z, t]
     init_list = repeat([val], nX)
     dim = "x"
+    # add tons of iron
+    if tracer_id == 6
+        init_list = init_list .* 100
+    end
     init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 end
 
