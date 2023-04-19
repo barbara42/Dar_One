@@ -22,7 +22,7 @@ nY = 1
 
 
 # create and set up config 
-config_name = "n_fixers_test"
+config_name = "n_fixers_test2"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
@@ -59,18 +59,29 @@ t = 1 # using yearly averages
 # COMMUNITY
 # same 
 # start with the same plankton community in each cell 
+tracer_ids = []
+values = []
 for tracer_id in 21:70
     tracer_name = tracer_id_to_name(tracer_id)
+    append!(tracer_ids, tracer_id)
     val = seed_ds[tracer_name][x, y, z, t]
     # init_list = repeat([val], nX)
     # dim = "x"
     # # init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
-    update_tracer(config_obj, tracer_id, val)
+    if 44 <= tracer_id <= 51
+        val = 0
+    end 
+    append!(values, val)
 end
+update_tracers(config_obj, tracer_id, val)
 
 # start with the same nutrients in each cell 
+tracer_ids = []
+values = []
 for tracer_id in 1:20
     tracer_name = tracer_id_to_name(tracer_id)
+    append!(tracer_ids, tracer_id)
+
     val = seed_ds[tracer_name][x, y, z, t]
     # set NO3 and NH4 to 0
     if tracer_id == 2 || tracer_id == 4
@@ -85,9 +96,10 @@ for tracer_id in 1:20
         val = val .* 100
     end
     # init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
-    update_tracer(config_obj, tracer_id, val)
-
+    append!(values, val)
 end
+update_tracers(config_obj, tracer_ids, values)
+
 
 # # set increasing nitrate availability along x axis 
 # multipliers = LinRange(0,10, nX)

@@ -60,7 +60,7 @@ for tracer_id in 1:20
     # init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
     append!(values, val)
 end
-update_tracer(config_obj, tracer_ids, values)
+update_tracers(config_obj, tracer_ids, values)
 
 
 # COMMUNITY
@@ -78,7 +78,7 @@ for tracer_id in 21:70
     end
     append!(values, val)
 end
-update_tracer(config_obj, tracer_ids, values)
+update_tracers(config_obj, tracer_ids, values)
 
 
 
