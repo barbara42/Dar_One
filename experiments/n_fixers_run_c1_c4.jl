@@ -51,25 +51,34 @@ t = 1 # using yearly averages
 
 
 # NUTRIENTS
+tracer_ids = []
+values = []
 for tracer_id in 1:20
     tracer_name = tracer_id_to_name(tracer_id)
+    append!(tracer_ids, tracer_id)
     val = seed_ds[tracer_name][x, y, z, t]
     # init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
-    update_tracer(config_obj, tracer_id, val)
+    append!(values, val)
 end
+update_tracer(config_obj, tracer_ids, values)
+
 
 # COMMUNITY
 # same 
 # start with the same plankton community in each cell 
+tracer_ids = []
+values = []
 for tracer_id in 21:70
     tracer_name = tracer_id_to_name(tracer_id)
+    append!(tracer_ids, tracer_id)
     val = seed_ds[tracer_name][x, y, z, t]
     # everything except c1-c4 and grazers is 0 
     if (tracer_id > 24 && tracer_id < 52) || tracer_id >= 68
         val = 0.0
     end
-    update_tracer(config_obj, tracer_id, val)
+    append!(values, val)
 end
+update_tracer(config_obj, tracer_ids, values)
 
 
 

@@ -55,26 +55,33 @@ t = 1 # using yearly averages
 # set NH4 to 0 
 # other nutrient - same (high iron)
 # set PO4 to .83 
+tracer_ids = []
+values = []
 for tracer_id in 1:20
     tracer_name = tracer_id_to_name(tracer_id)
+    append!(tracer_ids, tracer_id)
     val = seed_ds[tracer_name][x, y, z, t]
+    append!(values, val)
     # init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
-    update_tracer(config_obj, tracer_id, val)
 end
+update_tracers(config_obj, tracer_ids, values)
 
 # COMMUNITY
 # same 
 # start with the same plankton community in each cell 
+tracer_ids = []
+values = []
 for tracer_id in 21:70
     tracer_name = tracer_id_to_name(tracer_id)
+    append!(tracer_ids, tracer_id)
     val = seed_ds[tracer_name][x, y, z, t]
     # everything except pro and grazers is 0 
     if (tracer_id > 21 && tracer_id < 52) || tracer_id >= 68
         val = 0.0
     end
-    update_tracer(config_obj, tracer_id, val)
+    append!(values, val)
 end
-
+update_tracers(config_obj, tracer_ids, values)
 
 
 z=3 # lower value for light - farther into the water column

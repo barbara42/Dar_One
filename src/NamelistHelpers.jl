@@ -175,6 +175,20 @@ function update_tracers(config_obj, tracer_ids, ds::NCDataset, x, y, z, t, multi
     end
 end
 
+"""
+takes a list of tracers and list of values - todo 
+"""
+function update_tracers(config_obj, tracer_ids, values)
+    file_name = "data.ptracers"
+    group_names = repeat(["PTRACERS_PARM01"], length(tracer_ids))
+    param_names = ["PTRACERS_ref( :,$tracer_num)" for tracer_num in tracer_ids]
+    update_params(config_obj, file_name, group_names, param_names, values)
+    # for i in 1:length(tracer_ids)
+    #     tracer_name = tracer_id_to_name(tracer_id[i])
+    #     update_tracer(config_obj, tracer_id, values[i])
+    # end
+end
+
 function dar_one_run(config_obj)
     rundir = joinpath(config_obj.folder, config_obj.ID, "run")
     @info "$(Threads.threadid()) launching..."
