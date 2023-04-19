@@ -22,7 +22,7 @@ nY = 1
 
 
 # create and set up config 
-config_name = "n_fixers_test2"
+config_name = "n_fixers_noN"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
@@ -84,7 +84,7 @@ for tracer_id in 1:20
 
     val = seed_ds[tracer_name][x, y, z, t]
     # set NO3 and NH4 to 0
-    if tracer_id == 2 || tracer_id == 4
+    if tracer_id == 2 || tracer_id == 3 || tracer_id == 4 || tracer_id == 9
         val = 0.0
     end
     # set PO4 manually 
