@@ -22,7 +22,7 @@ nY = 1
 
 
 # create and set up config 
-config_name = "n_fixers_test"
+config_name = "test_pro"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
@@ -55,6 +55,12 @@ t = 1 # using yearly averages
 # set NH4 to 0 
 # other nutrient - same (high iron)
 # set PO4 to .83 
+for tracer_id in 1:20
+    tracer_name = tracer_id_to_name(tracer_id)
+    val = seed_ds[tracer_name][x, y, z, t]
+    # init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
+    update_tracer(config_obj, tracer_id, val)
+end
 
 # COMMUNITY
 # same 
@@ -62,52 +68,14 @@ t = 1 # using yearly averages
 for tracer_id in 21:70
     tracer_name = tracer_id_to_name(tracer_id)
     val = seed_ds[tracer_name][x, y, z, t]
-    # init_list = repeat([val], nX)
-    # dim = "x"
-    # # init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
-    update_tracer(config_obj, tracer_id, val)
-end
-
-# start with the same nutrients in each cell 
-for tracer_id in 1:20
-    tracer_name = tracer_id_to_name(tracer_id)
-    val = seed_ds[tracer_name][x, y, z, t]
-    # set NO3 and NH4 to 0
-    if tracer_id == 2 || tracer_id == 4
+    # everything except pro and grazers is 0 
+    if (tracer_id > 21 && tracer_id < 52) || tracer_id >= 68
         val = 0.0
     end
-    # set PO4 manually 
-    if tracer_id == 5
-        val =.83
-    end
-    # add tons of iron
-    if tracer_id == 6
-        val = val .* 100
-    end
-    # init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
     update_tracer(config_obj, tracer_id, val)
-
 end
 
-# # set increasing nitrate availability along x axis 
-# multipliers = LinRange(0,10, nX)
-# tracer_name = tracer_id_to_name(2)
-# val = seed_ds[tracer_name][x, y, z, t]
-# init_list = repeat([val], nX) .* multipliers
-# # set manually 
-# init_list = LinRange(0,30, nX)
-# dim = "x"
-# init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 
-# # set increasing phosphate along y axis 
-# multipliers = LinRange(0,10, nX)
-# tracer_name = tracer_id_to_name(5)
-# val = seed_ds[tracer_name][x, y, z, t]
-# init_list = repeat([val], nY) .* multipliers
-# # set manually 
-# init_list = LinRange(0,1, nX)
-# dim = "y"
-# init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 
 z=3 # lower value for light - farther into the water column
 update_radtrans(config_obj, seed_ds_par, x, y, z, t)
