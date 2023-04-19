@@ -73,7 +73,7 @@ for tracer_id in 21:70
     end 
     append!(values, val)
 end
-update_tracers(config_obj, tracer_id, val)
+update_tracers(config_obj, tracer_ids, values)
 
 # start with the same nutrients in each cell 
 tracer_ids = []
