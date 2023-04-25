@@ -63,7 +63,7 @@ update_radtrans(config_obj, seed_ds_par, x, y, z, t)
 
 # set palatability matrix 
 # load up strict matrix from file 
-strict_file = "extras/palat_matrix_strict.csv"
+strict_file = "/dar_one_docker/Dar_One/experiments/zooplankton_workshop2023/extras/palat_matrix_strict.csv"
 strict_palat_matrix = readdlm(strict_file, ',', Float64)
 
 # flex_file = "extras/palat_matrix_flex.csv"
