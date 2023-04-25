@@ -10,7 +10,7 @@ nX = 1
 nY = 1
 
 # create and set up config 
-config_name = "zoo_norm"
+config_name = "zoo_strict"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
@@ -61,7 +61,14 @@ z=3 # lower value for light - farther into the water column
 update_radtrans(config_obj, seed_ds_par, x, y, z, t)
 
 # set palatability matrix 
+# load up strict matrix from file 
+strict_file = "extras/palat_matrix_strict.csv"
+strict_palat_matrix = readdlm(strict_file, ",", Float64)
 
+# flex_file = "extras/palat_matrix_flex.csv"
+# flex_palat_matrix = readdlm(flex_file, ",", Float64)
+
+write_palat_matrix(config_obj, strict_palat_matrix)
 
 # FINALLY! Run! 
 dar_one_run(config_obj)
