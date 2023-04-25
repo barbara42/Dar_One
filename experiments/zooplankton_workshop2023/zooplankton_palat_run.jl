@@ -64,7 +64,7 @@ update_radtrans(config_obj, seed_ds_par, x, y, z, t)
 # set palatability matrix 
 # load up strict matrix from file 
 strict_file = "extras/palat_matrix_strict.csv"
-strict_palat_matrix = readdlm(strict_file, ",", Float64)
+strict_palat_matrix = readdlm(strict_file, ',', Float64)
 
 # flex_file = "extras/palat_matrix_flex.csv"
 # flex_palat_matrix = readdlm(flex_file, ",", Float64)
