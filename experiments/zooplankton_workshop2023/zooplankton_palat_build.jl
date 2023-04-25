@@ -1,4 +1,4 @@
-include("../src/DarOneTools.jl")
+include("../../src/DarOneTools.jl")
 using .DarOneTools
 using NCDatasets
 

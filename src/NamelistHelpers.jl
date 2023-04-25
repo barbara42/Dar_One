@@ -40,7 +40,7 @@ function update_param(config_obj, file_name, group_name, param_name, new_param_v
     tmpfil=joinpath(rundir,data_file)
     rm(tmpfil)
     write(tmpfil,nml)
-    tmpfil=joinpath("tracked_parameters",data_file)
+    #tmpfil=joinpath("tracked_parameters",data_file)
     # ClimateModels.git_log_fil(config_obj,tmpfil,"updated $(p_name) parameter file in $(data_file) to $(p_value)")
 end # update_param
 
