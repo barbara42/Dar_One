@@ -429,3 +429,47 @@ function update_delX_delY_for_grid(config_obj, x_size, y_size)
     new_param_values = ["$x_size*1.E0", "$y_size*1.E0"]
     update_params(config_obj, file_name, group_names, param_names, new_param_values)
 end
+
+"""
+Update the palatability matrix for grazer preference where PALAT(X,Y) := rate at which predator Y eats prey X
+
+"""
+function write_palat_matrix(config_obj, matrix)
+    # note: PALAT(X,Y) := rate at which predator Y eats prey X
+    # load up file like above 
+    file_name = "data.traits"
+    group_name = "DARWIN_TRAITS"
+    rundir = joinpath(config_obj.folder, config_obj.ID, "run")
+    # read the contents of the data file into a namelist 
+    data_file = file_name
+    fil = joinpath(rundir, data_file)
+    nml = read(fil, MITgcm_namelist())
+    # which param group do you want to modify?
+    nmlgroup = group_name
+    group_idx =findall(nml.groups.==Symbol(nmlgroup))[1]
+    parms = nml.params[group_idx]
+
+    # remove all lines with form PALAT()
+    for key in keys(parms)
+        if occursin("PALAT(", String(key)) 
+            # remove entry 
+            delete!(parms, key)
+        end
+    end
+
+    # TODO: faster way to do this? element-wise?
+    # add new palat key-element pairs to dictionary
+    for x in 1:length(matrix[:, 1])
+        for y in 1:length(matrix[1, :]) 
+            if matrix[x,y] != 0 #(don't write if 0)
+                key = "PALAT($x, $y)"
+                parms[Symbol(key)] = matrix[x, y]
+            end
+        end
+    end
+
+    # write to file 
+    nml.params[group_idx] = parms
+    temp_file =fil
+    write(temp_file, nml)
+end

@@ -33,6 +33,7 @@ export update_end_time, update_PO4, update_NO3, update_FeT, update_pro, update_s
 export TRACER_IDS, SECONDS
 export update_radtrans
 export update_delX_delY_for_grid
+export write_palat_matrix
 
 # GridBinHelpers
 export init_tracer_grid, init_temperature_grid, init_radtrans_grid, init_radtrans_grid_xy
