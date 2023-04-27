@@ -6,7 +6,7 @@ using DelimitedFiles
 # set path to MITgcm 
 MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 base_configuration = "dar1_1D_31-32-3"
-#filexe=joinpath(MITgcm_path[1],"verification",config_1D,"build","mitgcmuv")
+filexe=joinpath(MITgcm_path[1],"verification",base_configuration,"build","mitgcmuv")
 
 # set up size of your grid 
 nX = 1
