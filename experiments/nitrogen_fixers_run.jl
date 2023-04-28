@@ -96,7 +96,7 @@ init_tracer_grid(config_obj, tracer_name, p_init_list, dim, (nX,nY))
 tracer_name = tracer_id_to_name(2)
 n_init_list = p_init_list .* 20
 dim = "x"
-init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
+init_tracer_grid(config_obj, tracer_name, n_init_list, dim, (nX,nY))
 
 # Station ALOHA(ish) light 
 x = 203
