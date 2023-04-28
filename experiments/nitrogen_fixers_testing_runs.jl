@@ -82,7 +82,7 @@ for tracer_id in 1:20
     tracer_name = tracer_id_to_name(tracer_id)
     append!(tracer_ids, tracer_id)
 
-    val = seed_ds[tracer_name][x, y, z, t]
+    val = seed_ds[tracer_name][x, y, z, t] .* 10 
     # set NO3 and NH4 to 0
     if tracer_id == 2 || tracer_id == 3 || tracer_id == 4 || tracer_id == 9
         val = 0.0

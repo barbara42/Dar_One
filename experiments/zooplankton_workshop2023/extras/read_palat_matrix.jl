@@ -69,7 +69,7 @@ num_species = 66
 palat_matrix = read_palat_matrix(fil, num_species)
 file_name = "z32_PALAT.csv"
 writedlm(file_name, palat_matrix, ",")
-plot_palat_matrix(palat_matrix, "z32_PALAT Predator-Prey Palatability Matrix")
+plot_palat_matrix(palat_matrix, "c48-c63 prefer 1:3")
 # TODO: write to file as z32_PALAT
 
 
@@ -78,7 +78,7 @@ num_species = 66
 palat_matrix = read_palat_matrix(fil, num_species)
 file_name = "z32_PALAT_1_30.csv"
 writedlm(file_name, palat_matrix, ",")
-plot_palat_matrix(palat_matrix, "z32_PALAT_thirtieth Predator-Prey Palatability Matrix")
+plot_palat_matrix(palat_matrix, "c48-c63 prefer 1:30")
 # TODO: write to file as z32_PALAT_1_30
 
 
@@ -87,5 +87,5 @@ num_species = 66
 palat_matrix = read_palat_matrix(fil, num_species)
 file_name = "z32_PALAT_2_1.csv"
 writedlm(file_name, palat_matrix, ",")
-plot_palat_matrix(palat_matrix, "z32_PALAT Predator-Prey Palatability Matrix")
+plot_palat_matrix(palat_matrix, "c48-c63 prefer 2:1")
 # TODO: write to file as z32_PALAT_2_1

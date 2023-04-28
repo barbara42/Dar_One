@@ -17,12 +17,14 @@ end_time = 2880*1 # 2880 = one year, in iterations
 update_end_time(config_obj, end_time)
 
 # output frequency 
-frequency = 2592000 # 2592000 = one month, in seconds
+frequency = 2592000 # 2592000 = writes output once month, in seconds
 update_all_diagnostic_freqs(config_obj, frequency)
 
 # seed files from Darwin - yearly averages
+# 3d file - contains tracer values (nutrients and plankton)
 seed_file = "/dar_one_docker/3d.nc"
 seed_ds = Dataset(seed_file)
+# par file - contains irradiance 
 seed_par_file = "/dar_one_docker/par.nc"
 seed_ds_par = Dataset(seed_par_file)
 # seeded from N Pacific gyre 
@@ -68,8 +70,8 @@ end
 update_tracers(config_obj, tracer_ids, values)
 
 # OPTION: change light levels
-# z=3 # lower value for light - farther into the water column
-# update_radtrans(config_obj, seed_ds_par, x, y, z, t)
+z=3 # lower value for light - farther into the water column
+update_radtrans(config_obj, seed_ds_par, x, y, z, t)
 
 # OPTION: change temperature 
 # - default temp is 20C
@@ -87,11 +89,11 @@ update_tracers(config_obj, tracer_ids, values)
 
 # - zoo TRAC68-TRAC83 have 1:30 feeding size pref
 # file2 = "/dar_one_docker/Dar_One/experiments/zooplankton_workshop2023/extras/zoo32_PALAT_1_30.csv"
-# palat_thirtieth = readdlm(file12 ',', Float64)
+# palat_thirtieth = readdlm(file2, ',', Float64)
 
 # - zoo TRAC68-TRAC83 have 2:1 feeding size pref (ish)
 # file3 = "/dar_one_docker/Dar_One/experiments/zooplankton_workshop2023/extras/zoo32_PALAT_2_1.csv"
-# palat_double = readdlm(file12 ',', Float64)
+# palat_double = readdlm(file3, ',', Float64)
 
 # TODO: uncomment and put which palat matrix you want to use
 # palat_matrix = palat1

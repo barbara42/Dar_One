@@ -22,17 +22,20 @@ nY = 30
 
 
 # create and set up config 
-config_name = "n_fixers_1"
+config_name = "n_grid1"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
 # length of run 
-end_time = 2880*5 # 2880 = one year, in iterations
+end_time = 2880*10 # 2880 = one year, in iterations
 update_end_time(config_obj, end_time)
 
 # output frequency 
 frequency = 2592000*12
 update_all_diagnostic_freqs(config_obj, frequency)
+
+new_temp = 24
+update_temperature(config_obj, new_temp)
 
 # update data > PARM04 > delX and delX
 update_delX_delY_for_grid(config_obj, nX, nY) 
@@ -51,6 +54,10 @@ t = 1 # using yearly averages
 for tracer_id in 21:70
     tracer_name = tracer_id_to_name(tracer_id)
     val = seed_ds[tracer_name][x, y, z, t]
+    # no mixotrophic dinoflagellates 
+    if 44 <= tracer_id <= 51
+        val = 0
+    end 
     init_list = repeat([val], nX)
     dim = "x"
     init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
@@ -58,42 +65,43 @@ end
 
 # start with the same nutrients in each cell 
 for tracer_id in 1:20
-    # skip no3 and po4 (2 and 5)
+    # skip no3 and po4 (2 and 5) - set later 
     if tracer_id == 2 || tracer_id == 5
         continue
     end
     tracer_name = tracer_id_to_name(tracer_id)
     val = seed_ds[tracer_name][x, y, z, t]
+    # set NO2, NH4, and DON to 0 (tracers 3, 4, and 9)
+    if tracer_id == 3 || tracer_id == 4 || tracer_id == 9
+        val = 0.0
+    end
     init_list = repeat([val], nX)
     dim = "x"
-    # add tons of iron
+    # add TONS of iron
     if tracer_id == 6
         init_list = init_list .* 100
+    else # also make everything else MORE  
+        init_list = init_list .* 10
     end
     init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 end
 
+# set increasing phosphate along y axis 
+tracer_name = tracer_id_to_name(5)
+p_init_list = LinRange(0,1, nX)
+dim = "y"
+init_tracer_grid(config_obj, tracer_name, p_init_list, dim, (nX,nY))
+
 # set increasing nitrate availability along x axis 
-multipliers = LinRange(0,10, nX)
 tracer_name = tracer_id_to_name(2)
-val = seed_ds[tracer_name][x, y, z, t]
-init_list = repeat([val], nX) .* multipliers
-# set manually 
-init_list = LinRange(0,30, nX)
+n_init_list = p_init_list .* 20
 dim = "x"
 init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 
-# set increasing phosphate along y axis 
-multipliers = LinRange(0,10, nX)
-tracer_name = tracer_id_to_name(5)
-val = seed_ds[tracer_name][x, y, z, t]
-init_list = repeat([val], nY) .* multipliers
-# set manually 
-init_list = LinRange(0,1, nX)
-dim = "y"
-init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
-
-z=3 # lower value for light - farther into the water column
+# Station ALOHA(ish) light 
+x = 203
+y = 105
+z=2 # lower value for light - farther into the water column
 update_radtrans(config_obj, seed_ds_par, x, y, z, t)
 
 # FINALLY! Run! 
