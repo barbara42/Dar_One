@@ -6,8 +6,8 @@ using NCDatasets
 MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 
 # set up size of your grid 
-nX = 30
-nY = 30
+nX = 6
+nY = 6
 
 # # update SIZE.h 
 # update_grid_size(nX, nY)
@@ -22,7 +22,7 @@ nY = 30
 
 
 # create and set up config 
-config_name = "n_grid1"
+config_name = "n_grid6x6"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
