@@ -86,15 +86,19 @@ end
 
 # set increasing phosphate along y axis 
 tracer_name = tracer_id_to_name(5)
-p_init_list = LinRange(0,1, nX)
-dim = "y"
-init_tracer_grid(config_obj, tracer_name, p_init_list, dim, (nX,nY))
+#p_init_list = LinRange(0,1, nX)
+#dim = "y"
+#init_tracer_grid(config_obj, tracer_name, p_init_list, dim, (nX,nY))
+p_init_list = [0.2, 0.6]
+init_tracer_grid(config_obj, tracer_name, p_init_list)
 
 # set increasing nitrate availability along x axis 
 tracer_name = tracer_id_to_name(2)
-n_init_list = p_init_list .* 20
-dim = "x"
-init_tracer_grid(config_obj, tracer_name, n_init_list, dim, (nX,nY))
+#n_init_list = p_init_list .* 20
+#dim = "x"
+#init_tracer_grid(config_obj, tracer_name, n_init_list, dim, (nX,nY))
+n_init_list = [2.0, 5.0]
+init_tracer_grid(config_obj, tracer_name, n_init_list)
 
 # Station ALOHA(ish) light 
 x = 203
