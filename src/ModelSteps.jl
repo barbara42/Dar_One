@@ -81,6 +81,8 @@ function build(config_name::String)
     build_dir = joinpath(MITgcm_path[1], "verification", nam, "build")
     cd(build_dir)
     @info "$(Threads.threadid()) Build Directory: $(build_dir)!"
+    # clean out build folder 
+    foreach(f->rm(f, force=true, recursive=true), readdir())
     @info "$(Threads.threadid()) building with genmake2..."
     # TODO: do not suppress? proper error message 
     run(`../../../tools/genmake2 -mods=../code`) #$ext

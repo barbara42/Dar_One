@@ -6,7 +6,7 @@ using NCDatasets
 MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 
 # set up size of your grid 
-nX = 1
+nX = 2
 nY = 1
 
 # # update SIZE.h 
@@ -19,19 +19,17 @@ nY = 1
 # # BUILD 
 # build(base_configuration)
 
-
-
 # create and set up config 
-config_name = "n_grid6x6"
+config_name = "n_2x1"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
 # length of run 
-end_time = 2880*10 # 2880 = one year, in iterations
+end_time = Int(2880/12) # 2880 = one year, in iterations
 update_end_time(config_obj, end_time)
 
 # output frequency 
-frequency = 2592000*12
+frequency = Int(2592000/30)
 update_all_diagnostic_freqs(config_obj, frequency)
 
 new_temp = 24
