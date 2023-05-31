@@ -20,7 +20,7 @@ nY = 4
 # build(base_configuration)
 
 # create and set up config 
-config_name = "n_4x4_long"
+config_name = "n_4x4_long2"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
@@ -95,7 +95,7 @@ init_tracer_grid(config_obj, tracer_name, p_init_list, dim, (nX,nY))
 
 # set increasing nitrate availability along x axis 
 tracer_name = tracer_id_to_name(2)
-n_init_list = p_init_list .* 20
+n_init_list = LinRange(0,5, nX)
 dim = "x"
 init_tracer_grid(config_obj, tracer_name, n_init_list, dim, (nX,nY))
 #n_init_list = [2.0, 5.0]
