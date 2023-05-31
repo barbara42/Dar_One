@@ -20,17 +20,16 @@ nY = 4
 # build(base_configuration)
 
 # create and set up config 
-config_name = "n_4x4_const"
+config_name = "n_4x4_long"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
 # length of run 
-end_time = Int(2880/12) # 2880 = one year, in iterations
-end_time = 48
+end_time = 2880 * 10 # 2880 = one year, in iterations
 update_end_time(config_obj, end_time)
 
 # output frequency 
-frequency = Int(2592000/30)
+frequency = 2592000*6 # 2592000 = one month, in seconds
 update_all_diagnostic_freqs(config_obj, frequency)
 
 new_temp = 24
