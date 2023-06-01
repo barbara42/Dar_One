@@ -20,7 +20,7 @@ nY = 4
 # build(base_configuration)
 
 # create and set up config 
-config_name = "n_4x4_long4"
+config_name = "n_4x4_long5"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
@@ -29,7 +29,7 @@ end_time = 2880 * 10 # 2880 = one year, in iterations
 update_end_time(config_obj, end_time)
 
 # output frequency 
-frequency = 2592000*6 # 2592000 = one month, in seconds
+frequency = 2592000*12 # 2592000 = one month, in seconds
 update_all_diagnostic_freqs(config_obj, frequency)
 
 new_temp = 24
@@ -87,6 +87,7 @@ end
 # set increasing phosphate along y axis 
 tracer_name = tracer_id_to_name(5)
 p_init_list = LinRange(0,0.6, nX)
+p_init_list = [0, 0.01, 0.05, 0.1]
 #p_init_list = repeat([0.5], nX) # same value in each cell
 dim = "y"
 init_tracer_grid(config_obj, tracer_name, p_init_list, dim, (nX,nY))
