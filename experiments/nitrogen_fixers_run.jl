@@ -20,12 +20,12 @@ nY = 4
 # build(base_configuration)
 
 # create and set up config 
-config_name = "n_4x4_long5"
+config_name = "n_4x4_long6"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
 # length of run 
-end_time = 2880 * 10 # 2880 = one year, in iterations
+end_time = 2880 * 5 # 2880 = one year, in iterations
 update_end_time(config_obj, end_time)
 
 # output frequency 
@@ -88,6 +88,8 @@ end
 tracer_name = tracer_id_to_name(5)
 p_init_list = LinRange(0,0.6, nX)
 p_init_list = [0, 0.01, 0.05, 0.1]
+p_init_list = [0, 0.01, 0.02, 0.03]
+
 #p_init_list = repeat([0.5], nX) # same value in each cell
 dim = "y"
 init_tracer_grid(config_obj, tracer_name, p_init_list, dim, (nX,nY))
