@@ -18,8 +18,7 @@ using ClimateModels
 ##################
 
 # the path to the Darwin version of the MITgcm
-MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" 
-#MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
+MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 
 # unique name for your run 
 config_id = "beginner_tutorial-pro-syn-2" # CHANGE ME
@@ -61,6 +60,8 @@ update_FeT(config_obj, new_FeT_val)
 pro_val = 1e-3
 update_pro(config_obj, pro_val)
 update_syn(config_obj, pro_val)
+
+# YOUR TURN: add in some Synechococcus! aka "syn" 
 
 ##################
 # run model

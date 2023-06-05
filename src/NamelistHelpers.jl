@@ -160,6 +160,14 @@ function tracer_name_to_id(name)
     return parse(Int64, name[5:6])
 end
 
+"""
+    update_tracer(config_obj, tracer_num::Int64, new_value::Float32)
+
+# Arguments 
+- `config_id` 
+- `tracer_num`
+- `new_value`
+"""
 function update_tracer(config_obj, tracer_num::Int64, new_value::Float32)
     update_param(config_obj, "data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$tracer_num)", new_value)
 end
@@ -168,6 +176,20 @@ function update_tracer(config_obj, tracer_num::Int64, new_value::Float64)
     update_param(config_obj, "data.ptracers", "PTRACERS_PARM01", "PTRACERS_ref( :,$tracer_num)", new_value)
 end
 
+# TODO: rewrite using update_params 
+"""
+    update_tracers(config_obj, tracer_ids, ds::NCDataset, x, y, z, t, multiplier=1)
+
+# Arguments 
+- `config_obj`
+- `tracer_ids`
+- `ds`
+- x
+- y 
+- z 
+- t
+- multiplier
+"""
 function update_tracers(config_obj, tracer_ids, ds::NCDataset, x, y, z, t, multiplier=1)
     for tracer_id in tracer_ids
         tracer_name = tracer_id_to_name(tracer_id)
@@ -293,6 +315,28 @@ function update_NO3(config_obj, new_val)
 end
 
 """
+    update_NO2(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of NO2 for the model's initial condition
+"""
+function update_NO2(config_obj, new_val)
+    update_tracer(config_obj, Int(NO2), new_val)
+end
+
+"""
+    update_NH4(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of NH4 for the model's initial condition
+"""
+function update_NH4(config_obj, new_val)
+    update_tracer(config_obj, Int(NH4), new_val)
+end
+
+"""
     update_PO4(config_obj, new_val)    
 
 # Arguments:
@@ -307,7 +351,7 @@ end
     update_FeT(config_obj, new_val)    
 
 # Arguments:
-- `config_obj``: the MITgcm_config you are working with 
+- `config_obj`: the MITgcm_config you are working with 
 - `new_val`: amount of FeT for the model's initial condition
 """
 function update_FeT(config_obj, new_val)
@@ -315,10 +359,164 @@ function update_FeT(config_obj, new_val)
 end
 
 """
+    update_SiO2(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of SiO2 for the model's initial condition
+"""
+function update_SiO2(config_obj, new_val)
+    update_tracer(config_obj, Int(SiO2), new_val)
+end
+
+"""
+    update_DOC(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of DOC for the model's initial condition
+"""
+function update_DOC(config_obj, new_val)
+    update_tracer(config_obj, Int(DOC), new_val)
+end
+
+"""
+    update_DON(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of DON for the model's initial condition
+"""
+function update_DON(config_obj, new_val)
+    update_tracer(config_obj, Int(DON), new_val)
+end
+
+"""
+    update_DOP(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of DOP for the model's initial condition
+"""
+function update_DOP(config_obj, new_val)
+    update_tracer(config_obj, Int(DOP), new_val)
+end
+
+"""
+    update_DOFe(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of DOFe for the model's initial condition
+"""
+function update_DOFe(config_obj, new_val)
+    update_tracer(config_obj, Int(DOFe), new_val)
+end
+
+"""
+    update_POC(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of POC for the model's initial condition
+"""
+function update_POC(config_obj, new_val)
+    update_tracer(config_obj, Int(POC), new_val)
+end
+
+"""
+    update_PON(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of PON for the model's initial condition
+"""
+function update_PON(config_obj, new_val)
+    update_tracer(config_obj, Int(PON), new_val)
+end
+
+"""
+    update_POP(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of POP for the model's initial condition
+"""
+function update_POP(config_obj, new_val)
+    update_tracer(config_obj, Int(POP), new_val)
+end
+
+"""
+    update_POFe(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of POFe for the model's initial condition
+"""
+function update_POFe(config_obj, new_val)
+    update_tracer(config_obj, Int(POFe), new_val)
+end
+
+"""
+    update_POSi(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of POSi for the model's initial condition
+"""
+function update_POSi(config_obj, new_val)
+    update_tracer(config_obj, Int(POSi), new_val)
+end
+
+"""
+    update_PIC(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of PIC for the model's initial condition
+"""
+function update_PIC(config_obj, new_val)
+    update_tracer(config_obj, Int(PIC), new_val)
+end
+
+"""
+    update_ALK(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of ALK for the model's initial condition (note: it will equalize through air-sea exchange)
+"""
+function update_ALK(config_obj, new_val)
+    update_tracer(config_obj, Int(ALK), new_val)
+end
+
+"""
+    update_O2(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of O2 for the model's initial condition (note: it will equalize through air-sea exchange)
+"""
+function update_O2(config_obj, new_val)
+    update_tracer(config_obj, Int(O2), new_val)
+end
+
+"""
+    update_CDOM(config_obj, new_val)    
+
+# Arguments:
+- `config_obj`: the MITgcm_config you are working with 
+- `new_val`: amount of CDOM for the model's initial condition 
+"""
+function update_CDOM(config_obj, new_val)
+    update_tracer(config_obj, Int(CDOM), new_val)
+end
+
+"""
     update_pro(config_obj, new_val)    
 
 # Arguments:
-- `config_obj``: the MITgcm_config you are working with 
+- `config_obj`: the MITgcm_config you are working with 
 - `new_val`: amount of Prochlorococcus for the model's initial condition
 """
 function update_pro(config_obj, new_val)
@@ -329,7 +527,7 @@ end
     update_syn(config_obj, new_val)    
 
 # Arguments:
-- `config_obj``: the MITgcm_config you are working with 
+- `config_obj`: the MITgcm_config you are working with 
 - `new_val`: amount of Synechococcus for the model's initial condition
 """
 function update_syn(config_obj, new_val)
@@ -340,7 +538,7 @@ end
     update_radtrans(config_obj, ds::NCDataset, x, y, z, t)    
 
 # Arguments:
-- `config_obj``: the MITgcm_config you are working with 
+- `config_obj`: the MITgcm_config you are working with 
 - `new_val`: amount of Synechococcus for the model's initial condition
 """
 function update_radtrans(config_obj, ds::NCDataset, x, y, z, t)
@@ -360,9 +558,6 @@ function update_radtrans(config_obj, ds::NCDataset, x, y, z, t)
         es = es_id_to_name(i)
         ed_val = ds[ed][x,y,z,t]
         es_val = ds[es][x,y,z,t]
-        println(ed, ed_val)
-        println(es, es_val)
-
         append!(param_names, [ed_param_name, es_param_name])
         append!(new_param_values, [ed_val, es_val])
     end
