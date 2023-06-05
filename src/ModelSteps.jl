@@ -1,5 +1,5 @@
 import ClimateModels: compile, build, setup, clean
-
+using Dates 
 """
     testreport(nam::String,ext="")
 
@@ -81,6 +81,8 @@ function build(config_name::String)
     build_dir = joinpath(MITgcm_path[1], "verification", nam, "build")
     cd(build_dir)
     @info "$(Threads.threadid()) Build Directory: $(build_dir)!"
+    # clean out build folder 
+    foreach(f->rm(f, force=true, recursive=true), readdir())
     @info "$(Threads.threadid()) building with genmake2..."
     # TODO: do not suppress? proper error message 
     run(`../../../tools/genmake2 -mods=../code`) #$ext
@@ -152,7 +154,17 @@ Call `ClimateModels.git_log_init(config)` to setup git tracker and
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function setup(config::MITgcm_config)
+    # check for existence of "verification/$(config_name)/run", else makes it
     !isdir(joinpath(config.folder)) ? mkdir(joinpath(config.folder)) : nothing
+    # check for existence of "verification/$(config_name)/run/$(config_ID)", else makes it
+    # TODO: if config_id folder already exists, add an int to the end and make that one
+    # avoid "file already exists" error  
+    # note: must propagate change to the config obj
+    # TODO: test by printing the config id in a run  
+    if isdir(joinpath(config.folder,string(config.ID)))
+        date = Dates.format(dt, "yyyy-mm-dd-HH-MM-SS")
+        config.ID = config.ID * date
+    end
     !isdir(joinpath(config.folder,string(config.ID))) ? mkdir(joinpath(config.folder,string(config.ID))) : nothing
 
     pth_run=joinpath(config.folder,string(config.ID),"run")

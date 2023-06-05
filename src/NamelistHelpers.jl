@@ -40,7 +40,7 @@ function update_param(config_obj, file_name, group_name, param_name, new_param_v
     tmpfil=joinpath(rundir,data_file)
     rm(tmpfil)
     write(tmpfil,nml)
-    tmpfil=joinpath("tracked_parameters",data_file)
+    #tmpfil=joinpath("tracked_parameters",data_file)
     # ClimateModels.git_log_fil(config_obj,tmpfil,"updated $(p_name) parameter file in $(data_file) to $(p_value)")
 end # update_param
 
@@ -197,6 +197,20 @@ function update_tracers(config_obj, tracer_ids, ds::NCDataset, x, y, z, t, multi
     end
 end
 
+"""
+takes a list of tracers and list of values - todo 
+"""
+function update_tracers(config_obj, tracer_ids, values)
+    file_name = "data.ptracers"
+    group_names = repeat(["PTRACERS_PARM01"], length(tracer_ids))
+    param_names = ["PTRACERS_ref( :,$tracer_num)" for tracer_num in tracer_ids]
+    update_params(config_obj, file_name, group_names, param_names, values)
+    # for i in 1:length(tracer_ids)
+    #     tracer_name = tracer_id_to_name(tracer_id[i])
+    #     update_tracer(config_obj, tracer_id, values[i])
+    # end
+end
+
 function dar_one_run(config_obj)
     rundir = joinpath(config_obj.folder, config_obj.ID, "run")
     @info "$(Threads.threadid()) launching..."
@@ -267,6 +281,8 @@ Returns
 """
 function create_MITgcm_config(config_id::AbstractString)
     config_name = base_configuration
+    println("mitgcm path ", MITgcm_path[1])
+    println("base configuration = ", base_configuration)
     folder = joinpath(MITgcm_path[1], "verification/$(config_name)/run")
     config_obj = MITgcm_config(configuration=config_name, ID=config_id, folder=folder)
     rundir = joinpath(folder, config_id, "run")
@@ -569,4 +585,88 @@ function ed_id_to_name(id)
     radtrans_id = length(string(id)) < 2 ? "00"*string(id) : "0"*string(id)
     radtrans_name = "Ed"*radtrans_id 
     return radtrans_name
+end
+
+"""
+TODO
+"""
+function update_ptracers_initialFile(config_obj, tracer_id, new_val)
+    file_name = "data.ptracers"
+    group_name = "PTRACERS_PARM01"
+    param_name = tracer_id>9 ? "PTRACERS_initialFile( $tracer_id)" : "PTRACERS_initialFile(  $tracer_id)"
+    update_param(config_obj, file_name, group_name, param_name, new_val)
+end
+
+"""
+TODO
+"""
+function update_temperature_initialFile(config_obj, new_val)
+    file_name = "data"
+    group_name = "PARM05"
+    param_name = "hydrogThetaFile"
+    update_param(config_obj, file_name, group_name, param_name, new_val)
+end
+
+"""
+TODO
+"""
+function update_radtrans_initialFile(config_obj, param_name, new_val)
+    file_name = "data.radtrans"
+    group_name = "RADTRANS_FORCING_PARAMS"
+    update_param(config_obj, file_name, group_name, param_name, new_val)
+end
+
+"""
+TODO
+"""
+function update_delX_delY_for_grid(config_obj, x_size, y_size)
+    file_name = "data"
+    group_names = repeat(["PARM04"], 2)
+    param_names = ["delX", "delY"]
+    new_param_values = ["$x_size*1.E0", "$y_size*1.E0"]
+    update_params(config_obj, file_name, group_names, param_names, new_param_values)
+end
+
+"""
+Update the palatability matrix for grazer preference where PALAT(X,Y) := rate at which predator Y eats prey X
+
+"""
+function write_palat_matrix(config_obj, matrix)
+    # note: PALAT(X,Y) := rate at which predator Y eats prey X
+    # load up file like above 
+    file_name = "data.traits"
+    group_name = "DARWIN_TRAITS"
+    rundir = joinpath(config_obj.folder, config_obj.ID, "run")
+    # read the contents of the data file into a namelist 
+    data_file = file_name
+    fil = joinpath(rundir, data_file)
+    nml = read(fil, MITgcm_namelist())
+    # which param group do you want to modify?
+    nmlgroup = group_name
+    group_idx =findall(nml.groups.==Symbol(nmlgroup))[1]
+    parms = nml.params[group_idx]
+
+    # remove all lines with form PALAT()
+    for key in keys(parms)
+        if occursin("PALAT(", String(key)) 
+            # remove entry 
+            delete!(parms, key)
+        end
+    end
+
+    # TODO: faster way to do this? element-wise?
+    # add new palat key-element pairs to dictionary
+    for x in 1:length(matrix[:, 1])
+        for y in 1:length(matrix[1, :]) 
+            if matrix[x,y] != 0 #(don't write if 0)
+                key = "PALAT($x, $y)"
+                parms[Symbol(key)] = matrix[x, y]
+            end
+        end
+    end
+
+    # write to file 
+    nml.params[group_idx] = parms
+    temp_file =fil
+    write(temp_file, nml)
 end
