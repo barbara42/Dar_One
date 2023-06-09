@@ -13,7 +13,7 @@ The initial parameters that were set include all nutrient tracers (TRAC01-TRAC20
 You can find the code HERE [link]. 
 
 
-# Case Study B 
+# Case Study B - Global Steady state 
 
 Grid experiment 
 
