@@ -2,6 +2,9 @@
 
 Built off of Gael Forget's MITgcmTools! (https://github.com/gaelforget/MITgcmTools.jl)
 
+[DAR1 Documentation](https://barbara42.github.io/Dar_One/build/)
+- [tutorials](https://barbara42.github.io/Dar_One/build/beginner_tutorials/)
+- [case studies](https://barbara42.github.io/Dar_One/build/case_studies/)
 
 ##  Overview of program structure 
 
