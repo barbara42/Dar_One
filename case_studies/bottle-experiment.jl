@@ -7,7 +7,17 @@ using NCDatasets
 # the path to the Darwin version of the MITgcm
 MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" 
 
-#build(base_configuration)
+nX = 1
+nY = 1
+
+# update SIZE.h 
+update_grid_size(nX, nY)
+
+# which nutrients can change?
+param_list = ones(19) # let all nutrients cycle normally
+hold_nutrients_constant(param_list)
+
+build(base_configuration)
 
 # load seed files - these are from global darwin runs 
 seed_file_3d = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/darwin_weekly_seasonal/3d.nc"
@@ -79,8 +89,6 @@ for i in 1:3
         update_tracer(config_obj, 4, new_no3_val)
     end
     dar_one_run(config_obj)
-
-
 end
 
 
