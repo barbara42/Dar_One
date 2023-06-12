@@ -18,11 +18,8 @@ seed_ds_temp = Dataset(seed_file_temp)
 seed_ds_par = Dataset(seed_file_par)
 
 # note: these are INDICES not values 
+# hawaii ish 
 depth = 1
-# # hawaii ish 
-# lon = 203
-# lat = 105
-
 lon = 203
 lat = 109
 t = 1

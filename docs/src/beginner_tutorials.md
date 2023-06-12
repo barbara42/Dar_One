@@ -97,3 +97,35 @@ To recap, in this example we created a 4x4 grid of DAR1s, each with the same ini
 
 # Constant Nutrients 
 
+In a normal DAR1 configuration, the nutrients cycle through organic pathways and are then remineralized. When organisms grow, they take the nutrients out of the water and turn them into biomass. In a "constant nutrient" state, however, we can hold the amount of nutrients available in the water constant, so that the uptake by organisms doesn't deplete the reserve. 
+
+With DAR1 you can hold any subset of the nutrients constant. As with a grid setup, this requires built-time changes, made by using the `hold_nutrients_constant` method before building. There are 19 nutrient tracers (DIC, NO3, NO2, NH4, PO4, SiO2, FeT, DOC, DON, DOP, DOFe, PIC, POC, PON, PIP, PISi, POFe, ALK, O2), and `hold_nutrients_constant` takes a list of length 19, each element representing the nutrients in the order they are listed. In that list, a 0 represents holding a nutrient constant (dN/dt = 0), and 1 means that the concentration of that nutrient will be depleted and replentished with biomass growth and remineralization. 
+
+To set all nutrients constant, use the following code 
+
+```
+param_list = zeros(19) # hold everything constant 
+hold_nutrients_constant(param_list)
+# BUILD 
+build(base_configuration)
+```
+
+Here is an example of allowing most nutrients to cycle, but hold only iron (FeT) constant. 
+
+```
+param_list = zeros(19) # hold everything constant 
+param_list[7] = 1 # FeT is 7th in the list of nutrients (TRAC07)
+hold_nutrients_constant(param_list)
+# BUILD 
+build(base_configuration)
+```
+
+After doing this once, in the future you should always specify which nutrients you hold constant or allow to cycle in future builds. To make sure all nutrients are allowed to cycle, use the following code 
+
+```
+param_list = ones(19) # let all nutrients cycle 
+hold_nutrients_constant(param_list)
+# BUILD 
+build(base_configuration)
+```
+
