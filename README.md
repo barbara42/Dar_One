@@ -26,6 +26,8 @@ DAR1 can be run in one of two ways.
 # Setting up with docker
 
 (1) Download and install [docker desktop](https://www.docker.com/).
+- Run the docker application, which will start up the docker "daemon" 
+- The docker daemon must be running in order to download the DAR1 image
 
 (2) Get the [DAR1_docker image](https://hub.docker.com/repository/docker/birdy1123/DAR1_docker).
 - using the command line, run 

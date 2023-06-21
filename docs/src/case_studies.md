@@ -1,19 +1,78 @@
+# Case Studies
+
+A step by step guide to the code for the three case studies presented in (TODO: link preprint). 
+
+Contents 
+- [Bottle Experiment](#case-study-a---bottle-experiment)
+- [Global Steady state](#case-study-b---global-steady-state)
+- [Nitrogen Fixers Niche](#case-study-c---nitrogen-fixers-niche)
+
+# Before you begin
+
+If you haven't already, follow the [getting started](@ref) instructions, which will guide you through installation, general program structure, and workflow. 
+
+This guide to the case studies assumes you are using docker or otherwise working from a command line. If you would rather have a graphical interface, you can use the [Docker extension in VS Code](https://code.visualstudio.com/docs/containers/overview). 
+
+For each case study, there is a build file and a run file. These instructions will have you open each file, explain the contents, then close it and execute it with the `julia` command from the command line. 
+
+If you are using the docker, you can find the code for the case students in the `/dar_one_docker/Dar_One/case_studies` directory. 
+
+```bash
+cd /dar_one_docker/Dar_One/case_studies
+ls
+```
+You should see the following six files listed. 
+
+```
+bottle_experiment_build.jl
+bottle_experiment_run.jl
+global_steadystate_build.jl
+global_steadystate_run.jl  nitrogen_fixers_run.jl
+nitrogen_fixers_build.jl
+```
+
+Each case study has a file to build the Darwin model and a file to run it. As explained in the getting started document, you only need to run the build step when making structural changes to your experiments -  such as a new grid size, setting ambient nutrients to be constant or cycling, or a new number of plankton tracers. After building once, you can change other parameters from run to run without building again - such as nutrient levels, plankton abundances, temperature, and light. 
 
 # Case Study A - Bottle Experiment 
 
-A simple nutrient amendment experiment. 
+A simple nutrient amendment experiment. What happens if we take a plankton community that is nitrogen limited and add nitrogen? 
 
-In this experiment, DAR1 is initialized with values from a global DARWIN run, provided HERE [link]. Initial parameter values were taken from X=203 and Y=108 (lon = 203.5, lat = 28.5). In the control run, nothing was modified. For the bottle experiment run, nitrate values were increased 10x. 
+## Overview 
+In this experiment, DAR1 is initialized with values from a global DARWIN run, provided HERE [link]. Initial parameter values were taken from location X=203 and Y=108 (lon = 203.5, lat = 28.5). In the control run, nothing was modified. For the bottle experiment run, nitrate values were increased 10x. 
+
+![bottle experiment](images/bottle_experiment.png)
 
 The initial parameters that were set include all nutrient tracers (TRAC01-TRAC20), all biomass tracers excluding diazotrophs (TRAC21-TRAC29, TRAC35-TRAC70), PAR at a depth of 45m, and temperature. It was set to run for 7 days (56 iterations), writing to diagnostic files every 4 hours (14400 seconds).
 
-You can find the code HERE [link]. 
+You can find the code on github [here](https://github.com/barbara42/Dar_One/tree/main/case_studies). 
 
-First we run the build step. 
+## Code Walkthrough 
+
+From the Docker command line, we can open up the bottle_experiment_build.jl file using the following command
+```bash
+vim bottle_experiment_build.jl
+```
+Reminder that we are in the `/dar_one_docker/Dar_One/case_studies` directory. Use the arrow keys to navigate the cursor around with vim, `i` to enter insert mode, `esc` to exit the mode, and `:q` to close the file. We will walk through all the code in this file before running it. 
+
+You will see these lines of code at the top of the file. 
+
+```
+include("../src/DarOneTools.jl")
+using .DarOneTools
+# other packages 
+using ClimateModels
+using NCDatasets
+```
+
+This loads up DarOneTools, then imports it along with the ClimateModels and NCDatasets packages. You will see these lines of code repeated at the top of every file we work with from here on out! 
+
+Next we have to let  `MITgcm_path[1]` point to the directory where the Darwin Fortran code lives, establish that we are working with a 1x1 parcel of water (instead of running multiple grid cells at once), and we want to allow all nutrients to freely cycle (intead of holding the concentrations in the water constant). 
+
+Note that if you are not using Docker, you will have to change the `MITgcm_path[1] = "directory/to/darwin"` line of code to contain the directory in which the Darwin fortran code is. 
 
 ```
 # the path to the Darwin version of the MITgcm
-MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" 
+MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME if not using Docker
 
 nX = 1
 nY = 1
@@ -27,13 +86,41 @@ hold_nutrients_constant(param_list)
 
 build(base_configuration)
 ```
+With the `build` command, we are done with the `bottle_experiment_build.jl` file! With vim, make sure you are not in insert mode by pressing `esc` then close the file by typing `:q` + enter. 
+
+Back in the Docker bash command line, we will run the bottle experiment build file with the command 
+```bash
+julia bottle_experiment_build.jl
+```
+A bunch of info will be printed to the console as the model is building. Just hang tight for a minute or two and wait until you see a "successful build" message. 
+
+Next we will open the bottle experiment run file.
+```
+vim bottle_experiment_run.jl
+```
+
+We will go through every line of code in this file before we close it and run it from the docker command line. 
+
+Again you will the line of code loading and importing DarOneTools and the NCDatasets and ClimateModels packages, along with the line of code that points to the Darwin fortran directory. 
+
+```
+include("../src/DarOneTools.jl")
+using .DarOneTools
+# other packages 
+using ClimateModels
+using NCDatasets
+
+# the path to the Darwin version of the MITgcm
+MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" 
+```
+
 Next, we load up the files using to set initial values for tracers, taken from a surface point in a global MITgcm Darwin run. 
 
 ```
 # load seed files - these are from global darwin runs 
-seed_file_3d = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/darwin_weekly_seasonal/3d.nc"
-seed_file_temp = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/darwin_weekly_seasonal/tave.nc"
-seed_file_par = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/darwin_weekly_seasonal/par.nc"
+seed_file_3d = "/dar_one_docker/3d.nc"
+seed_file_temp = "/dar_one_docker/tave.nc"
+seed_file_par = "/dar_one_docker/par.nc"
 seed_ds_3d = Dataset(seed_file_3d)
 seed_ds_temp = Dataset(seed_file_temp)
 seed_ds_par = Dataset(seed_file_par)
@@ -62,7 +149,7 @@ For each experiment, we first set up the config.
     config_obj, rundir = create_MITgcm_config(config_id)
     setup(config_obj)
 ```
-Set the length of the run to be 7 days (each iteration is 3 hours; `8 iterations per day * 7 days = 56`), writing to diagnostics every 4 hours (`4 hr * 60 min/hr * 60 seconds/min`)
+Set the length of the run to be 7 days (each iteration is 3 hours; `8 iterations per day * 7 days = 56`), writing to diagnostics every 4 hours. 
 ```
     # length of run 
     end_time = 56 # 2880 = one year, in iterations

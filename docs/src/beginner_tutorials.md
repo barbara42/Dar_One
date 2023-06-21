@@ -153,7 +153,7 @@ update_grid_size(nX, nY)
 build(base_configuration)
 ```
 
-!!!note 
+!!! note 
     If you change grid size, you MUST rebuild 
 
 If you do not want to change the size of the grid, you do not have to rebuild for each run. 
