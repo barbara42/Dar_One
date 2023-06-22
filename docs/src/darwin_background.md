@@ -7,7 +7,7 @@ biomass TRAC21-TRAC70
 
 Refer to the chart for size classes, functional groups, and grazing preferences 
 
-![cheat sheet](darwin_cheatsheet.png)
+![cheat sheet](images/darwin_cheatsheet.png)
 
 
 

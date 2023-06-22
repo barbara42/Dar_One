@@ -28,23 +28,24 @@ DAR1 can be run in one of two ways.
 
 (1) Download and install [docker desktop](https://www.docker.com/).
 - Run the docker application, which will start up the docker "daemon" 
-- The docker daemon must be running in order to download the DAR1 image
+- The docker daemon must be running in order to download the DAR1 image and to start up a container
 
-(2) Get the [DAR1_docker image](https://hub.docker.com/repository/docker/birdy1123/DAR1_docker).
+(2) Get the [DAR1_docker image](https://hub.docker.com/repository/docker/birdy1123/dar1).
 - using the command line, run 
 
-    `docker pull birdy1123/DAR1_docker`
+    `docker pull birdy1123/dar1`
 
 - If you go to the "Images" tab in the docker desktop UI, you should see "birdy1123/DAR1_docker"
 
 (3) Run a container based on the DAR1_docker image
 - using the command line, run 
 
-    `docker run -it birdy1123/DAR1_docker` 
+    `docker run -it birdy1123/dar1` 
 - this runs the container in interactive mode (`-i`) with terminal access (`-t`) 
-- you should see the prompt change to `root@some-number:/DAR1_docker#`
+- you should see the prompt change to `root@some-number:/dar_one_docker#`
+- once the container is running, you can also connect to a new bash terminal inside the container using the command `docker exec -it container_id /bin/bash`. The container id can be found in the Docker desktop app or the "some-number" that appears in the previous bullet point. 
 
-You're now ready for the [beginner tutorial](beginner_tutorial)!
+You're now ready for the [beginner tutorial](https://barbara42.github.io/Dar_One/build/beginner_tutorials/)!
 
 
 ## Setting up on local machine
