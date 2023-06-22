@@ -2,6 +2,9 @@
 
 Built off of Gael Forget's MITgcmTools! (https://github.com/gaelforget/MITgcmTools.jl)
 
+[DAR1 Documentation](https://barbara42.github.io/Dar_One/build/)
+- [tutorials](https://barbara42.github.io/Dar_One/build/beginner_tutorials/)
+- [case studies](https://barbara42.github.io/Dar_One/build/case_studies/)
 
 ##  Overview of program structure 
 
@@ -23,8 +26,10 @@ DAR1 can be run in one of two ways.
 # Setting up with docker
 
 (1) Download and install [docker desktop](https://www.docker.com/).
+- Run the docker application, which will start up the docker "daemon" 
+- The docker daemon must be running in order to download the DAR1 image
 
-(2) Get the [DAR1_docker image](https://hub.docker.com/repository/docker/birdy1123/DAR1_docker).
+(2) Get the [DAR1_docker image](https://hub.docker.com/repository/docker/birdy1123/dar1).
 - using the command line, run 
 
     `docker pull birdy1123/DAR1_docker`

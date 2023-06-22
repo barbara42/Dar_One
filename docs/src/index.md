@@ -1,4 +1,4 @@
-# Dar_One Documentation  
+# Modifying Parameters 
 
 **Organzied descriptions of how to modify certain parameters for Dar_One**
 
@@ -105,43 +105,11 @@ using NCDatasets
 seed_file_3d = "path/to/file/3d.nc"
 seed_ds_3d = Dataset(seed_file_3d)
 ```
-
-
-
-
-Using lists 
-
-
-
-# Advanced Stuff 
-
-## Sunlight
-gonna have to make files and change params 
-
-## Predetor/Prey Interactions 
-
-ummm idk yet 
+To be finished soon... 
 
 ## Update Generic Parameter  
 
 ```@docs
 update_param
 ```
-
-## Output Description 
-
-Explanation of all the different output files 
-
-2d.0000000000.t001.nc			chl.0000002880.t001.nc
-2d.0000002880.t001.nc			grid.t001.nc
-3d.0000000000.t001.nc			nutr_tend.0000000000.t001.nc
-GR.0000000000.t001.nc			nutr_tend.0000002880.t001.nc
-GR.0000002880.t001.nc			par.0000000000.t001.nc
-GRGN.0000000000.t001.nc			par.0000002880.t001.nc
-GRGN.0000002880.t001.nc			ptr_flux_tave.0000002880.t001.nc
-PC.0000000000.t001.nc			ptr_tave.0000002880.t001.nc
-PC.0000002880.t001.nc			ptracers.0000000000.t001.nc
-PP.0000000000.t001.nc			ptracers.0000002880.t001.nc
-PP.0000002880.t001.nc			tave.0000002880.t001.nc
-chl.0000000000.t001.nc
 

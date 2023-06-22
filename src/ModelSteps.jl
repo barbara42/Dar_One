@@ -162,6 +162,7 @@ function setup(config::MITgcm_config)
     # note: must propagate change to the config obj
     # TODO: test by printing the config id in a run  
     if isdir(joinpath(config.folder,string(config.ID)))
+        dt = now()
         date = Dates.format(dt, "yyyy-mm-dd-HH-MM-SS")
         config.ID = config.ID * date
     end
