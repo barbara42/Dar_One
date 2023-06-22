@@ -2,6 +2,10 @@
 
 DAR1 is a tool for designing and running experiments simulating the marine microbiome within a single cube of water. The biogeochemical forcing is powered by the [MIT Darwin Model](https://darwinproject.mit.edu/), and DAR1 provides a Julia interface to build, configure, and run experiments with a simple, streamlined workflow. 
 
+![dar1 ecosystem](images/dar1_ecosystem.png)
+
+DAR1 Model Configuration: The DAR1 system models a single, well mixed parcel of water. The standard configuration consists of the DARWIN ecosystem-biogeochemical model, with free gas exchange with the atmosphere. Horizontal and other vertical fluxes are set to zero. These conditions can be modified by the user.
+
 # Basic Structure 
 
 DAR1 is composed of three main parts: the MITgcm Darwin code, a configuration made for DAR1, and the julia interface to modify the configuration and run the model. 
@@ -54,4 +58,73 @@ In depth instructions coming soon :)
 
 # Workflow
 
+For more in-depth instructions, check out the [beginner tutorials](https://barbara42.github.io/Dar_One/build/beginner_tutorials/)
 
+In general, experiments with DAR1 are divided into two main steps 
+1. Building
+    - grid size
+    - nutrient cycling
+2. Running
+    - set up experiment config
+    - initialize parameters
+
+I like to separate these out into two scripts because the build step only has to be done once for each experiment setup. After you settle on what grid size to use (classically 1x1) and what nutrient setup (classically freely cycling, can also be set to constant available nutrients), you can modify all other parameters without having to re-build. 
+
+I recommend creating a folder at the top level of the `Dar_One` directory with the name `your-name-experiments`, and putting all scripts you create in there. 
+
+For every DAR1 script, you will first import DarOneTools. 
+```
+include("../src/DarOneTools.jl")
+using .DarOneTools
+```
+
+Next you must always make sure you have a line specifying the correct value for `MITgcm_path[1]`. If you are using the docker, it will be set to "/dar_one_docker/darwin3". Otherwise, you will point it to the direcotry of [darwin3](https://github.com/darwinproject/darwin3) on your local machine. 
+
+```
+# the path to the Darwin version of the MITgcm
+MITgcm_path[1] = "/dar_one_docker/darwin3" 
+```
+
+You build with the following function.
+
+```
+build(base_configuration)
+```
+Once the model has been built, you can run multiple experiments with different values for the intial parameters. I like to put the previous code in one file, and the code to initialize and run an experiment in another.
+
+For the run script, you will also have to import DarOneTools and set the MITgcm path. 
+
+```
+include("../src/DarOneTools.jl")
+using .DarOneTools
+
+# the path to the Darwin version of the MITgcm
+MITgcm_path[1] = "/dar_one_docker/darwin3" 
+```
+
+Set up experiment config id 
+
+```
+config_id = "unique-experiment-name" # CHANGE ME
+config_obj, rundir = create_MITgcm_config(config_id)
+setup(config_obj)
+```
+
+The next step is to modify parameters (in-depth descriptions in [beginnger tutorial](https://barbara42.github.io/Dar_One/build/beginner_tutorials/)). For modifying parameters, you will need to pass the `config_obj` to each update function. 
+
+Then run the model. 
+
+```
+run(config_obj)
+```
+
+To recap the basic workflow: 
+- Always import `DarOneTools` and set `MITgcm_path`
+- Build
+    - set your grid size
+    - set nutrients to cycle or stay constant 
+    - build
+- Run
+    - setup experiment config
+    - modify parameters 
+    - run

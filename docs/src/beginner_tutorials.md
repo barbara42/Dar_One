@@ -257,6 +257,9 @@ hold_nutrients_constant(param_list)
 build(base_configuration)
 ```
 
+!!! note 
+    If you change nutrient cycling, you MUST rebuild 
+
 After doing this once, in the future you should always specify which nutrients you hold constant or allow to cycle in future builds. To make sure all nutrients are allowed to cycle, use the following code 
 
 ```

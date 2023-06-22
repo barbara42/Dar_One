@@ -1,6 +1,6 @@
 # Case Studies
 
-A step by step guide to the code for the three case studies presented in (TODO: link preprint). 
+A step by step guide to the code for the three case studies presented in our paper (to come). 
 
 Contents 
 - [Bottle Experiment](#Case-Study-A-Bottle-Experiment)
@@ -27,7 +27,8 @@ You should see the following six files listed.
 bottle_experiment_build.jl
 bottle_experiment_run.jl
 global_steadystate_build.jl
-global_steadystate_run.jl  nitrogen_fixers_run.jl
+global_steadystate_run.jl
+nitrogen_fixers_run.jl
 nitrogen_fixers_build.jl
 ```
 You can also find the code on github [here](https://github.com/barbara42/Dar_One/tree/main/case_studies). 
