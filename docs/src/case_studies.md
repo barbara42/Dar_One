@@ -95,7 +95,7 @@ julia bottle_experiment_build.jl
 A bunch of info will be printed to the console as the model is building. Just hang tight for a minute or two and wait until you see a "successful build" message. 
 
 Next we will open the bottle experiment run file.
-```
+```bash
 vim bottle_experiment_run.jl
 ```
 
@@ -111,7 +111,7 @@ using ClimateModels
 using NCDatasets
 
 # the path to the Darwin version of the MITgcm
-MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3" 
+MITgcm_path[1] = "/dar_one_docker/darwin3" 
 ```
 
 Next, we load up the files using to set initial values for tracers, taken from a surface point in a global MITgcm Darwin run. 
@@ -190,7 +190,8 @@ We initialize all of the nutrients and the plankton community from the seed file
     update_tracers(config_obj, zoo, seed_ds_3d, lon, lat, depth, t)
     update_tracers(config_obj, bacteria, seed_ds_3d, lon, lat, depth, t)
 ```
-For the second iteration, we add extra NO3. For the third, we add extra NH4. 
+For the second iteration, we add extra NO3. For the third, we add extra NH4. Note that here, we are using the "tracer id" to change the nutrients - NO3 is tracer 2, NH4 is tracer 4. You can find a list of all tracers and their corresponding IDs in the [darwin background](@ref) section. 
+
 ```
     if i == 2
         # add extra NO3
@@ -207,18 +208,39 @@ For the second iteration, we add extra NO3. For the third, we add extra NH4.
         update_tracer(config_obj, 4, new_no3_val)
     end
 ```
-Lastly, we call the run function! 
+Lastly, we call the run function.
 ```
 dar_one_run(config_obj)
 ```
+With the `run` command, we are done with the `bottle_experiment_run.jl` file! With vim, make sure you are not in insert mode by pressing `esc` then close the file by typing `:q` + enter. 
+
+Back in the Docker bash command line, we will run the bottle experiment run file with the command 
+```bash
+julia bottle_experiment_run.jl
+```
+It will take a few seconds to start up, but eventually you will see output being printed to the console. 
+
+## Output 
+The final output will be in a netcdf file in the directory path/to/file. In order to copy it back over to your local machine, you will need to open a terminal on your machine (NOT within the docker container) and use the `docker cp` command (`docker cp container-id:/path/filename.txt ~/Desktop/filename.txt`). You can get the container id from the docker command prompt (root@container-id:/dar_one_docker). 
+
+```
+docker cp container-id:/path/filename.txt ~/Desktop/filename.txt
+```
+Now you have a netcdf file on your local machine to explore however you prefer! In depth descriptions of all the output files can be found in [Darwin Background](@ref).
+
+
 
 # Case Study B - Global Steady state 
 
-Grid experiment 
-
 See the grid section of the documentation [TODO link] to learn the details of how to run DAR1 in parallel. 
 
+## Overview 
+
 The 360 x 160 matrix was divided in 16 parts, each 90 x 40. After running, the 16 tiles were stitched together again. Prior to building, we specify this grid size, and make sure all nutients are allowed to cycle normally (i.e. the available amount in the water is not held constant)
+
+TODO 
+
+## Code Walkthrough
 
 Here is the code for the build step (also found HERE [LINK])
 ```
@@ -314,7 +336,7 @@ Next we initialize all of the tracer values using the seed files, with the excep
             init_tracer_grid(config_obj, tracer_name, init_matrix)
         end
 ```
-Lastly, we set the temperature for each grid cell according to the MITgcm Darwin yearly average, as well a the light. 
+Lastly, we set the temperature for each grid cell according to the MITgcm Darwin yearly average, as well as the light. 
 
 ```
         # create bin file for temperatures - all 15 degrees
@@ -334,6 +356,9 @@ The final "steady state" values were calculated by averaging the last 2 years.
 
 Code to run the grid of DAR1s can be found here [LINK], and here [LINK] is the code for stitching the files together. Here [todo LINK] is the ipython notebook for calculating the Bray-Curtis Dissimilarity index between the yearly averages of the global DARWIN run and the steady state DAR1 runs. 
 
+## Output 
+
+
 ## Bray-Curtis Dissimilarity
 
 TODO
@@ -342,22 +367,52 @@ TODO
 
 This is the experiment that inspired the ability to hold the nutients readily available in the water constant because without it nitrogen fixers might flood the system with nitrogen. 
 
-For this experiment, we create a 30x30 grid and set all nutrients to be held constant before running the build step. 
+## Overview 
 
+We will run a 30x30 grid of DAR1s each initialized with the same plankton community and nutrients, with the exception of nitrate and phosphate. Nitrate levels in each grid cell will increase along one axis, while phosphate levels will increase along the y-axis. Nutrient values are grabbed from the MITgcm Darwin output, but with iron at 100x and all other nutrients at 10x, and other sources of nitrogen besides NO3 (NO2, NH4, and DON) set to zero. The goal is to flood the system with nutrients, making sure it that nitogen and phosphate are the limiting factors. The simulation is run forward for 5 years with the average of the last year taken to represent the steady state result. 
+
+## Code Walkthrough 
+From the `/dar_one_docker/Dar_One/case_studies` directory, we can open the nitrogen_fixers_build.jl file with vim. Because we are changing the number of grid cells we are running, we have to build the model again with these new dimensions. 
+
+```bash
+vim nitrogen_fixers_build.jl
+```
+
+You should see the same imports at the top of the file as previously mentioned, in addition to the line `MITgcm_path[1] = "/dar_one_docker/darwin3"`. (Reminder that you will have to point this to your local directory containing the Darwin code if you are not using the docker.)
+
+First we update our grid size to be 30x30
 ```
 # set up size of your grid 
 nX = 30
 nY = 30 
 update_grid_size(nX, nY)
-
+```
+Next, we specify that we want all 19 nutrient tracers to be held constant by passing in a param list of all zeros. If we wanted to allow all nutrients to cycle normally, we would pass in a list of all ones. See the section on constant nutrients in the [beginner tutorial](@ref) page for more information. 
+```
 # which nutrients can change?
-param_list = zeros(19) # hold everything constant 
+param_list = zeros(19) # hold everything constant (0 = constant, 1=cycle)
 hold_nutrients_constant(param_list)
-
+```
+Lastly, we call the build function with the base configuration. 
+```
 # BUILD 
 build(base_configuration)
 ```
-(code is in case_studies/nitrogen_fixers_build.jl)
+
+Now we can close the nitrogen_fixers_build.jl file. With vim, make sure you are not in insert mode by pressing `esc` then close the file by typing `:q` + enter. 
+
+Back in the Docker bash command line, we will run the file with the command 
+```bash
+julia nitrogen_fixers_build.jl
+```
+A bunch of info will be printed to the console as the model is building. Just hang tight for a minute or two and wait until you see a "successful build" message. 
+
+Now we will take a look at the `nitrogen_fixers_run.jl` file. Open it using the command 
+
+```bash
+vim nitrogen_fixers_run.jl
+```
+First up in the file is the import statements for Dar1 and other packages. 
 
 Next we do the typical set-up for a DAR1 run - set the path for MITgcm to point to where the MITgcm code is, choose a unique config name for the experiment, and set up the config object. 
 
@@ -371,7 +426,7 @@ config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 ```
 
-After the setup step, we set the time for the simulation to run to be 5 years, in "iteration steps". (Remember: the MIT Darwin model is set up to step forward 3 hours for each iteration, so we have `8 iterations per day * 360 days = 2880`), writing to the diagnostic files every 1 year in seconds. Running for 5 years was chosen by visually looking at longer runs of the same setup and seeing a quasi-steady state reached by that point. We write to only once a year to improve runtime performance, because we are only interested in the average values of the last year. 
+After the setup step, we set the time for the simulation to run to be 5 years, in "iteration steps". (Remember: the MIT Darwin model is set up to step forward 3 hours for each iteration, so we have 8 iterations per day * 360 days = 2880 iterations per year), writing to the diagnostic files every 1 year in seconds. Running for 5 years was chosen by visually looking at longer runs of the same setup and seeing a quasi-steady state reached by that point. We write to only once a year to improve runtime performance, because we are only interested in the average values of the last year. 
 
 ```
 # length of run 
@@ -404,7 +459,8 @@ y = 135
 z= 1
 t = 1 # using yearly averages 
 ```
-Next, we initialize the plankton community, excluding mixotrophic dinoflagellates. Each grid cell starts out with the same quantity of plankton. 
+Next, we initialize the plankton community, excluding mixotrophic dinoflagellates. Each grid cell starts out with the same quantity of plankton. Reminder that you can see a list of all the plankton tracers, their IDs, and functional groups on the [darwin backgroung](@ref) page. 
+
 ```
 # start with the same plankton community in each cell 
 for tracer_id in 21:70
@@ -466,8 +522,23 @@ y = 105
 z=2 # lower value for light - farther into the water column
 update_radtrans(config_obj, seed_ds_par, x, y, z, t)
 ```
-Then, we run! 
+Lastly we call the run function, passing it our config object that was created earlier in the file.
 ```
 # FINALLY! Run! 
 dar_one_run(config_obj)
 ```
+Now we can close that file. With vim, make sure you are not in insert mode by pressing `esc` then close the file by typing `:q` + enter. We then run the file using the command 
+
+```bash
+julia nitrogen_fixers_run.jl
+```
+It will take a few seconds for it to begin running, but you will eventually see a message indicating that the model is running, along with some warnings you can ignore. After a couple minutes, the model with finish with an obvious message saying that the run did not fail!
+
+## Output 
+
+The final output will be in a netcdf file in the directory path/to/file. In order to copy it back over to your local machine, you will need to open a terminal on your machine (NOT within the docker container) and use the `docker cp` command (`docker cp container-id:/path/filename.txt ~/Desktop/filename.txt`). You can get the container id from the docker command prompt (root@container-id:/dar_one_docker). 
+
+```
+docker cp container-id:/path/filename.txt ~/Desktop/filename.txt
+```
+Now you have a netcdf file on your local machine to explore however you prefer! In depth descriptions of all the output files can be found in [Darwin Background](@ref).

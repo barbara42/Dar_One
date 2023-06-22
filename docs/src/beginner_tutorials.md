@@ -138,8 +138,6 @@ Here's all our output, in [netCDF](https://www.unidata.ucar.edu/software/netcdf/
 
 The `3d.nc` file contains information about nutrient levels and the biomass of all the phytoplankton types. 
 
-
-
 # Grid 
 
 MITgcm DARWIN is built to run in a grid, calculating the fluxes as things flow from one grid cell to another. By turning off advection and diffusion between grid cells, we can essentially run DAR1 in parallel. That is, multiple blocks of water that do not interact with each other. 
