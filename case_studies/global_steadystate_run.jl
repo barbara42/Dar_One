@@ -23,9 +23,9 @@ nY = 40
 
 # load seed files - these are from global darwin runs
 # yearly average!  
-seed_file_3d = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/darwin_yearly_avg/3d.nc"
-seed_file_temp = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/darwin_yearly_avg/tave.nc"
-seed_file_par = "/Users/birdy/Documents/eaps_research/gcm_analysis/gcm_data/darwin_yearly_avg/par.nc"
+seed_file_3d = "/dar_one_docker/3d.nc"
+seed_file_temp = "/dar_one_docker/tave.nc"
+seed_file_par = "/dar_one_docker/par.nc"
 seed_ds_3d = Dataset(seed_file_3d)
 seed_ds_temp = Dataset(seed_file_temp)
 seed_ds_par = Dataset(seed_file_par)

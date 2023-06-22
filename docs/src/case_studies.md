@@ -3,9 +3,9 @@
 A step by step guide to the code for the three case studies presented in (TODO: link preprint). 
 
 Contents 
-- [Bottle Experiment](#case-study-a---bottle-experiment)
-- [Global Steady state](#case-study-b---global-steady-state)
-- [Nitrogen Fixers Niche](#case-study-c---nitrogen-fixers-niche)
+- [Bottle Experiment](#Case-Study-A-Bottle-Experiment)
+- [Global Steady state](#Case-Study-B-Global-Steady-State)
+- [Nitrogen Fixers Niche](#Case-Study-C-Nitrogen-Fixers-Niche)
 
 # Before you begin
 
@@ -230,7 +230,7 @@ Now you have a netcdf file on your local machine to explore however you prefer! 
 
 
 
-# Case Study B - Global Steady state 
+# Case Study B - Global Steady State 
 
 See the grid section of the documentation [TODO link] to learn the details of how to run DAR1 in parallel. 
 
