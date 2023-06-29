@@ -74,7 +74,7 @@ git clone https://github.com/darwinproject/darwin3.git
 Once darwin3 code is cloned, we will navigate to the `/verification` folder underneath it. 
 
 ```
-cd verification
+cd darwin3/verification
 ```
 Here, under `darwin3/verification`, we will clone the `dar_one_config` repository. 
 
@@ -93,13 +93,15 @@ In order to build and run the MITgcm on your machine, you need to have the follo
 - gfortran
 - netcdf 
 
+
+
 For the Julia code, you will need to install julia and the following packages 
 - OrderedCollections
 - Suppressor
 - ClimateModels
 - NCDatasets
 
-These dependencies are also listed in the file at the top level of `Dar_One/packages.jl`. You can automatically install the Julia dependencies by running `julia packages.jl`.
+The Julia dependencies are also listed in the file at the top level of `Dar_One/packages.jl`. You can automatically install the Julia dependencies by running `julia packages.jl`.
 
 If you get errors when building the model, see the [MITgcm getting started guide](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html#) to help troubleshoot.  
 
