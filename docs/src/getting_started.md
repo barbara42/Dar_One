@@ -54,7 +54,79 @@ You're now ready for the [beginner tutorial](https://barbara42.github.io/Dar_One
 
 ## Setting up on local machine
 
-In depth instructions coming soon :) 
+You will need to clone 3 git repositories
+- DAR1
+- darwin3 
+- dar_one_config
+
+First, we will clone the DAR1 code. 
+
+```
+git clone https://github.com/barbara42/Dar_One.git
+```
+
+Then in a directory of your choosing, clone the MITgcm Darwin code. I put this in a folder called "climate_models" on my desktop.
+
+```
+git clone https://github.com/darwinproject/darwin3.git
+```
+
+Once darwin3 code is cloned, we will navigate to the `/verification` folder underneath it. 
+
+```
+cd verification
+```
+Here, under `darwin3/verification`, we will clone the `dar_one_config` repository. 
+
+```
+git clone https://github.com/barbara42/dar_one_config.git
+```
+
+After these steps, you should have 
+1. the DAR1 source code 
+2. the darwin3 source code
+3. the `dar_one_config` code nested under `darwin3/verification`
+
+### Dependencies 
+
+In order to build and run the MITgcm on your machine, you need to have the following installed as well
+- gfortran
+- netcdf 
+
+For the Julia code, you will need to install julia and the following packages 
+- OrderedCollections
+- Suppressor
+- ClimateModels
+- NCDatasets
+
+These dependencies are also listed in the file at the top level of `Dar_One/packages.jl`. You can automatically install the Julia dependencies by running `julia packages.jl`.
+
+If you get errors when building the model, see the [MITgcm getting started guide](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html#) to help troubleshoot.  
+
+You can also see the dockerfile used [here]()
+
+```
+FROM --platform=linux/amd64 ubuntu:latest 
+WORKDIR /dar_one_docker
+COPY . . 
+
+RUN apt-get update -y
+RUN apt-get install wget -y
+RUN apt-get install vim -y
+
+# download, install, and link julia 
+RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.2-linux-x86_64.tar.gz
+RUN tar zxvf julia-1.8.2-linux-x86_64.tar.gz
+ENV PATH="${PATH}:/dar_one_docker/julia-1.8.2/bin"
+# install julia packages 
+RUN julia packages.jl
+
+# other dependencies 
+RUN apt-get install -y gfortran make 
+RUN apt-get install -y python-is-python3
+# future: try netcdf-bin instead? does it still work? 
+RUN apt-get install -y libnetcdff-dev 
+```
 
 # Workflow
 
