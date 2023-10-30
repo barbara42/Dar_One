@@ -6,8 +6,8 @@ using NCDatasets
 MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 
 # set up size of your grid 
-nX = 30
-nY = 30
+nX = 10
+nY = 10
 
 # # update SIZE.h 
 # update_grid_size(nX, nY)
@@ -20,16 +20,16 @@ nY = 30
 # build(base_configuration)
 
 # create and set up config 
-config_name = "n_30x30"
+config_name = "periscope_10x10"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
 # length of run 
-end_time = 2880 * 5 # 2880 = one year, in iterations
+end_time = 2880 * 1 # 2880 = one year, in iterations
 update_end_time(config_obj, end_time)
 
 # output frequency 
-frequency = 2592000*12 # 2592000 = one month, in seconds
+frequency = 2592000 # 2592000 = one month, in seconds
 update_all_diagnostic_freqs(config_obj, frequency)
 
 new_temp = 24
@@ -52,10 +52,6 @@ t = 1 # using yearly averages
 for tracer_id in 21:70
     tracer_name = tracer_id_to_name(tracer_id)
     val = seed_ds[tracer_name][x, y, z, t]
-    # no mixotrophic dinoflagellates 
-    if 44 <= tracer_id <= 51
-        val = 0
-    end 
     init_list = repeat([val], nX)
     dim = "x"
     init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
@@ -75,18 +71,12 @@ for tracer_id in 1:20
     end
     init_list = repeat([val], nX)
     dim = "x"
-    # add TONS of iron
-    if tracer_id == 6
-        init_list = init_list .* 100
-    else # also make everything else MORE  
-        init_list = init_list .* 10
-    end
     init_tracer_grid(config_obj, tracer_name, init_list, dim, (nX,nY))
 end
 
 # set increasing phosphate along y axis 
 tracer_name = tracer_id_to_name(5)
-p_init_list = LinRange(0,0.05, nX)
+p_init_list = LinRange(0,3.5, nX)
 #p_init_list = [0, 0.01, 0.05, 0.1]
 #p_init_list = [0, 0.01, 0.02, 0.03]
 
@@ -98,7 +88,7 @@ init_tracer_grid(config_obj, tracer_name, p_init_list, dim, (nX,nY))
 
 # set increasing nitrate availability along x axis 
 tracer_name = tracer_id_to_name(2)
-n_init_list = LinRange(0,0.1, nX)
+n_init_list = LinRange(0,45, nX)
 #n_init_list = [0, 0.01, 0.05, 0.1]
 dim = "x"
 init_tracer_grid(config_obj, tracer_name, n_init_list, dim, (nX,nY))
