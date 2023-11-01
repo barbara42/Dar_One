@@ -6,8 +6,8 @@ using NCDatasets
 MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 
 # set up size of your grid 
-nX = 10
-nY = 10
+nX = 30
+nY = 30
 
 # # update SIZE.h 
 # update_grid_size(nX, nY)
@@ -20,7 +20,7 @@ nY = 10
 # build(base_configuration)
 
 # create and set up config 
-config_name = "periscope_10x10"
+config_name = "periscope_30x30"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
