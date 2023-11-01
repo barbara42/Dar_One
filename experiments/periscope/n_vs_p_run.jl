@@ -25,7 +25,7 @@ config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
 # length of run 
-end_time = 2880 * 1 # 2880 = one year, in iterations
+end_time = 2880 * 20 # 2880 = one year, in iterations
 update_end_time(config_obj, end_time)
 
 # output frequency 
