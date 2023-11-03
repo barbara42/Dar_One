@@ -6,6 +6,8 @@ Built off of Gael Forget's MITgcmTools! (https://github.com/gaelforget/MITgcmToo
 - [tutorials](https://barbara42.github.io/Dar_One/build/beginner_tutorials/)
 - [case studies](https://barbara42.github.io/Dar_One/build/case_studies/)
 
+
+Documentation for the darwin3 MITgcm fortran model can be found [here](https://darwin3.readthedocs.io/en/latest/phys_pkgs/darwin_bacteria.html) 
 ##  Overview of program structure 
 
 
