@@ -19,17 +19,20 @@ nY = 30
 # # BUILD 
 # build(base_configuration)
 
+p_max = 2 #originally 3.5
+n_max = 10 #originally 45
+
 # create and set up config 
-config_name = "periscope_30x30"
+config_name = "periscope_lowerleft"
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
 # length of run 
-end_time = 2880 * 20 # 2880 = one year, in iterations
+end_time = 240 #30 days # 2880 = one year, in iterations
 update_end_time(config_obj, end_time)
 
 # output frequency 
-frequency = 2592000 # 2592000 = one month, in seconds
+frequency = 28800 # every 8 hours, # 2592000 = one month, in seconds
 update_all_diagnostic_freqs(config_obj, frequency)
 
 new_temp = 24
@@ -77,23 +80,14 @@ end
 # set increasing phosphate along y axis 
 tracer_name = tracer_id_to_name(5)
 p_init_list = LinRange(0,3.5, nX)
-#p_init_list = [0, 0.01, 0.05, 0.1]
-#p_init_list = [0, 0.01, 0.02, 0.03]
-
-#p_init_list = repeat([0.5], nX) # same value in each cell
 dim = "y"
 init_tracer_grid(config_obj, tracer_name, p_init_list, dim, (nX,nY))
-# p_init_list = [0.2, 0.6]
-# init_tracer_grid(config_obj, tracer_name, p_init_list)
 
 # set increasing nitrate availability along x axis 
 tracer_name = tracer_id_to_name(2)
 n_init_list = LinRange(0,45, nX)
-#n_init_list = [0, 0.01, 0.05, 0.1]
 dim = "x"
 init_tracer_grid(config_obj, tracer_name, n_init_list, dim, (nX,nY))
-#n_init_list = [2.0, 5.0]
-# init_tracer_grid(config_obj, tracer_name, n_init_list)
 
 # Station ALOHA(ish) light 
 x = 203

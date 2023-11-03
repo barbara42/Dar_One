@@ -14,6 +14,7 @@ update_grid_size(nX, nY)
 
 # which nutrients can change?
 param_list = ones(19) # allow everything to change 
+param_list[6] = 0 # don't allow iron to change
 hold_nutrients_constant(param_list)
 
 # BUILD 
