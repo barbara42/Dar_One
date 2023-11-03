@@ -48,9 +48,7 @@ DAR1 can be run in one of two ways.
 You're now ready for the [beginner tutorial](beginner_tutorial)!
 # Setting up on local machine
 
-If you have a windows machine, abandon all hope or dual boot linux 
-
-TODO
+See instructions in the documentation: https://barbara42.github.io/Dar_One/build/getting_started/#Setting-up-on-local-machine
 
 # Contributing 
 
