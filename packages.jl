@@ -4,7 +4,8 @@ dependencies = [
     "OrderedCollections",
     "Suppressor",
     "ClimateModels",
-    "NCDatasets"
+    "NCDatasets", 
+    "Setfield"
 ]
 
 Pkg.add(dependencies)
