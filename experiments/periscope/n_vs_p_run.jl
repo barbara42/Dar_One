@@ -79,13 +79,13 @@ end
 
 # set increasing phosphate along y axis 
 tracer_name = tracer_id_to_name(5)
-p_init_list = LinRange(0,3.5, nX)
+p_init_list = LinRange(0,p_max, nX)
 dim = "y"
 init_tracer_grid(config_obj, tracer_name, p_init_list, dim, (nX,nY))
 
 # set increasing nitrate availability along x axis 
 tracer_name = tracer_id_to_name(2)
-n_init_list = LinRange(0,45, nX)
+n_init_list = LinRange(0, n_max, nX)
 dim = "x"
 init_tracer_grid(config_obj, tracer_name, n_init_list, dim, (nX,nY))
 
