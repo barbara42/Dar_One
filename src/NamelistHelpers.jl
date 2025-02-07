@@ -13,9 +13,6 @@ using NCDatasets
     update_param(config_obj, file_name, group_name, param_name, new_param_value)  
 
 Speficy a parameter to update  
-
-Arguments:
-- TODO
 """
 function update_param(config_obj, file_name, group_name, param_name, new_param_value)
     rundir = joinpath(config_obj.folder, config_obj.ID, "run")
@@ -48,9 +45,6 @@ end # update_param
     update_params(config_obj, file_name, group_names, param_names, new_param_values)  
 
 Update multiple parameters in the same file.
-
-Arguments:
-- TODO
 """
 function update_params(config_obj, file_name, group_names, param_names, new_param_values)
     rundir = joinpath(config_obj.folder, config_obj.ID, "run")
@@ -103,12 +97,12 @@ Arguments:
 - diagnostic_num: the integer identifier for the diagnostic file you want to modify 
 - frequency: new frequency at which to write to that file, in seconds 
 - config_obj: the MITgcm_config you are working with 
-# TODO: create enums for diagnostic names (and name them better?)
-# TODO: what should the initial frequency be? - in file
 """
 function update_diagnostic_freq(config_obj, diagnostic_num, frequency)
     update_param(config_obj, "data.diagnostics", "diagnostics_list", "frequency($diagnostic_num)", frequency)
 end
+# TODO: create enums for diagnostic names (and name them better?)
+# TODO: what should the initial frequency be? - in file
 
 """
     update_all_diagnostic_freqs(config_obj, frequency)   
@@ -131,7 +125,6 @@ end
     update_temperature(config_obj, new_temp)    
 
 Set the temperature (in celcius). This temperature will be constant throughout the run.
-TODO: how do you set a variable temperature? i.e. seasonal?  
 # Arguments:
 - new_temp: new temperature in celsius 
 - config_obj: the MITgcm_config you are working with 
@@ -139,6 +132,8 @@ TODO: how do you set a variable temperature? i.e. seasonal?
 function update_temperature(config_obj, new_temp)
     update_param(config_obj, "data", "PARM01", "tRef", new_temp)
 end
+#TODO: how do you set a variable temperature? i.e. seasonal?  
+
 
 """
     tracer_id_to_name(id)
@@ -198,7 +193,9 @@ function update_tracers(config_obj, tracer_ids, ds::NCDataset, x, y, z, t, multi
 end
 
 """
-takes a list of tracers and list of values - todo 
+    update_tracers(config_obj, tracer_ids, values)
+
+takes a list of tracers and list of values
 """
 function update_tracers(config_obj, tracer_ids, values)
     file_name = "data.ptracers"
@@ -588,7 +585,7 @@ function ed_id_to_name(id)
 end
 
 """
-TODO
+    update_ptracers_initialFile(config_obj, tracer_id, new_val)
 """
 function update_ptracers_initialFile(config_obj, tracer_id, new_val)
     file_name = "data.ptracers"
@@ -598,7 +595,7 @@ function update_ptracers_initialFile(config_obj, tracer_id, new_val)
 end
 
 """
-TODO
+    update_temperature_initialFile(config_obj, new_val)
 """
 function update_temperature_initialFile(config_obj, new_val)
     file_name = "data"
@@ -608,7 +605,7 @@ function update_temperature_initialFile(config_obj, new_val)
 end
 
 """
-TODO
+    update_radtrans_initialFile(config_obj, param_name, new_val)
 """
 function update_radtrans_initialFile(config_obj, param_name, new_val)
     file_name = "data.radtrans"
@@ -617,7 +614,7 @@ function update_radtrans_initialFile(config_obj, param_name, new_val)
 end
 
 """
-TODO
+    update_delX_delY_for_grid(config_obj, x_size, y_size)
 """
 function update_delX_delY_for_grid(config_obj, x_size, y_size)
     file_name = "data"

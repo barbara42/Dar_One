@@ -1,5 +1,6 @@
 import ClimateModels: compile, build, setup, clean
-using Dates 
+using Dates, Setfield
+
 """
     testreport(nam::String,ext="")
 
@@ -164,7 +165,7 @@ function setup(config::MITgcm_config)
     if isdir(joinpath(config.folder,string(config.ID)))
         dt = now()
         date = Dates.format(dt, "yyyy-mm-dd-HH-MM-SS")
-        config.ID = config.ID * date
+        config = @set config.ID = string(config.ID) * date
     end
     !isdir(joinpath(config.folder,string(config.ID))) ? mkdir(joinpath(config.folder,string(config.ID))) : nothing
 

@@ -143,7 +143,9 @@ function init_temperature_grid(config_obj, init_matrix)
 end # function 
 
 """
-TODO
+    init_radtrans_grid(config_obj, ds, x, y_range, z, t_range)
+
+Initialize radtrans values according to an x,y grid 
 note: made specifically for selecting range of latitudes and times at fixed x and z
 """
 function init_radtrans_grid(config_obj, ds, x, y_range, z, t_range)
@@ -170,7 +172,7 @@ function init_radtrans_grid(config_obj, ds, x, y_range, z, t_range)
 end # function 
 
 """
-TODO
+    init_radtrans_grid_xy(config_obj, ds, x, y, z, t)
 note: made specifically for selecting range of latitudes and longitudes at fixed t and z
 """
 function init_radtrans_grid_xy(config_obj, ds, x, y, z, t)
