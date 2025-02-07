@@ -13,7 +13,7 @@ project_name = "dar_one_example"
 config_obj, rundir = create_MITgcm_config(project_name)
 setup(config_obj)
 ```
-See [`create_MITgcm_config`](@ref) and setup ref TODO
+See [`create_MITgcm_config`](@ref).
 
 !!! note
     You can only run the `setup` function once per unique project name! If you try to run it again with a non-unique project name it will throw an error. Once the filesystem is set up, you can comment out that
@@ -60,7 +60,7 @@ update_temperature(config_obj, 25.5)
 
 The term "tracer" refers to anything that's in the water that isn't H2O itself. This includes nutients and biomass. There are a number of named functions for nutrients and biomass, which are listed below! 
 
-If the tracer you want to update doesn't have its own function, you can update any tracer you know the "id" of using the following function. Tracer IDs can be found under Darwin Background > Tracers (TODO: LINK!)
+If the tracer you want to update doesn't have its own function, you can update any tracer you know the "id" of using the following function. Tracer IDs can be found under Darwin Background > [Tracers](https://barbara42.github.io/Dar_One/build/darwin_background/#Nutrients-TRAC01-TRAC20)
 
 ```@docs
 update_tracer
@@ -96,7 +96,7 @@ Biology
 
 Using a "Seed" netCDF File 
 
-Often, I use the output of a global Darwin run to initialize (or seed) the values of DAR1. The tracer values from Darwin are output in a file called `3d.nc` (example linked HERE: TODO) When working with netCDF files, I use the package NCDatasets. 
+Often, I use the output of a global Darwin run to initialize (or seed) the values of DAR1. The tracer values from Darwin are output in a file called `3d.nc`. When working with netCDF files, I use the package NCDatasets. 
 
 First, we need to include NCDatasets, then load up the contents of the file into a Dataset.
 ```

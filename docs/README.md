@@ -14,7 +14,6 @@ Workflow for updating documentation
 - create a PR to the `test` branch (should NOT contain docs/build folder)
     - PR merged into `test` 
 
-TODO: finish 
 
 when committing to `gh-pages` branch, include the build folder. You have to override the .gitignore by using the "force" option, -f 
 
