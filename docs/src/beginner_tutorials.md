@@ -51,7 +51,7 @@ Awesome! Now we have a `config_obj` that points to all the files and folders nee
 
 ## Modifying Parameters 
 
-For a full list of parameters to modify, including more in-depth descriptions, see DOCUMENTAION(TODO - link).
+For a full list of parameters to modify, including more in-depth descriptions, see the [Modify Parameters](https://barbara42.github.io/Dar_One/build/) documentation.
 
 Whenever you update a parameter, the function first takes in the `config_obj` of type `MITgcm_config` that we created in the previous step. This tells `Dar_One` where the files are that we are 
 aiming to modify. 
@@ -134,7 +134,7 @@ Let's move inside this folder and look at its contents.
 
 `# ls` 
 
-Here's all our output, in [netCDF](https://www.unidata.ucar.edu/software/netcdf/) form! You can tell by the `.nc` filetype extension at the end of each file name. Each of these files contains different information about whats going on inside `Dar_One`, but for now **we are just going to focus on the `3d.some_number.nc` file.** (For a more in-depth description of all the forms of output we get, see [DOCUMENTATION](TODO: LINK))
+Here's all our output, in [netCDF](https://www.unidata.ucar.edu/software/netcdf/) form! You can tell by the `.nc` filetype extension at the end of each file name. Each of these files contains different information about whats going on inside `Dar_One`, but for now **we are just going to focus on the `3d.some_number.nc` file.** (For a more in-depth description of all the forms of output we get, see [Diagnostic Files](https://barbara42.github.io/Dar_One/build/darwin_background/#Diagnostic-Files))
 
 The `3d.nc` file contains information about nutrient levels and the biomass of all the phytoplankton types. 
 
@@ -215,7 +215,7 @@ no3_matrix = repeat(transpose(LinRange(3.0, 8.0, 4)), outer=(4,1))
 init_tracer_grid(config_obj, tracer_name, init_matrix)
 ```
 
-Reminder, to find a list of all the tracers and their respectice IDs and names, see [darwin background](LINK TODO).
+Reminder, to find a list of all the tracers and their respectice IDs and names, see [darwin background](https://barbara42.github.io/Dar_One/build/darwin_background/).
 
 Lastly, temperature is treated differently from tracers, so it has it's own initialization function `init_temperature_grid`. Here we will set the grid to have increasing temperature along the one axis. 
 

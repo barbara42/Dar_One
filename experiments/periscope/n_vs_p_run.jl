@@ -79,7 +79,7 @@ end
 
 # set increasing phosphate along y axis 
 tracer_name = tracer_id_to_name(5)
-p_init_list = LinRange(0,p_max, nX)
+p_init_list = LinRange(0,p_max, nY)
 dim = "y"
 init_tracer_grid(config_obj, tracer_name, p_init_list, dim, (nX,nY))
 
