@@ -76,7 +76,7 @@ base_configuration = "dar_one_config"
 
 Path to the file that contains the built MITgcm, normally named "mitgcmuv".
 The executable should be compiled on whatever machine you're using to run the model, 
-unless using the docker container [TODO: link]
+unless using the docker container [https://hub.docker.com/repository/docker/birdy1123/dar1]
 """
 filexe=joinpath(MITgcm_path[1],"verification",base_configuration,"build","mitgcmuv")
 
