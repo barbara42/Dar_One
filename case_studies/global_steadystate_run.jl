@@ -40,13 +40,15 @@ for x_idx in x_idxs
     for y_idx in y_idxs
         # what slice do we want?
         # these are INDICES so must be INTEGERS
-        x = collect(x_idxs[x_idx][1]:x_idxs[x_idx][2])
-        y = collect(y_idxs[y_idx][1]:y_idxs[y_idx][2])
+        #x = collect(x_idxs[x_idx][1]:x_idxs[x_idx][2])
+        #y = collect(y_idxs[y_idx][1]:y_idxs[y_idx][2])
+        x = collect(x_idx[1]:x_idx[2])
+        y = collect(y_idx[1]:y_idx[2])
         z = 1 # surface 
 
         # set up config 
         config_id = "globe-ss-$x_idx-$y_idx"
-        config_obj, rundir = create_MITgcm_config(config_name)
+        config_obj, rundir = create_MITgcm_config(config_id)
         setup(config_obj)
 
         # length of run 
