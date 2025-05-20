@@ -16,11 +16,13 @@ If you're using the `dar_one_docker`...
 - you don't have to do anything! 
 - I already built the mitgcm executable for the docker container
     - the executable is called `mitgcmuv` and lives in the `darwin3/verification/dar_one_config/build` directory 
-- all the julia depencies have also been install already! 
+- all the julia depencies have also been install already!
+    - if there are issues with dependencies not being installed, from the `Dar_One` folder run `# julia packages.jl`
 - navigate to the `beginner_tutorial` folder using the command line (`# cd Dar_One/beginner_tutorial`)
 
 If you're doing it locally... 
 - install julia dependencies
+    - from the `Dar_One` folder run `# julia packages.jl` 
 - run `# julia 1_build_example.jl`
 
 ## Setting up run folders 
