@@ -44,7 +44,9 @@ DAR1 can be run in one of two ways.
     `docker run -it birdy1123/DAR1_docker` 
 - this runs the container in interactive mode (`-i`) with terminal access (`-t`) 
 - you should see the prompt change to `root@some-number:/DAR1_docker#`
-
+    - if the container is already running, you can connect to it with `docker exec -it [CONTAINER_ID] bash`
+    - Note: connecting with `bash` rather than `sh` gives you more a powerful terminal (i.e. with tab completion) 
+  
 You're now ready for the [beginner tutorial](beginner_tutorial)!
 # Setting up on local machine
 
