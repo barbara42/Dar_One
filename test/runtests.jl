@@ -1,63 +1,140 @@
-using DarOneTools
+using MITgcmTools, ClimateModels, MeshArrays, OceanStateEstimation
 using Test
 
-@testset "DarOneTools" begin
-    @testset "Namelist round trip" begin
-        mktempdir() do dir
-            input = joinpath(dir, "data")
-            write(input, """
-                &PARM01
-                 nIter0 = 100,
-                 useSingleCpuIO = .TRUE.,
-                 tRef = 18.5,
-                &
-                &PARM02
-                 runName = 'test',
-                /
-                """)
+MITgcm_download()
 
-            nml = read_namelist(input)
-            @test nml.groups == [:PARM01, :PARM02]
-            @test nml.params[1][:nIter0] == 100
-            @test nml.params[1][:useSingleCpuIO] === true
-            @test nml.params[1][:tRef] == 18.5
-            @test nml.params[2][:runName] == "test"
+@testset "MITgcmTools.jl" begin
 
-            output = joinpath(dir, "data.out")
-            write(output, nml)
-            reread = read(output, MITgcm_namelist())
-            @test reread.groups == nml.groups
-            @test reread.params == nml.params
-        end
+    #format conversions
+    (γ,Γ)=MeshArrays.GridOfOnes("CubeSphere",30,30)
+    @test isa(convert2gcmfaces(Γ.XC),Array)
+    @test isa(convert2array(Γ.XC),Array)
+
+    #physical oceanography
+    (ρP,ρI,ρR) = SeaWaterDensity(3.,35.5,3000.)
+    @test isapprox(ρI,1041.83267, rtol=1e-6)
+
+    D=collect(0.0:1.0:500.0); tmp=(1.0.-tanh.(5*(-1 .+ 2/D[end]*D)));
+    T=2.0 .+ 8.0*tmp; S=34.0 .+ 0.5*tmp;
+    (ρP,ρI,ρR) = SeaWaterDensity(T,S,D);
+    mld=MixedLayerDepth(T,S,D,"BM");
+    @test isapprox(mld,134.0)
+
+    #running and reading in verification experiments
+    exps=verification_experiments()
+    @test isa(exps,Array)
+
+    MC=MITgcm_config(configuration="advect_xy")
+    setup(MC)
+
+    fil=joinpath(MC.folder,string(MC.ID),"run","data")
+    nml=read(fil,MITgcm_namelist())
+    write(fil*"_new",nml)
+	
+    MITgcmTools.parse_param("1.0")
+    MITgcmTools.parse_param(".TRUE.")
+    MITgcmTools.parse_param(".false.")
+    MITgcmTools.parse_param("10")
+
+    @test isa(nml,MITgcm_namelist)
+    @test nml.groups[1]==:PARM01
+    @test nml.params[1][:implicitFreeSurface]
+
+    #
+
+    myexp="advect_cs"
+    iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
+    MC=exps[iexp]
+
+    @test clean(MC)=="no task left in pipeline"
+    @test build(MC)
+    @test build(MC,"--allow-skip")
+    @test compile(MC)
+    @test setup(MC)
+
+    push!(MC.status,("setup" => "ended"))
+    
+    launch(MC)
+    pth=joinpath(MC.folder,string(MC.ID),"run")
+    tmp=read_mdsio(pth,"XC.001.001")
+    @test isa(tmp,Array)
+    tmp=read_mdsio(pth,"XC")
+    @test isa(tmp,Array)
+
+    scan_rundir(pth)
+    Γ=GridLoad_mdsio(MC)
+    @test isa(Γ,NamedTuple)
+
+    myexp="MLAdjust"
+    iexp=findall([exps[i].configuration==myexp for i in 1:length(exps)])[1]
+    MC=exps[iexp]
+    setup(MC)
+    build(MC,"--allow-skip")
+    launch(MC)
+    if isdir(joinpath(MC.folder,string(MC.ID),"run","mnc_test_0001"))
+        Γ=GridLoad_mnc(MC)
+    else
+        Γ=GridLoad_mdsio(MC)
     end
+    @test isa(Γ,NamedTuple)
 
-    @testset "Grid size" begin
-        mktempdir() do dir
-            fixture = joinpath(@__DIR__, "resources", "test_SIZE.h")
-            output = joinpath(dir, "SIZE.h")
-            cp(fixture, output)
-            update_grid_size(4, 3, output)
-            expected = replace(read(fixture, String),
-                               "sNx =   1," => "sNx =   4,",
-                               "sNy =   1," => "sNy =   3,")
-            @test strip(read(output, String)) == strip(expected)
-        end
+    #read / write functions
+
+    fil=joinpath(pth,"available_diagnostics.log")
+    read_available_diagnostics("ETAN";filename=fil)
+
+    readcube(xx::Array,x::MeshArray) = read(cube2compact(xx),x)
+    function readcube(fil::String,x::MeshArray) 
+        p=dirname(fil)*"/"
+        b=basename(fil)[1:end-5]
+        xx=read_mdsio(p,b)
+        read(cube2compact(xx),x)
     end
+    writecube(x::MeshArray) = compact2cube(write(x))
+    writecube(fil::String,x::MeshArray) = write(fil::String,x::MeshArray)
+    
+    γ=gcmgrid(pth,"CubeSphere",6,fill((32, 32),6), [192 32], Float64, readcube, writecube)
+    Γ = GridLoad(γ)
+    tmp1=writecube(Γ.XC)
+    tmp2=readcube(tmp1,Γ.XC)
 
-    @testset "Nutrient tendency switches" begin
-        mktempdir() do dir
-            fixture = joinpath(@__DIR__, "resources", "test_darwin_plankton.F")
-            output = joinpath(dir, "darwin_plankton.F")
-            cp(fixture, output)
-            factors = Float64.(mod.(1:19, 2))
-            hold_nutrients_constant(factors, output)
+    @test isa(tmp2,MeshArray)
 
-            expected = split(strip(read(fixture, String)), '\n')
-            marker = findfirst(==("C DAR1 Nutrients"), expected)
-            for (i, factor) in enumerate(factors)
-                expected[marker + i] = replace(expected[marker + i], r"\*[01]\.0$" => "*$factor")
-            end
-            @test split(strip(read(output, String)), '\n') == expected
-        end
+    ##
+
+    γ=GridSpec("LatLonCap",MeshArrays.GRID_LLC90)
+    findtiles(30,30,γ)
+    findtiles(30,30,"LatLonCap",MeshArrays.GRID_LLC90)
+    read_meta(MeshArrays.GRID_LLC90,"XC.meta")
+
+    fil=joinpath(MeshArrays.GRID_LLC90,"XC.data")
+    tmp1=read_bin(fil,γ)
+    tmp2=convert2gcmfaces(tmp1)
+    tmp3=convert2array(tmp1)
+    tmp4=convert2array(tmp3,γ)
+    read_bin(fil,γ.ioPrec,γ)
+    read_bin(tmp2,tmp1)
+    read_bin(tmp2,γ)
+
+    function get_ecco_variable_if_needed(v::String)
+        p=dirname(pathof(OceanStateEstimation))
+        lst=joinpath(p,"../examples/nctiles_climatology.csv")
+        pth=ECCOclim_path
+        !isdir(pth*v) ? get_from_dataverse(lst,v,pth) : nothing
     end
+    
+    get_ecco_variable_if_needed("ETAN")
+    tmp=read_nctiles(joinpath(ECCOclim_path,"ETAN/ETAN"),"ETAN",γ,I=(:,:,1))
+
+    @test isa(tmp,MeshArray)
+
+    ##
+
+    MC=MITgcm_config(configuration="flt_example")
+    tmp=testreport(MC)
+    pth=MITgcm_path[1]*"verification/flt_example/run/"
+    tmp=read_flt(pth,Float32)
+    
+    @test isa(tmp[1,1],Number)
+
 end
