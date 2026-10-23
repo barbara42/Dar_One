@@ -11,15 +11,11 @@ If you're using docker, to open up the file using the commandline, run
 
 ```
 # DarOneTools
-include("../src/DarOneTools.jl")
-using .DarOneTools
+using DarOneTools
 # other packages 
 using ClimateModels
 ```
-The `include` statement loads the `DarOneTools` from the `/src` directory. Perhaps in the future 
-`DarOneTools` will be a julia package that can be installed with the package manager, but for now
-its simply local code that we load up! The `.` in front of `DarOneTools` tells julia to look inside
-the current module for `DarOneTools`.  
+The `using` statement loads `DarOneTools` from the project environment (selected with `--project=..` when running from `beginner_tutorial`).
 
 (2) After including our dependencies, we have to specify the `MITgcm_path`. This tells `Dar_One` where 
 to look for the Darwin MITgcm code. The default value will work if using the docker. Otherwise, 
@@ -97,7 +93,7 @@ dar_one_run(config_obj)
 ```
 
 If you're using docker, you can run this file by using the command (in the docker bash prompt)
-`# julia 2_run_example.jl` 
+`julia --project=.. 2_run_example.jl` 
 
 You should see output similar to this:
 

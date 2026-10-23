@@ -95,17 +95,17 @@ In order to build and run the MITgcm on your machine, you need to have the follo
 
 
 
-For the Julia code, you will need to install julia and the following packages 
+For the Julia code, you will need to install julia and the packages declared in `Project.toml`, including
 - OrderedCollections
 - Suppressor
 - ClimateModels
 - NCDatasets
 
-The Julia dependencies are also listed in the file at the top level of `Dar_One/packages.jl`. You can automatically install the Julia dependencies by running `julia packages.jl`.
+The Julia dependencies are listed in `Dar_One/Project.toml`. You can automatically install the Julia dependencies from the `Dar_One` folder by running `julia --project=. -e 'using Pkg; Pkg.instantiate()'`.
 
 If you get errors when building the model, see the [MITgcm getting started guide](https://mitgcm.readthedocs.io/en/latest/getting_started/getting_started.html#) to help troubleshoot.  
 
-You can also see the dockerfile used [here]()
+You can also see the dockerfile used [here](https://github.com/barbara42/Dar_One/blob/main/Dockerfile)
 
 ```
 FROM --platform=linux/amd64 ubuntu:latest 
@@ -121,7 +121,8 @@ RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.2-linux-
 RUN tar zxvf julia-1.8.2-linux-x86_64.tar.gz
 ENV PATH="${PATH}:/dar_one_docker/julia-1.8.2/bin"
 # install julia packages 
-RUN julia packages.jl
+ENV JULIA_PROJECT=/dar_one_docker/Dar_One
+RUN julia --project=/dar_one_docker/Dar_One -e 'using Pkg; Pkg.instantiate()'
 
 # other dependencies 
 RUN apt-get install -y gfortran make 
@@ -146,10 +147,9 @@ I like to separate these out into two scripts because the build step only has to
 
 I recommend creating a folder at the top level of the `Dar_One` directory with the name `your-name-experiments`, and putting all scripts you create in there. 
 
-For every DAR1 script, you will first import DarOneTools. 
+For every DAR1 script, you will first import DarOneTools. Run scripts using `julia --project=.` from the `Dar_One` folder.
 ```
-include("../src/DarOneTools.jl")
-using .DarOneTools
+using DarOneTools
 ```
 
 Next you must always make sure you have a line specifying the correct value for `MITgcm_path[1]`. If you are using the docker, it will be set to "/dar_one_docker/darwin3". Otherwise, you will point it to the direcotry of [darwin3](https://github.com/darwinproject/darwin3) on your local machine. 
@@ -169,8 +169,7 @@ Once the model has been built, you can run multiple experiments with different v
 For the run script, you will also have to import DarOneTools and set the MITgcm path. 
 
 ```
-include("../src/DarOneTools.jl")
-using .DarOneTools
+using DarOneTools
 
 # the path to the Darwin version of the MITgcm
 MITgcm_path[1] = "/dar_one_docker/darwin3" 
