@@ -2,6 +2,15 @@ using MITgcmTools, ClimateModels, MeshArrays, OceanStateEstimation
 using Test
 import DarOneTools
 
+#test if required build tools are available
+compiler = get(ENV, "MITGCM_FC", get(ENV, "FC", "gfortran"))
+missing = filter(cmd -> isnothing(Sys.which(cmd)), ["make", compiler])
+
+isempty(missing) || error(
+    "MITgcm build tools missing: $(join(missing, ", ")). " *
+    "Install the build tools or run the tests in Docker."
+)
+
 MITgcm_download()
 
 @testset "MITgcmTools.jl" begin
