@@ -1,5 +1,4 @@
-include("../src/DarOneTools.jl")
-using .DarOneTools
+using DarOneTools
 using NCDatasets, DelimitedFiles
 using Test
 
