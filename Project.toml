@@ -1,0 +1,23 @@
+name = "DarOneTools"
+uuid = "68a5c792-066c-4fa4-bf39-3229eee150df"
+version = "0.1.0"
+
+[deps]
+ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
+Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
+DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
+MITgcmTools = "62725fbc-3a66-4df3-9000-e33e85b3a198"
+NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
+OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
+Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
+Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
+
+[compat]
+ClimateModels = "0.2"
+MITgcmTools = "0.2"
+NCDatasets = "0.12, 0.13, 0.14"
+OrderedCollections = "1"
+Setfield = "1"
+Suppressor = "0.2"
+julia = "1.8"
