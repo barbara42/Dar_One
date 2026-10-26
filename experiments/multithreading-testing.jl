@@ -1,4 +1,4 @@
-using DarOneTools
+using DarOne
 using NCDatasets
 
 println("Julia running with $(Threads.nthreads()) threads")

@@ -1,4 +1,4 @@
-using DarOneTools
+using DarOne
 using NCDatasets
 
 # set path to MITgcm 

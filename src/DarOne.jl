@@ -1,4 +1,4 @@
-module DarOneTools
+module DarOne
 
 # using Dates, Printf, SparseArrays, Artifacts, LazyArtifacts, UUIDs, Suppressor
 # using OrderedCollections, DataFrames, NetCDF, MeshArrays, ClimateModels

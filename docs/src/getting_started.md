@@ -147,9 +147,9 @@ I like to separate these out into two scripts because the build step only has to
 
 I recommend creating a folder at the top level of the `Dar_One` directory with the name `your-name-experiments`, and putting all scripts you create in there. 
 
-For every DAR1 script, you will first import DarOneTools. Run scripts using `julia --project=.` from the `Dar_One` folder.
+For every DAR1 script, you will first import DarOne. Run scripts using `julia --project=.` from the `Dar_One` folder.
 ```
-using DarOneTools
+using DarOne
 ```
 
 Next you must always make sure you have a line specifying the correct value for `MITgcm_path[1]`. If you are using the docker, it will be set to "/dar_one_docker/darwin3". Otherwise, you will point it to the direcotry of [darwin3](https://github.com/darwinproject/darwin3) on your local machine. 
@@ -166,10 +166,10 @@ build(base_configuration)
 ```
 Once the model has been built, you can run multiple experiments with different values for the intial parameters. I like to put the previous code in one file, and the code to initialize and run an experiment in another.
 
-For the run script, you will also have to import DarOneTools and set the MITgcm path. 
+For the run script, you will also have to import DarOne and set the MITgcm path. 
 
 ```
-using DarOneTools
+using DarOne
 
 # the path to the Darwin version of the MITgcm
 MITgcm_path[1] = "/dar_one_docker/darwin3" 
@@ -192,7 +192,7 @@ run(config_obj)
 ```
 
 To recap the basic workflow: 
-- Always import `DarOneTools` and set `MITgcm_path`
+- Always import `DarOne` and set `MITgcm_path`
 - Build
     - set your grid size
     - set nutrients to cycle or stay constant 

@@ -10,12 +10,12 @@ If you're using docker, to open up the file using the commandline, run
 (1) First, we have to import our dependencies.
 
 ```
-# DarOneTools
-using DarOneTools
+# DarOne
+using DarOne
 # other packages 
 using ClimateModels
 ```
-The `using` statement loads `DarOneTools` from the project environment (selected with `--project=..` when running from `beginner_tutorial`).
+The `using` statement loads `DarOne` from the project environment (selected with `--project=..` when running from `beginner_tutorial`).
 
 (2) After including our dependencies, we have to specify the `MITgcm_path`. This tells `Dar_One` where 
 to look for the Darwin MITgcm code. The default value will work if using the docker. Otherwise, 

@@ -1,6 +1,6 @@
 using MITgcmTools, ClimateModels, MeshArrays, OceanStateEstimation
 using Test
-import DarOneTools
+import DarOne
 
 MITgcm_download()
 

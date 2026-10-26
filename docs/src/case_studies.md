@@ -57,13 +57,13 @@ Reminder that we are in the `/dar_one_docker/Dar_One/case_studies` directory. Us
 You will see these lines of code at the top of the file. 
 
 ```
-using DarOneTools
+using DarOne
 # other packages 
 using ClimateModels
 using NCDatasets
 ```
 
-This loads up DarOneTools, then imports it along with the ClimateModels and NCDatasets packages. You will see these lines of code repeated at the top of every file we work with from here on out! 
+This loads up DarOne, then imports it along with the ClimateModels and NCDatasets packages. You will see these lines of code repeated at the top of every file we work with from here on out! 
 
 Next we have to let  `MITgcm_path[1]` point to the directory where the Darwin Fortran code lives, establish that we are working with a 1x1 parcel of water (instead of running multiple grid cells at once), and we want to allow all nutrients to freely cycle (intead of holding the concentrations in the water constant). 
 
@@ -100,10 +100,10 @@ vim bottle_experiment_run.jl
 
 We will go through every line of code in this file before we close it and run it from the docker command line. 
 
-Again you will see the lines of code loading and importing DarOneTools and the NCDatasets and ClimateModels packages, along with the line of code that points to the Darwin fortran directory. 
+Again you will see the lines of code loading and importing DarOne and the NCDatasets and ClimateModels packages, along with the line of code that points to the Darwin fortran directory. 
 
 ```
-using DarOneTools
+using DarOne
 # other packages 
 using ClimateModels
 using NCDatasets
@@ -251,7 +251,7 @@ Reminder that we are in the `/dar_one_docker/Dar_One/case_studies` directory.
 The 360 x 160 matrix was divided in 16 parts, each 90 x 40. After running, the 16 tiles were stitched together again. Prior to building, we specify this grid size, and make sure all nutients are allowed to cycle normally (i.e. the available amount in the water is not held constant)
 
 ```
-using DarOneTools
+using DarOne
 using NCDatasets
 
 # set path to MITgcm 

@@ -1,4 +1,4 @@
-using Documenter, DarOneTools
+using Documenter, DarOne
 
 makedocs(
     sitename="Dar_One",
