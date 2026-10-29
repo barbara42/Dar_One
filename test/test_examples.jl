@@ -22,7 +22,20 @@ end
 function run_example(script, environment)
     cmd = Cmd(`$(Base.julia_cmd()) --startup-file=no --project=$ROOT $(joinpath(ROOT, script))`; dir=ROOT)
     @info "Running $script"
-    return success(addenv(cmd, environment...))
+    log_dir = get(ENV, "DARONE_EXAMPLE_LOG_DIR", joinpath(tempdir(), "darone-example-logs-$(getpid())"))
+    mkpath(log_dir)
+    log_file = joinpath(log_dir, replace(script, '/' => '_') * ".log")
+    succeeded = open(log_file, "w") do log
+        success(pipeline(addenv(cmd, environment...), stdout=log, stderr=log))
+    end
+    if !succeeded
+        println(stderr, "Example failed: $script (log: $log_file)")
+        lines = readlines(log_file)
+        for line in lines[max(1, length(lines)-79):end]
+            println(stderr, line)
+        end
+    end
+    return succeeded
 end
 
 function check_simulation(name)

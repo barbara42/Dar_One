@@ -19,7 +19,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Configure Darwin path
-        run: echo "DARONE_MITGCM_PATH=$RUNNER_TEMP/darwin3" >> "$GITHUB_ENV"
+        run: |
+          echo "DARONE_MITGCM_PATH=$RUNNER_TEMP/darwin3" >> "$GITHUB_ENV"
+          echo "DARONE_EXAMPLE_LOG_DIR=$RUNNER_TEMP/darone-example-logs" >> "$GITHUB_ENV"
 
       - name: Install Fortran and NetCDF dependencies
         run: |
@@ -42,18 +44,10 @@ jobs:
           git -C "$DARONE_MITGCM_PATH" rev-parse HEAD
           git -C "$DARONE_MITGCM_PATH/verification/dar_one_config" rev-parse HEAD
 
-      - name: Install Julia dependencies
-        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
-
-      - name: Run existing package tests
+      - name: Run package and example tests
         run: |
           set -o pipefail
-          julia --project=. -e 'using Pkg; Pkg.test()' 2>&1 | tee "$RUNNER_TEMP/package-tests.log"
-
-      - name: Run tutorial and case-study tests
-        run: |
-          set -o pipefail
-          julia --project=. test/test_examples.jl 2>&1 | tee "$RUNNER_TEMP/example-tests.log"
+          julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()' 2>&1 | tee "$RUNNER_TEMP/package-tests.log"
 
       - name: Upload failure logs
         if: failure()
@@ -64,7 +58,7 @@ jobs:
           retention-days: 7
           path: |
             ${{ runner.temp }}/package-tests.log
-            ${{ runner.temp }}/example-tests.log
+            ${{ runner.temp }}/darone-example-logs/*.log
             ${{ runner.temp }}/darwin3/verification/dar_one_config/build/genmake.log
             ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/STDOUT.*
             ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/thread-*-output.txt

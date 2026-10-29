@@ -139,3 +139,5 @@ MITgcm_download()
     @test isa(tmp[1,1],Number)
 
 end
+
+include("test_examples.jl")
