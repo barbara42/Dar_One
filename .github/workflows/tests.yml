@@ -38,6 +38,9 @@ jobs:
         run: |
           git clone --depth 1 --branch darwin https://github.com/darwinproject/darwin3.git "$DARONE_MITGCM_PATH"
           git clone --depth 1 https://github.com/barbara42/dar_one_config.git "$DARONE_MITGCM_PATH/verification/dar_one_config"
+          # pkg/timeave and taveFreq were retired from MITgcm.
+          sed -i '/^[[:space:]]*timeave[[:space:]]*$/d' "$DARONE_MITGCM_PATH/verification/dar_one_config/code/packages.conf"
+          sed -i '/^[[:space:]]*taveFreq[[:space:]]*=/d' "$DARONE_MITGCM_PATH/verification/dar_one_config/input/data"
           mkdir -p "$DARONE_MITGCM_PATH/verification/dar_one_config/build" "$DARONE_MITGCM_PATH/verification/dar_one_config/run"
           git config --global user.name "DarOne CI"
           git config --global user.email "darone-ci@localhost"
