@@ -337,7 +337,7 @@ function MITgcm_launch(config::MITgcm_config)
         @info "$(Threads.threadid()) $(config.ID) run did not fail!!!!! "
     catch e
         @info Threads.threadid() e
-        tmp[1]="model run may have failed"
+        rethrow()
     end
     # cd(pth)
     return tmp[1]

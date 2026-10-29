@@ -47,7 +47,7 @@ for x_idx in x_idxs
         z = 1 # surface 
 
         # set up config 
-        config_id = "globe-ss-$x_idx-$y_idx" * get(ENV, "DARONE_EXAMPLE_ID_SUFFIX", "")
+        config_id = "globe-ss-$(x_idx[1])-$(x_idx[2])-$(y_idx[1])-$(y_idx[2])" * get(ENV, "DARONE_EXAMPLE_ID_SUFFIX", "")
         config_obj, rundir = create_MITgcm_config(config_id)
         setup(config_obj)
 

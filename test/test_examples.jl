@@ -111,7 +111,7 @@ mktempdir() do data_dir
         end
 
         @testset "Global steady state" begin
-            names = ["globe-ss-$x-$y" for x in ((1, 90), (91, 180), (181, 270), (271, 360))
+            names = ["globe-ss-$(x[1])-$(x[2])-$(y[1])-$(y[2])" for x in ((1, 90), (91, 180), (181, 270), (271, 360))
                                       for y in ((1, 40), (41, 80), (81, 120), (121, 160))]
             run_case_study("case_studies/global_steadystate_build.jl",
                            "case_studies/global_steadystate_run.jl", names, environment)
