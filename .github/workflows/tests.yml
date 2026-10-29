@@ -12,12 +12,14 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     env:
-      DARONE_MITGCM_PATH: ${{ runner.temp }}/darwin3
       DARONE_EXAMPLE_ITERATIONS: '12'
       GKSwstype: '100'
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Configure Darwin path
+        run: echo "DARONE_MITGCM_PATH=$RUNNER_TEMP/darwin3" >> "$GITHUB_ENV"
 
       - name: Install Fortran and NetCDF dependencies
         run: |
