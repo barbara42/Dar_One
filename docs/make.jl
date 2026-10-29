@@ -1,8 +1,4 @@
-include("../src/DarOneTools.jl")
-
-using Documenter, .DarOneTools
-
-push!(LOAD_PATH,"../src/")
+using Documenter, DarOne
 
 makedocs(
     sitename="Dar_One",

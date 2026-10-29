@@ -1,5 +1,5 @@
 # All Docs
 
 ```@autodocs
-Modules = [DarOneTools]
+Modules = [DarOne]
 ```

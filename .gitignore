@@ -1,3 +1,7 @@
 .DS_Store
 
 docs/build
+
+# Julia package environments: resolve dependencies locally.
+Manifest.toml
+Manifest-v*.toml

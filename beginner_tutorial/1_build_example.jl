@@ -1,5 +1,4 @@
-include("../src/DarOneTools.jl")
-using .DarOneTools
+using DarOne
 
 MITgcm_path[1] = "/Users/birdy/Documents/eaps_research/darwin3/" # CHANGE ME 
 

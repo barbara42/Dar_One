@@ -17,13 +17,13 @@ If you're using the `dar_one_docker`...
 - I already built the mitgcm executable for the docker container
     - the executable is called `mitgcmuv` and lives in the `darwin3/verification/dar_one_config/build` directory 
 - all the julia depencies have also been install already!
-    - if there are issues with dependencies not being installed, from the `Dar_One` folder run `# julia packages.jl`
+    - if there are issues with dependencies not being installed, from the `Dar_One` folder run `julia --project=. -e 'using Pkg; Pkg.instantiate()'`
 - navigate to the `beginner_tutorial` folder using the command line (`# cd Dar_One/beginner_tutorial`)
 
 If you're doing it locally... 
 - install julia dependencies
-    - from the `Dar_One` folder run `# julia packages.jl` 
-- run `# julia 1_build_example.jl`
+    - from the `Dar_One` folder run `julia --project=. -e 'using Pkg; Pkg.instantiate()'` 
+- from the `Dar_One` folder run `julia --project=. beginner_tutorial/1_build_example.jl`
 
 ## Setting up run folders 
 
@@ -36,16 +36,12 @@ If you're using docker, to open up the file using the commandline, run
 (1) First, we have to import our dependencies.
 
 ```
-# DarOneTools
-include("../src/DarOneTools.jl")
-using .DarOneTools
+# DarOne
+using DarOne
 # other packages 
 using ClimateModels
 ```
-The `include` statement loads the `DarOneTools` from the `/src` directory. Perhaps in the future 
-`DarOneTools` will be a julia package that can be installed with the package manager, but for now
-its simply local code that we load up! The `.` in front of `DarOneTools` tells julia to look inside
-the current module for `DarOneTools`.  
+The `using` statement loads `DarOne` from the project environment (selected with `--project=..` when running from `beginner_tutorial`).
 
 (2) After including our dependencies, we have to specify the `MITgcm_path`. This tells `Dar_One` where 
 to look for the Darwin MITgcm code. The default value will work if using the docker. Otherwise, 
@@ -123,7 +119,7 @@ dar_one_run(config_obj)
 ```
 
 If you're using docker, you can run this file by using the command (in the docker bash prompt)
-`# julia 2_run_example.jl` 
+`julia --project=.. 2_run_example.jl` 
 
 You should see output similar to this:
 

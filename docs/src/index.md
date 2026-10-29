@@ -67,30 +67,30 @@ update_tracer
 ```
 
 Nutrients 
-- [update_NO3](@ref)
-- [update_NO2](@ref)
-- [update_NH4](@ref)
-- [update_PO4](@ref)
-- [update_FeT](@ref)
-- [update_SiO2](@ref)
-- [update_DOC](@ref)
-- [update_DON](@ref)
-- [update_DOP](@ref)
-- [update_DOFe](@ref)
-- [update_POC](@ref)
-- [update_PON](@ref)
-- [update_POP](@ref)
-- [update_POFe](@ref)
-- [update_POSi](@ref)
-- [update_PIC](@ref)
-- [update_ALK](@ref)
-- [update_O2](@ref)
-- [update_CDOM](@ref)
+- [`update_NO3`](@ref)
+- [`update_NO2`](@ref)
+- [`update_NH4`](@ref)
+- [`update_PO4`](@ref)
+- [`update_FeT`](@ref)
+- [`update_SiO2`](@ref)
+- [`update_DOC`](@ref)
+- [`update_DON`](@ref)
+- [`update_DOP`](@ref)
+- [`update_DOFe`](@ref)
+- [`update_POC`](@ref)
+- [`update_PON`](@ref)
+- [`update_POP`](@ref)
+- [`update_POFe`](@ref)
+- [`update_POSi`](@ref)
+- [`update_PIC`](@ref)
+- [`update_ALK`](@ref)
+- [`update_O2`](@ref)
+- [`update_CDOM`](@ref)
 
 
 Biology 
-- [update_pro](@ref)
-- [update_syn](@ref)
+- [`update_pro`](@ref)
+- [`update_syn`](@ref)
 
 ## Updating Tracers in Bulk
 

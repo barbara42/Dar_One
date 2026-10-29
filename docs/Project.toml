@@ -1,0 +1,6 @@
+[deps]
+DarOne = "68a5c792-066c-4fa4-bf39-3229eee150df"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+
+[compat]
+Documenter = "1"

@@ -1,5 +1,4 @@
-include("../src/DarOneTools.jl")
-using .DarOneTools
+using DarOne
 # other packages 
 using ClimateModels
 using NCDatasets

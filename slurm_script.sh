@@ -14,4 +14,4 @@ module load intel/2018-01
 module load impi/2018-01
 module load jahn/netcdf-fortran/4.4.5_intel-2018-01
 
-julia experiments/periscope/n_vs_p_run.jl
+julia --project=. experiments/periscope/n_vs_p_run.jl

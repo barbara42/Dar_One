@@ -57,14 +57,13 @@ Reminder that we are in the `/dar_one_docker/Dar_One/case_studies` directory. Us
 You will see these lines of code at the top of the file. 
 
 ```
-include("../src/DarOneTools.jl")
-using .DarOneTools
+using DarOne
 # other packages 
 using ClimateModels
 using NCDatasets
 ```
 
-This loads up DarOneTools, then imports it along with the ClimateModels and NCDatasets packages. You will see these lines of code repeated at the top of every file we work with from here on out! 
+This loads up DarOne, then imports it along with the ClimateModels and NCDatasets packages. You will see these lines of code repeated at the top of every file we work with from here on out! 
 
 Next we have to let  `MITgcm_path[1]` point to the directory where the Darwin Fortran code lives, establish that we are working with a 1x1 parcel of water (instead of running multiple grid cells at once), and we want to allow all nutrients to freely cycle (intead of holding the concentrations in the water constant). 
 
@@ -90,7 +89,7 @@ With the `build` command, we are done with the `bottle_experiment_build.jl` file
 
 Back in the Docker bash command line, we will run the bottle experiment build file with the command 
 ```bash
-julia bottle_experiment_build.jl
+julia --project=.. bottle_experiment_build.jl
 ```
 A bunch of info will be printed to the console as the model is building. Just hang tight for a minute or two and wait until you see a "successful build" message. 
 
@@ -101,11 +100,10 @@ vim bottle_experiment_run.jl
 
 We will go through every line of code in this file before we close it and run it from the docker command line. 
 
-Again you will see the lines of code loading and importing DarOneTools and the NCDatasets and ClimateModels packages, along with the line of code that points to the Darwin fortran directory. 
+Again you will see the lines of code loading and importing DarOne and the NCDatasets and ClimateModels packages, along with the line of code that points to the Darwin fortran directory. 
 
 ```
-include("../src/DarOneTools.jl")
-using .DarOneTools
+using DarOne
 # other packages 
 using ClimateModels
 using NCDatasets
@@ -216,7 +214,7 @@ With the `run` command, we are done with the `bottle_experiment_run.jl` file! Wi
 
 Back in the Docker bash command line, we will run the bottle experiment run file with the command 
 ```bash
-julia bottle_experiment_run.jl
+julia --project=.. bottle_experiment_run.jl
 ```
 It will take a few seconds to start up, but eventually you will see output being printed to the console. 
 
@@ -253,8 +251,7 @@ Reminder that we are in the `/dar_one_docker/Dar_One/case_studies` directory.
 The 360 x 160 matrix was divided in 16 parts, each 90 x 40. After running, the 16 tiles were stitched together again. Prior to building, we specify this grid size, and make sure all nutients are allowed to cycle normally (i.e. the available amount in the water is not held constant)
 
 ```
-include("../src/DarOneTools.jl")
-using .DarOneTools
+using DarOne
 using NCDatasets
 
 # set path to MITgcm 
@@ -279,7 +276,7 @@ we are done with the `global_steadystate_build.jl` file! With vim, make sure you
 
 Back in the Docker bash command line, we will run the bottle experiment build file with the command 
 ```bash
-julia global_steadystate_build.jl
+julia --project=.. global_steadystate_build.jl
 ```
 A bunch of info will be printed to the console as the model is building. Just hang tight for a minute or two and wait until you see a "successful build" message. 
 
@@ -380,7 +377,7 @@ With the `run` function, we are done with the `global_steadystate_run.jl` file! 
 
 Back in the Docker bash command line, we will run the bottle experiment run file with the command 
 ```bash
-julia global_steadystate_run.jl
+julia --project=.. global_steadystate_run.jl
 ```
 It will take a few seconds to start up, but eventually you will see output being printed to the console. 
 
@@ -431,7 +428,7 @@ Now we can close the nitrogen_fixers_build.jl file. With vim, make sure you are 
 
 Back in the Docker bash command line, we will run the file with the command 
 ```bash
-julia nitrogen_fixers_build.jl
+julia --project=.. nitrogen_fixers_build.jl
 ```
 A bunch of info will be printed to the console as the model is building. Just hang tight for a minute or two and wait until you see a "successful build" message. 
 
@@ -558,7 +555,7 @@ dar_one_run(config_obj)
 Now we can close that file. With vim, make sure you are not in insert mode by pressing `esc` then close the file by typing `:q` + enter. We then run the file using the command 
 
 ```bash
-julia nitrogen_fixers_run.jl
+julia --project=.. nitrogen_fixers_run.jl
 ```
 It will take a few seconds for it to begin running, but you will eventually see a message indicating that the model is running, along with some warnings you can ignore. After a couple minutes, the model with finish with an obvious message saying that the run did not fail!
 
