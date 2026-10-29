@@ -31,6 +31,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gfortran make libnetcdf-dev libnetcdff-dev tcsh
 
+      # Darwin3's bundled Cog generator imports imp (removed in Python 3.12).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - uses: julia-actions/setup-julia@v2
         with:
           version: '1.10'
