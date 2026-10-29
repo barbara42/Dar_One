@@ -1,0 +1,68 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    env:
+      DARONE_MITGCM_PATH: ${{ runner.temp }}/darwin3
+      DARONE_EXAMPLE_ITERATIONS: '12'
+      GKSwstype: '100'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Fortran and NetCDF dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gfortran make libnetcdf-dev libnetcdff-dev tcsh
+
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
+
+      - uses: julia-actions/cache@v2
+
+      - name: Prepare Darwin configuration
+        run: |
+          git clone --depth 1 --branch darwin https://github.com/darwinproject/darwin3.git "$DARONE_MITGCM_PATH"
+          git clone --depth 1 https://github.com/barbara42/dar_one_config.git "$DARONE_MITGCM_PATH/verification/dar_one_config"
+          mkdir -p "$DARONE_MITGCM_PATH/verification/dar_one_config/build" "$DARONE_MITGCM_PATH/verification/dar_one_config/run"
+          git config --global user.name "DarOne CI"
+          git config --global user.email "darone-ci@localhost"
+          git -C "$DARONE_MITGCM_PATH" rev-parse HEAD
+          git -C "$DARONE_MITGCM_PATH/verification/dar_one_config" rev-parse HEAD
+
+      - name: Install Julia dependencies
+        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Run existing package tests
+        run: |
+          set -o pipefail
+          julia --project=. -e 'using Pkg; Pkg.test()' 2>&1 | tee "$RUNNER_TEMP/package-tests.log"
+
+      - name: Run tutorial and case-study tests
+        run: |
+          set -o pipefail
+          julia --project=. test/test_examples.jl 2>&1 | tee "$RUNNER_TEMP/example-tests.log"
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: darone-test-logs
+          if-no-files-found: ignore
+          retention-days: 7
+          path: |
+            ${{ runner.temp }}/package-tests.log
+            ${{ runner.temp }}/example-tests.log
+            ${{ runner.temp }}/darwin3/verification/dar_one_config/build/genmake.log
+            ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/STDOUT.*
+            ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/thread-*-output.txt
