@@ -333,7 +333,7 @@ function MITgcm_launch(config::MITgcm_config)
         output_file = joinpath(rundir, "thread-$(Threads.threadid())-output.txt")
         executable = joinpath(rundir, "mitgcmuv")
         #run(pipeline(`./mitgcmuv`,stdout=output_file))
-        run(pipeline(`$executable`,stdout=output_file))
+        run(pipeline(Cmd(`$executable`, dir=rundir), stdout=output_file))
         @info "$(Threads.threadid()) $(config.ID) run did not fail!!!!! "
     catch e
         @info Threads.threadid() e

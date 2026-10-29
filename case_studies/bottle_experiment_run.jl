@@ -4,7 +4,7 @@ using ClimateModels
 using NCDatasets
 
 # the path to the Darwin version of the MITgcm
-MITgcm_path[1] = "/dar_one_docker/darwin3" 
+MITgcm_path[1] = get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3")
 
 nX = 1
 nY = 1
@@ -20,9 +20,10 @@ nY = 1
 # build(base_configuration)
 
 # load seed files - these are from global darwin runs 
-seed_file_3d = "/dar_one_docker/3d.nc"
-seed_file_temp = "/dar_one_docker/tave.nc"
-seed_file_par = "/dar_one_docker/par.nc"
+seed_dir = get(ENV, "DARONE_DATA_DIR", "/dar_one_docker")
+seed_file_3d = joinpath(seed_dir, "3d.nc")
+seed_file_temp = joinpath(seed_dir, "tave.nc")
+seed_file_par = joinpath(seed_dir, "par.nc")
 seed_ds_3d = Dataset(seed_file_3d)
 seed_ds_temp = Dataset(seed_file_temp)
 seed_ds_par = Dataset(seed_file_par)

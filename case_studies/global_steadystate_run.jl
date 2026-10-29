@@ -2,7 +2,7 @@ using DarOne
 using NCDatasets
 
 # set path to MITgcm 
-MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
+MITgcm_path[1] = get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3")
 
 # set up size of your grid
 # running the 360x180 world in 16 quadrants in case something goes wrong midway
@@ -22,9 +22,10 @@ nY = 40
 
 # load seed files - these are from global darwin runs
 # yearly average!  
-seed_file_3d = "/dar_one_docker/3d.nc"
-seed_file_temp = "/dar_one_docker/tave.nc"
-seed_file_par = "/dar_one_docker/par.nc"
+seed_dir = get(ENV, "DARONE_DATA_DIR", "/dar_one_docker")
+seed_file_3d = joinpath(seed_dir, "3d.nc")
+seed_file_temp = joinpath(seed_dir, "tave.nc")
+seed_file_par = joinpath(seed_dir, "par.nc")
 seed_ds_3d = Dataset(seed_file_3d)
 seed_ds_temp = Dataset(seed_file_temp)
 seed_ds_par = Dataset(seed_file_par)
@@ -52,10 +53,11 @@ for x_idx in x_idxs
 
         # length of run 
         end_time = 2880*20 # 2880 is one year, in iterations
+        end_time = parse(Int, get(ENV, "DARONE_EXAMPLE_ITERATIONS", string(end_time)))
         update_end_time(config_obj, end_time)
 
         # output frequency 
-        frequency = 2592000*12 # 2592000 is one month, in seconds 
+        frequency = min(2592000*12, end_time * 10800) # 2592000 is one month, in seconds
         update_all_diagnostic_freqs(config_obj, frequency)
 
         # update data > PARM04 > delX and delX
