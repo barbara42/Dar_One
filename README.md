@@ -52,6 +52,16 @@ You're now ready for the [beginner tutorial](beginner_tutorial)!
 
 See instructions in the documentation: https://barbara42.github.io/Dar_One/build/getting_started/#Setting-up-on-local-machine
 
+## Example integration tests
+
+The example test runner executes all nine beginner tutorial and case-study scripts, including Fortran builds, simulations, and the tutorial plot. It uses generated NetCDF input data and short simulation durations. Run it with a Darwin checkout containing `verification/dar_one_config` and a working GNU Fortran toolchain:
+
+```bash
+DARONE_MITGCM_PATH=/path/to/darwin3 julia --project=. test/test_examples.jl
+```
+
+Inside the existing Docker image, the default `/dar_one_docker/darwin3` path is used automatically. Test runs receive unique experiment names; their results are written under Darwin's `verification/dar_one_config/run` directory. The runner also updates the Darwin configuration source files when rebuilding each example.
+
 # Contributing 
 
 We have three main branches: `main`, `test`, and `dev`.

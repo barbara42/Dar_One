@@ -20,7 +20,7 @@ nY = 30
 # build(base_configuration)
 
 # create and set up config 
-config_name = "n_30x30"
+config_name = "n_30x30" * get(ENV, "DARONE_EXAMPLE_ID_SUFFIX", "")
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 

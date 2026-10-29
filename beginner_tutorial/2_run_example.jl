@@ -20,7 +20,7 @@ using ClimateModels
 MITgcm_path[1] = get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3")
 
 # unique name for your run 
-config_id = "beginner_tutorial-pro-syn-2" # CHANGE ME
+config_id = "beginner_tutorial-pro-syn-2" * get(ENV, "DARONE_EXAMPLE_ID_SUFFIX", "") # CHANGE ME
 
 # create config object 
 config_obj, rundir = create_MITgcm_config(config_id)

@@ -38,7 +38,7 @@ t = 1
 descriptions = ["control", "with-no3", "with-nh4"]
 for i in 1:3
     # unique name for your run 
-    config_id = "bottle-$(descriptions[i])-$lon-$lat" # CHANGE ME
+    config_id = "bottle-$(descriptions[i])-$lon-$lat" * get(ENV, "DARONE_EXAMPLE_ID_SUFFIX", "") # CHANGE ME
     config_obj, rundir = create_MITgcm_config(config_id)
     setup(config_obj)
 
