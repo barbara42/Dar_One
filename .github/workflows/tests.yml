@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 90
     env:
+      # Source revisions recovered from the original birdy1123/dar1 Docker image.
+      DARWIN_REV: 'a3709ed096ea1309c32ee3385d71f19e6368f990'
+      DARONE_CONFIG_REV: '4629088e1c0ea752ca820ae655a04588c25d0d50'
       DARONE_EXAMPLE_ITERATIONS: '12'
       GKSwstype: '100'
 
@@ -36,11 +39,16 @@ jobs:
 
       - name: Prepare Darwin configuration
         run: |
-          git clone --depth 1 --branch darwin https://github.com/darwinproject/darwin3.git "$DARONE_MITGCM_PATH"
-          git clone --depth 1 https://github.com/barbara42/dar_one_config.git "$DARONE_MITGCM_PATH/verification/dar_one_config"
-          # pkg/timeave and taveFreq were retired from MITgcm.
-          sed -i '/^[[:space:]]*timeave[[:space:]]*$/d' "$DARONE_MITGCM_PATH/verification/dar_one_config/code/packages.conf"
-          sed -i '/^[[:space:]]*taveFreq[[:space:]]*=/d' "$DARONE_MITGCM_PATH/verification/dar_one_config/input/data"
+          # Reproduce the Darwin source/configuration pair from birdy1123/dar1.
+          git init -q "$DARONE_MITGCM_PATH"
+          git -C "$DARONE_MITGCM_PATH" remote add origin https://github.com/darwinproject/darwin3.git
+          git -C "$DARONE_MITGCM_PATH" fetch --depth 1 origin "$DARWIN_REV"
+          git -C "$DARONE_MITGCM_PATH" checkout --quiet --detach FETCH_HEAD
+          config_path="$DARONE_MITGCM_PATH/verification/dar_one_config"
+          git init -q "$config_path"
+          git -C "$config_path" remote add origin https://github.com/barbara42/dar_one_config.git
+          git -C "$config_path" fetch --depth 1 origin "$DARONE_CONFIG_REV"
+          git -C "$config_path" checkout --quiet --detach FETCH_HEAD
           mkdir -p "$DARONE_MITGCM_PATH/verification/dar_one_config/build" "$DARONE_MITGCM_PATH/verification/dar_one_config/run"
           git config --global user.name "DarOne CI"
           git config --global user.email "darone-ci@localhost"
