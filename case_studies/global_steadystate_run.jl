@@ -85,6 +85,8 @@ for x_idx in x_idxs
         # create bin files for light 
         z=3 # lower value for light - farther into the water column
         init_radtrans_grid_xy(config_obj, seed_ds_par, x, y, z, t)
+        # The annual-mean light field contains one time-constant record.
+        update_param(config_obj, "data.radtrans", "RADTRANS_FORCING_PARAMS", "RT_E_period", 0.0)
 
         # FINALLY! Run!
         dar_one_run(config_obj)
