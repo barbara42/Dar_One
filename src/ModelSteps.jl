@@ -337,6 +337,11 @@ function MITgcm_launch(config::MITgcm_config)
         @info "$(Threads.threadid()) $(config.ID) run did not fail!!!!! "
     catch e
         @info Threads.threadid() e
+        output_file = joinpath(rundir, "thread-$(Threads.threadid())-output.txt")
+        if isfile(output_file)
+            println(stderr, "Last 40 lines of MITgcm output for $(config.ID):")
+            foreach(line -> println(stderr, line), last(readlines(output_file), 40))
+        end
         rethrow()
     end
     # cd(pth)

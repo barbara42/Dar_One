@@ -62,12 +62,11 @@ end
 function run_case_study(build_script, run_script, names, environment)
     built = run_example(build_script, environment)
     @test built
-    if built
-        @test run_example(run_script, environment)
-        for name in names
-            check_simulation(name)
-        end
-    end
+    built || return
+    ran = run_example(run_script, environment)
+    @test ran
+    ran || return
+    foreach(check_simulation, names)
 end
 
 mktempdir() do data_dir
