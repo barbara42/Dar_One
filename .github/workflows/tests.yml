@@ -3,6 +3,12 @@ name: Tests
 on:
   push:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      global_workers:
+        description: Concurrent DAR1 tiles for the full Bray-Curtis experiment
+        type: number
+        default: 4
 
 permissions:
   contents: read
@@ -92,31 +98,11 @@ jobs:
       - name: Simulate ten years across the global tiles
         env:
           DARONE_EXAMPLE_ITERATIONS: '28800'
-          JULIA_NUM_THREADS: '1'
+          JULIA_NUM_THREADS: '4'
+          DARONE_GLOBAL_WORKERS: ${{ inputs.global_workers || '' }}
           OPENBLAS_NUM_THREADS: '1'
           OMP_NUM_THREADS: '1'
-        run: |
-          set -euo pipefail
-          parallel_jobs=$(nproc)
-          if [ "$parallel_jobs" -gt 4 ]; then parallel_jobs=4; fi
-          echo "Running four independent x-tile batches with $parallel_jobs concurrent processes"
-          mkdir -p "$DARONE_BRAY_TILE_DIR"
-          seq 1 4 | xargs -P "$parallel_jobs" -I '{}' bash -c '
-            set -euo pipefail
-            x_tile="$1"
-            export DARONE_GLOBAL_X_TILE="$x_tile"
-            log="$RUNNER_TEMP/darone-global-x${x_tile}.log"
-            if julia --project=. case_studies/global_steadystate_run.jl > "$log" 2>&1 &&
-               julia --project=. test/resources/export_bray_curtis_tiles.jl "$x_tile" >> "$log" 2>&1; then
-              echo "Finished x-tile batch $x_tile"
-            else
-              echo "Failed x-tile batch $x_tile; last 80 log lines:"
-              tail -n 80 "$log"
-              exit 1
-            fi
-          ' _ '{}'
-          count=$(find "$DARONE_BRAY_TILE_DIR" -maxdepth 1 -type f -name 'bray-*.nc' | wc -l)
-          test "$count" -eq 16
+        run: bash test/resources/run_bray_curtis_tiles.sh
 
       - name: Reconstruct the manuscript Bray-Curtis map
         run: |
@@ -146,7 +132,7 @@ jobs:
           retention-days: 14
           path: ${{ runner.temp }}/darone-example-plots/full/
 
-      - name: Include exact documentation figures with the CI plots
+      - name: Copy published documentation figures
         if: always()
         run: |
           mkdir -p "$DARONE_EXAMPLE_PLOT_DIR/documentation"
@@ -156,14 +142,24 @@ jobs:
             cmp "$source" "$DARONE_EXAMPLE_PLOT_DIR/documentation/$(basename "$source")"
           done
 
-      - name: Upload example plots
+      - name: Upload published figure references
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: darone-example-plots
+          name: darone-reference-figures
           if-no-files-found: ignore
           retention-days: 14
-          path: ${{ runner.temp }}/darone-example-plots/
+          path: |
+            ${{ runner.temp }}/darone-example-plots/documentation/
+            ${{ runner.temp }}/darone-example-plots/README.md
+
+      - name: Inventory model diagnostics on failure
+        if: failure()
+        run: |
+          find "$DARONE_MITGCM_PATH/verification/dar_one_config/run" \
+            -type f \( -name '3d*' -o -name 'data.diagnostics' \) \
+            -printf '%p %s bytes\n' | sort > "$RUNNER_TEMP/darone-diagnostic-inventory.txt"
+          head -n 100 "$RUNNER_TEMP/darone-diagnostic-inventory.txt"
 
       - name: Upload failure logs
         if: failure()
@@ -174,6 +170,7 @@ jobs:
           retention-days: 7
           path: |
             ${{ runner.temp }}/package-tests.log
+            ${{ runner.temp }}/darone-diagnostic-inventory.txt
             ${{ runner.temp }}/darone-example-logs/*.log
             ${{ runner.temp }}/darone-global-x*.log
             ${{ runner.temp }}/darwin3/verification/dar_one_config/build/genmake.log

@@ -35,9 +35,12 @@ t = 1 # yearly averages, only have one timepoint
 x_idxs = [(1,90), (91,180), (181, 270), (271,360)]
 y_idxs = [(1,40), (41,80), (81, 120), (121, 160)]
 
-# Each x-tile batch contains four independent quadrants for parallel CI execution.
+# Select individual tiles when running independent simulations concurrently.
 if haskey(ENV, "DARONE_GLOBAL_X_TILE")
     x_idxs = [x_idxs[parse(Int, ENV["DARONE_GLOBAL_X_TILE"])]]
+end
+if haskey(ENV, "DARONE_GLOBAL_Y_TILE")
+    y_idxs = [y_idxs[parse(Int, ENV["DARONE_GLOBAL_Y_TILE"])]]
 end
 
 # cycle through the selected quadrants

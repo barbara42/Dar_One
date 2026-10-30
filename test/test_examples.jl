@@ -144,13 +144,5 @@ mktempdir() do data_dir
                            "case_studies/nitrogen_fixers_run.jl", ["n_30x30"], environment)
         end
 
-        @testset "Example plots" begin
-            @test run_example("test/resources/plot_example_outputs.jl", environment)
-            for name in ("bottle_experiment_ci.png", "Fig_Bray_Curtis_ci.png", "NfixerPhase_ci.png")
-                file = joinpath(generated_dir, name)
-                @test isfile(file) && filesize(file) > 0
-            end
-            @info "Example plots saved in $plot_dir"
-        end
     end
 end

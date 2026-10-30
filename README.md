@@ -62,7 +62,7 @@ DARONE_MITGCM_PATH=/path/to/darwin3 julia --project=. test/test_examples.jl
 
 Inside the existing Docker image, the default `/dar_one_docker/darwin3` path is used automatically. Test runs receive unique experiment names; their results are written under Darwin's `verification/dar_one_config/run` directory. The runner also updates the Darwin configuration source files when rebuilding each example.
 
-It generates PNG sanity-check plots for the tutorial, bottle treatments, global tiles, and nitrogen-fixer gradients. Set `DARONE_EXAMPLE_PLOT_DIR` to choose the output directory, or download the `darone-example-plots` artifact from a GitHub Actions run. The CI figures use short simulations and generated test inputs.
+The fast tests use generated NetCDF inputs and check the beginner plotting example. The workflow also runs a full ten-year global comparison using the original Docker datasets. Its calculated Figure 4C map and NetCDF field are uploaded as `darone-bray-curtis-full`; the six published figures are uploaded separately as `darone-reference-figures`.
 
 # Contributing 
 

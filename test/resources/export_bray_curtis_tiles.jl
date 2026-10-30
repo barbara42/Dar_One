@@ -1,13 +1,15 @@
 using NCDatasets
 
-# Export four sections of the full-resolution Bray-Curtis map after a long DAR1 run.
-# Each x tile is simulated by a separate process on the same CI runner.
+# Export one tile (x, y), or all four y tiles for a given x.
 const x_bounds = ((1, 90), (91, 180), (181, 270), (271, 360))
 const y_bounds = ((1, 40), (41, 80), (81, 120), (121, 160))
 const species = (21:29, 35:70)  # The published comparison excludes diazotrophs.
 
-x_tile = parse(Int, only(ARGS))
+length(ARGS) in (1, 2) || error("Expected x-tile index and optional y-tile index")
+x_tile = parse(Int, ARGS[1])
 1 <= x_tile <= 4 || error("Expected x-tile index between 1 and 4")
+y_tiles = length(ARGS) == 2 ? (parse(Int, ARGS[2]),) : 1:4
+all(1 <= y <= 4 for y in y_tiles) || error("Expected y-tile index between 1 and 4")
 x1, x2 = x_bounds[x_tile]
 
 darwin = abspath(get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3"))
@@ -18,19 +20,31 @@ mkpath(output_dir)
 
 function annual_outputs(run_name)
     rundir = joinpath(run_root, run_name, "run")
-    folders = sort(filter(d -> startswith(d, "ecco_gud_") && isdir(joinpath(rundir, d)), readdir(rundir)))
+    isdir(rundir) || error("Missing experiment directory: $rundir")
+
+    # MNC typically writes 3d.*.nc under ecco_gud_*, but the output
+    # directory can vary between MITgcm configurations.
+    files = sort([joinpath(dir, file) for (dir, _, names) in walkdir(rundir)
+                  for file in names if startswith(file, "3d.") && endswith(file, ".nc")])
     records = Tuple{String, Int}[]
-    for folder in folders
-        dir = joinpath(rundir, folder)
-        files = sort(filter(f -> startswith(f, "3d.") && endswith(f, ".nc"), readdir(dir)))
-        for file in files
-            path = joinpath(dir, file)
-            NCDataset(path) do ds
-                append!(records, ((path, i) for i in 1:size(ds["TRAC21"], 4)))
-            end
+    counts = Pair{String, Int}[]
+    for file in files
+        n = NCDataset(file) do ds
+            size(ds["TRAC21"], 4)
         end
+        push!(counts, relpath(file, rundir) => n)
+        append!(records, ((file, i) for i in 1:n))
     end
-    length(records) >= 2 || error("Expected two annual diagnostics for $run_name, found $(length(records))")
+
+    if length(records) < 2
+        candidates = sort([relpath(joinpath(dir, file), rundir)
+                           for (dir, _, names) in walkdir(rundir)
+                           for file in names if startswith(file, "3d")])
+        error("Expected two annual diagnostic records for $run_name, found $(length(records)) " *
+              "across $(length(files)) NetCDF files. Records: $counts. " *
+              "Other 3d outputs: $(first(candidates, min(length(candidates), 20))). " *
+              "Inspect the Fortran log and data.diagnostics in $rundir.")
+    end
     return last(records, 2)
 end
 
@@ -41,7 +55,8 @@ function surface(ds, variable, x, y, t)
 end
 
 NCDataset(seed_file) do reference
-    for (y_tile, (y1, y2)) in enumerate(y_bounds)
+    for y_tile in y_tiles
+        y1, y2 = y_bounds[y_tile]
         run_name = "globe-ss-$x1-$x2-$y1-$y2"
         records = annual_outputs(run_name)
         numerator = zeros(Float64, 90, 40)

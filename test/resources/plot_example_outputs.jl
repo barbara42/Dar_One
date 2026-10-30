@@ -1,3 +1,5 @@
+# Optional plots of synthetic fixture output for local debugging.
+# These short-run figures are not reproductions of the manuscript results.
 using NCDatasets
 using Plots
 
