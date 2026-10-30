@@ -1,0 +1,178 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      global_workers:
+        description: Concurrent DAR1 tiles for the full Bray-Curtis experiment
+        type: number
+        default: 4
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      # Source revisions recovered from the original birdy1123/dar1 Docker image.
+      DARWIN_REV: 'a3709ed096ea1309c32ee3385d71f19e6368f990'
+      DARONE_CONFIG_REV: '4629088e1c0ea752ca820ae655a04588c25d0d50'
+      DARONE_EXAMPLE_ITERATIONS: '12'
+      GKSwstype: '100'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure Darwin path
+        run: |
+          echo "DARONE_MITGCM_PATH=$RUNNER_TEMP/darwin3" >> "$GITHUB_ENV"
+          echo "DARONE_EXAMPLE_LOG_DIR=$RUNNER_TEMP/darone-example-logs" >> "$GITHUB_ENV"
+          echo "DARONE_EXAMPLE_PLOT_DIR=$RUNNER_TEMP/darone-example-plots" >> "$GITHUB_ENV"
+          echo "DARONE_DATA_DIR=$RUNNER_TEMP/darwin-inputs" >> "$GITHUB_ENV"
+          echo "DARONE_BRAY_TILE_DIR=$RUNNER_TEMP/bray-curtis-tiles" >> "$GITHUB_ENV"
+
+      - name: Install Fortran and NetCDF dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gfortran make libnetcdf-dev libnetcdff-dev tcsh
+
+      # Darwin3's bundled Cog generator imports imp (removed in Python 3.12).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10'
+
+      - uses: julia-actions/cache@v2
+
+      - name: Prepare Darwin configuration
+        run: |
+          # Reproduce the Darwin source/configuration pair from birdy1123/dar1.
+          git init -q "$DARONE_MITGCM_PATH"
+          git -C "$DARONE_MITGCM_PATH" remote add origin https://github.com/darwinproject/darwin3.git
+          git -C "$DARONE_MITGCM_PATH" fetch --depth 1 origin "$DARWIN_REV"
+          git -C "$DARONE_MITGCM_PATH" checkout --quiet --detach FETCH_HEAD
+          config_path="$DARONE_MITGCM_PATH/verification/dar_one_config"
+          git init -q "$config_path"
+          git -C "$config_path" remote add origin https://github.com/barbara42/dar_one_config.git
+          git -C "$config_path" fetch --depth 1 origin "$DARONE_CONFIG_REV"
+          git -C "$config_path" checkout --quiet --detach FETCH_HEAD
+          mkdir -p "$DARONE_MITGCM_PATH/verification/dar_one_config/build" "$DARONE_MITGCM_PATH/verification/dar_one_config/run"
+          git config --global user.name "DarOne CI"
+          git config --global user.email "darone-ci@localhost"
+          git -C "$DARONE_MITGCM_PATH" rev-parse HEAD
+          git -C "$DARONE_MITGCM_PATH/verification/dar_one_config" rev-parse HEAD
+
+      - name: Run package and example tests
+        run: |
+          set -o pipefail
+          julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()' 2>&1 | tee "$RUNNER_TEMP/package-tests.log"
+
+      - name: Extract the original Darwin reference data
+        env:
+          DARONE_IMAGE: birdy1123/dar1@sha256:9eb6f57a9647e3667deb2c1670ef6426876b72da6b11808a604d8771662389b3
+        run: |
+          set -euo pipefail
+          docker pull "$DARONE_IMAGE"
+          container=$(docker create "$DARONE_IMAGE")
+          trap 'docker rm -f "$container" > /dev/null' EXIT
+          mkdir -p "$DARONE_DATA_DIR"
+          for file in 3d.nc tave.nc par.nc; do
+            docker cp "$container:/dar_one_docker/$file" "$DARONE_DATA_DIR/$file"
+            test -s "$DARONE_DATA_DIR/$file"
+          done
+          (cd "$DARONE_DATA_DIR" && sha256sum 3d.nc tave.nc par.nc > inputs.sha256)
+          cat "$DARONE_DATA_DIR/inputs.sha256"
+          du -h "$DARONE_DATA_DIR"/*.nc
+
+      - name: Rebuild the global configuration
+        run: |
+          julia --project=. case_studies/global_steadystate_build.jl
+
+      - name: Simulate ten years across the global tiles
+        env:
+          DARONE_EXAMPLE_ITERATIONS: '28800'
+          JULIA_NUM_THREADS: '4'
+          DARONE_GLOBAL_WORKERS: ${{ inputs.global_workers || '' }}
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+        run: bash test/resources/run_bray_curtis_tiles.sh
+
+      - name: Reconstruct the manuscript Bray-Curtis map
+        run: |
+          julia --project=. test/resources/plot_full_bray_curtis.jl \
+            "$DARONE_BRAY_TILE_DIR" "$DARONE_EXAMPLE_PLOT_DIR/full"
+          test -s "$DARONE_EXAMPLE_PLOT_DIR/full/Fig_Bray_Curtis.png"
+          test -s "$DARONE_EXAMPLE_PLOT_DIR/full/Fig_Bray_Curtis.nc"
+          cp "$DARONE_DATA_DIR/inputs.sha256" "$DARONE_EXAMPLE_PLOT_DIR/full/inputs.sha256"
+          cat > "$DARONE_EXAMPLE_PLOT_DIR/full/README.txt" <<'NOTES'
+          Manuscript Figure 4C: Bray-Curtis dissimilarity
+          16 independent 90x40 DAR1 tiles, 10 model years (28800 steps per tile).
+          Each tile uses the time mean of its final two annual output records.
+          The reference is the annual-mean Darwin biomass from the pinned Docker image.
+          Compare biomass tracers 21-29 and 35-70, excluding diazotrophs.
+          Darwin3: a3709ed096ea1309c32ee3385d71f19e6368f990
+          dar_one_config: 4629088e1c0ea752ca820ae655a04588c25d0d50
+          Docker: birdy1123/dar1@sha256:9eb6f57a9647e3667deb2c1670ef6426876b72da6b11808a604d8771662389b3
+          Original data hashes: inputs.sha256
+          NOTES
+
+      - name: Upload the full Bray-Curtis result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: darone-bray-curtis-full
+          if-no-files-found: ignore
+          retention-days: 14
+          path: ${{ runner.temp }}/darone-example-plots/full/
+
+      - name: Copy published documentation figures
+        if: always()
+        run: |
+          mkdir -p "$DARONE_EXAMPLE_PLOT_DIR/documentation"
+          cp docs/src/images/*.png "$DARONE_EXAMPLE_PLOT_DIR/documentation/"
+          cp test/resources/figure_artifact_README.md "$DARONE_EXAMPLE_PLOT_DIR/README.md"
+          for source in docs/src/images/*.png; do
+            cmp "$source" "$DARONE_EXAMPLE_PLOT_DIR/documentation/$(basename "$source")"
+          done
+
+      - name: Upload published figure references
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: darone-reference-figures
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            ${{ runner.temp }}/darone-example-plots/documentation/
+            ${{ runner.temp }}/darone-example-plots/README.md
+
+      - name: Inventory model diagnostics on failure
+        if: failure()
+        run: |
+          find "$DARONE_MITGCM_PATH/verification/dar_one_config/run" \
+            -type f \( -name '3d*' -o -name 'data.diagnostics' \) \
+            -printf '%p %s bytes\n' | sort > "$RUNNER_TEMP/darone-diagnostic-inventory.txt"
+          head -n 100 "$RUNNER_TEMP/darone-diagnostic-inventory.txt"
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: darone-test-logs
+          if-no-files-found: ignore
+          retention-days: 7
+          path: |
+            ${{ runner.temp }}/package-tests.log
+            ${{ runner.temp }}/darone-diagnostic-inventory.txt
+            ${{ runner.temp }}/darone-example-logs/*.log
+            ${{ runner.temp }}/darone-global-x*.log
+            ${{ runner.temp }}/darwin3/verification/dar_one_config/build/genmake.log
+            ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/STDOUT.*
+            ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/thread-*-output.txt

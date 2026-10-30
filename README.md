@@ -52,6 +52,18 @@ You're now ready for the [beginner tutorial](beginner_tutorial)!
 
 See instructions in the documentation: https://barbara42.github.io/Dar_One/build/getting_started/#Setting-up-on-local-machine
 
+## Example integration tests
+
+The example test runner executes all nine beginner tutorial and case-study scripts, including Fortran builds, simulations, and the tutorial plot. It uses generated NetCDF input data and short simulation durations. Run it with a Darwin checkout containing `verification/dar_one_config` and a working GNU Fortran toolchain:
+
+```bash
+DARONE_MITGCM_PATH=/path/to/darwin3 julia --project=. test/test_examples.jl
+```
+
+Inside the existing Docker image, the default `/dar_one_docker/darwin3` path is used automatically. Test runs receive unique experiment names; their results are written under Darwin's `verification/dar_one_config/run` directory. The runner also updates the Darwin configuration source files when rebuilding each example.
+
+The fast tests use generated NetCDF inputs and check the beginner plotting example. The workflow also runs a full ten-year global comparison using the original Docker datasets. Its calculated Figure 4C map and NetCDF field are uploaded as `darone-bray-curtis-full`; the six published figures are uploaded separately as `darone-reference-figures`.
+
 # Contributing 
 
 We have three main branches: `main`, `test`, and `dev`.
@@ -59,3 +71,15 @@ We have three main branches: `main`, `test`, and `dev`.
 All other branches are feature branches. Once a feature has been implemented, tested, and documented you can make a pull request to merge it into the `dev` branch. 
 
 `main` is the most stable version of the code. This branch is used for the docker image. 
+
+## Full Bray-Curtis comparison in CI
+
+The Tests workflow reproduces the calculation behind manuscript Figure 4C using
+original Darwin input data from `birdy1123/dar1`. After the package tests, it
+runs 16 independent 90x40 DAR1 tiles for 10 model years, with up to four tile
+batches running concurrently on one GitHub Actions runner. It averages the last
+two annual outputs and compares the 45 non-diazotroph biomass tracers (21-29,
+35-70) against the Darwin reference community.
+
+The result is available as `darone-bray-curtis-full` on the workflow Summary
+page, containing `Fig_Bray_Curtis.png` and `Fig_Bray_Curtis.nc`.

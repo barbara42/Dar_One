@@ -2,10 +2,10 @@ using DarOne
 using NCDatasets
 
 # set path to MITgcm 
-MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
+MITgcm_path[1] = get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3")
 
 # set up size of your grid
-# running the 360x180 world in 16 quadrants in case something goes wrong midway
+# running the 360x160 world in 16 quadrants in case something goes wrong midway
 nX = 90
 nY = 40
 
@@ -22,9 +22,10 @@ nY = 40
 
 # load seed files - these are from global darwin runs
 # yearly average!  
-seed_file_3d = "/dar_one_docker/3d.nc"
-seed_file_temp = "/dar_one_docker/tave.nc"
-seed_file_par = "/dar_one_docker/par.nc"
+seed_dir = get(ENV, "DARONE_DATA_DIR", "/dar_one_docker")
+seed_file_3d = joinpath(seed_dir, "3d.nc")
+seed_file_temp = joinpath(seed_dir, "tave.nc")
+seed_file_par = joinpath(seed_dir, "par.nc")
 seed_ds_3d = Dataset(seed_file_3d)
 seed_ds_temp = Dataset(seed_file_temp)
 seed_ds_par = Dataset(seed_file_par)
@@ -34,7 +35,15 @@ t = 1 # yearly averages, only have one timepoint
 x_idxs = [(1,90), (91,180), (181, 270), (271,360)]
 y_idxs = [(1,40), (41,80), (81, 120), (121, 160)]
 
-# cycle through all 16 quadrants
+# Select individual tiles when running independent simulations concurrently.
+if haskey(ENV, "DARONE_GLOBAL_X_TILE")
+    x_idxs = [x_idxs[parse(Int, ENV["DARONE_GLOBAL_X_TILE"])]]
+end
+if haskey(ENV, "DARONE_GLOBAL_Y_TILE")
+    y_idxs = [y_idxs[parse(Int, ENV["DARONE_GLOBAL_Y_TILE"])]]
+end
+
+# cycle through the selected quadrants
 for x_idx in x_idxs
     for y_idx in y_idxs
         # what slice do we want?
@@ -46,16 +55,17 @@ for x_idx in x_idxs
         z = 1 # surface 
 
         # set up config 
-        config_id = "globe-ss-$x_idx-$y_idx"
+        config_id = "globe-ss-$(x_idx[1])-$(x_idx[2])-$(y_idx[1])-$(y_idx[2])" * get(ENV, "DARONE_EXAMPLE_ID_SUFFIX", "")
         config_obj, rundir = create_MITgcm_config(config_id)
         setup(config_obj)
 
         # length of run 
         end_time = 2880*20 # 2880 is one year, in iterations
+        end_time = parse(Int, get(ENV, "DARONE_EXAMPLE_ITERATIONS", string(end_time)))
         update_end_time(config_obj, end_time)
 
         # output frequency 
-        frequency = 2592000*12 # 2592000 is one month, in seconds 
+        frequency = min(2592000*12, end_time * 10800) # 2592000 is one month, in seconds
         update_all_diagnostic_freqs(config_obj, frequency)
 
         # update data > PARM04 > delX and delX
@@ -76,13 +86,17 @@ for x_idx in x_idxs
             init_tracer_grid(config_obj, tracer_name, init_matrix)
         end
 
-        # create bin file for temperatures - all 15 degrees
+        # create initial temperatures from the Darwin annual mean
         temp_matrix = seed_ds_temp["Ttave"][x, y, z, t]
         init_temperature_grid(config_obj, temp_matrix)
+        # The reference grid contains zero-temperature land cells, which DAR1 treats as wet.
+        update_param(config_obj, "data", "PARM05", "checkIniTemp", false)
 
         # create bin files for light 
         z=3 # lower value for light - farther into the water column
         init_radtrans_grid_xy(config_obj, seed_ds_par, x, y, z, t)
+        # The annual-mean light field contains one time-constant record.
+        update_param(config_obj, "data.radtrans", "RADTRANS_FORCING_PARAMS", "RT_E_period", 0.0)
 
         # FINALLY! Run!
         dar_one_run(config_obj)

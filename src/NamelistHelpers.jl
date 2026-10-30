@@ -610,7 +610,10 @@ end
 function update_radtrans_initialFile(config_obj, param_name, new_val)
     file_name = "data.radtrans"
     group_name = "RADTRANS_FORCING_PARAMS"
-    update_param(config_obj, file_name, group_name, param_name, new_val)
+    # Resolve file paths from the run directory to stay within Fortran filename limits.
+    rundir = joinpath(config_obj.folder, config_obj.ID, "run")
+    path = isabspath(new_val) ? relpath(new_val, rundir) : new_val
+    update_param(config_obj, file_name, group_name, param_name, path)
 end
 
 """

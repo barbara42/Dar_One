@@ -2,7 +2,7 @@ using DarOne
 using NCDatasets
 
 # set path to MITgcm 
-MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
+MITgcm_path[1] = get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3")
 
 # set up size of your grid 
 nX = 30
@@ -20,16 +20,17 @@ nY = 30
 # build(base_configuration)
 
 # create and set up config 
-config_name = "n_30x30"
+config_name = "n_30x30" * get(ENV, "DARONE_EXAMPLE_ID_SUFFIX", "")
 config_obj, rundir = create_MITgcm_config(config_name)
 setup(config_obj)
 
 # length of run 
 end_time = 2880 * 5 # 2880 = one year, in iterations
+end_time = parse(Int, get(ENV, "DARONE_EXAMPLE_ITERATIONS", string(end_time)))
 update_end_time(config_obj, end_time)
 
 # output frequency 
-frequency = 2592000*12 # 2592000 = one month, in seconds
+frequency = min(2592000*12, end_time * 10800) # 2592000 = one month, in seconds
 update_all_diagnostic_freqs(config_obj, frequency)
 
 new_temp = 24
@@ -39,9 +40,10 @@ update_temperature(config_obj, new_temp)
 update_delX_delY_for_grid(config_obj, nX, nY) 
 
 # seeded from N Pacific gyre 
-seed_file = "/dar_one_docker/3d.nc"
+seed_dir = get(ENV, "DARONE_DATA_DIR", "/dar_one_docker")
+seed_file = joinpath(seed_dir, "3d.nc")
 seed_ds = Dataset(seed_file)
-seed_par_file = "/dar_one_docker/par.nc"
+seed_par_file = joinpath(seed_dir, "par.nc")
 seed_ds_par = Dataset(seed_par_file)
 x = 203
 y = 135

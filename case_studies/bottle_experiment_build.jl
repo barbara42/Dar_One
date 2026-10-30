@@ -4,7 +4,7 @@ using ClimateModels
 using NCDatasets
 
 # the path to the Darwin version of the MITgcm
-MITgcm_path[1] = "/dar_one_docker/darwin3" 
+MITgcm_path[1] = get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3")
 
 nX = 1
 nY = 1
