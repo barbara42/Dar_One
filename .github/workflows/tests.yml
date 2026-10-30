@@ -25,6 +25,7 @@ jobs:
         run: |
           echo "DARONE_MITGCM_PATH=$RUNNER_TEMP/darwin3" >> "$GITHUB_ENV"
           echo "DARONE_EXAMPLE_LOG_DIR=$RUNNER_TEMP/darone-example-logs" >> "$GITHUB_ENV"
+          echo "DARONE_EXAMPLE_PLOT_DIR=$RUNNER_TEMP/darone-example-plots" >> "$GITHUB_ENV"
 
       - name: Install Fortran and NetCDF dependencies
         run: |
@@ -64,6 +65,15 @@ jobs:
         run: |
           set -o pipefail
           julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()' 2>&1 | tee "$RUNNER_TEMP/package-tests.log"
+
+      - name: Upload example plots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: darone-example-plots
+          if-no-files-found: ignore
+          retention-days: 14
+          path: ${{ runner.temp }}/darone-example-plots/*.png
 
       - name: Upload failure logs
         if: failure()

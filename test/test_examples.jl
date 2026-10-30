@@ -69,14 +69,18 @@ function run_case_study(build_script, run_script, names, environment)
     foreach(check_simulation, names)
 end
 
+plot_dir = get(ENV, "DARONE_EXAMPLE_PLOT_DIR", joinpath(tempdir(), "darone-example-plots-$(getpid())"))
+mkpath(plot_dir)
+
 mktempdir() do data_dir
-    plot_file = joinpath(data_dir, "beginner_tutorial.png")
+    plot_file = joinpath(plot_dir, "beginner_tutorial.png")
     environment = [
         "DARONE_MITGCM_PATH" => DARWIN,
         "DARONE_DATA_DIR" => data_dir,
         "DARONE_EXAMPLE_ITERATIONS" => get(ENV, "DARONE_EXAMPLE_ITERATIONS", "12"),
         "DARONE_EXAMPLE_ID_SUFFIX" => RUN_SUFFIX,
         "DARONE_PLOT_FILE" => plot_file,
+        "DARONE_EXAMPLE_PLOT_DIR" => plot_dir,
         "GKSwstype" => "100",
     ]
 
@@ -119,6 +123,16 @@ mktempdir() do data_dir
         @testset "Nitrogen fixers" begin
             run_case_study("case_studies/nitrogen_fixers_build.jl",
                            "case_studies/nitrogen_fixers_run.jl", ["n_30x30"], environment)
+        end
+
+        @testset "Example plots" begin
+            @test run_example("test/resources/plot_example_outputs.jl", environment)
+            for name in ("beginner_plankton.png", "bottle_experiment.png",
+                         "global_steady_state.png", "nitrogen_fixers.png")
+                file = joinpath(plot_dir, name)
+                @test isfile(file) && filesize(file) > 0
+            end
+            @info "Example plots saved in $plot_dir"
         end
     end
 end
