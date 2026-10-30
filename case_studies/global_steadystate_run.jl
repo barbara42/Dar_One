@@ -86,9 +86,11 @@ for x_idx in x_idxs
             init_tracer_grid(config_obj, tracer_name, init_matrix)
         end
 
-        # create bin file for temperatures - all 15 degrees
+        # create initial temperatures from the Darwin annual mean
         temp_matrix = seed_ds_temp["Ttave"][x, y, z, t]
         init_temperature_grid(config_obj, temp_matrix)
+        # The reference grid contains zero-temperature land cells, which DAR1 treats as wet.
+        update_param(config_obj, "data", "PARM05", "checkIniTemp", false)
 
         # create bin files for light 
         z=3 # lower value for light - farther into the water column

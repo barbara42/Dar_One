@@ -336,6 +336,11 @@ function MITgcm_launch(config::MITgcm_config)
         open(output_file, "w") do output
             run(pipeline(Cmd(`$executable`, dir=rundir), stdout=output, stderr=output))
         end
+        normal_end = open(output_file) do output
+            seek(output, max(0, filesize(output_file) - 8192))
+            occursin("Execution ended Normally", read(output, String))
+        end
+        normal_end || error("MITgcm $(config.ID) did not terminate normally; see $output_file")
         @info "$(Threads.threadid()) $(config.ID) run did not fail!!!!! "
     catch e
         @info Threads.threadid() e
