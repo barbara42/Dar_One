@@ -10,7 +10,7 @@ permissions:
 jobs:
   tests:
     runs-on: ubuntu-24.04
-    timeout-minutes: 90
+    timeout-minutes: 360
     env:
       # Source revisions recovered from the original birdy1123/dar1 Docker image.
       DARWIN_REV: 'a3709ed096ea1309c32ee3385d71f19e6368f990'
@@ -26,6 +26,8 @@ jobs:
           echo "DARONE_MITGCM_PATH=$RUNNER_TEMP/darwin3" >> "$GITHUB_ENV"
           echo "DARONE_EXAMPLE_LOG_DIR=$RUNNER_TEMP/darone-example-logs" >> "$GITHUB_ENV"
           echo "DARONE_EXAMPLE_PLOT_DIR=$RUNNER_TEMP/darone-example-plots" >> "$GITHUB_ENV"
+          echo "DARONE_DATA_DIR=$RUNNER_TEMP/darwin-inputs" >> "$GITHUB_ENV"
+          echo "DARONE_BRAY_TILE_DIR=$RUNNER_TEMP/bray-curtis-tiles" >> "$GITHUB_ENV"
 
       - name: Install Fortran and NetCDF dependencies
         run: |
@@ -66,6 +68,94 @@ jobs:
           set -o pipefail
           julia --project=. -e 'using Pkg; Pkg.instantiate(); Pkg.test()' 2>&1 | tee "$RUNNER_TEMP/package-tests.log"
 
+      - name: Extract the original Darwin reference data
+        env:
+          DARONE_IMAGE: birdy1123/dar1@sha256:9eb6f57a9647e3667deb2c1670ef6426876b72da6b11808a604d8771662389b3
+        run: |
+          set -euo pipefail
+          docker pull "$DARONE_IMAGE"
+          container=$(docker create "$DARONE_IMAGE")
+          trap 'docker rm -f "$container" > /dev/null' EXIT
+          mkdir -p "$DARONE_DATA_DIR"
+          for file in 3d.nc tave.nc par.nc; do
+            docker cp "$container:/dar_one_docker/$file" "$DARONE_DATA_DIR/$file"
+            test -s "$DARONE_DATA_DIR/$file"
+          done
+          (cd "$DARONE_DATA_DIR" && sha256sum 3d.nc tave.nc par.nc > inputs.sha256)
+          cat "$DARONE_DATA_DIR/inputs.sha256"
+          du -h "$DARONE_DATA_DIR"/*.nc
+
+      - name: Rebuild the global configuration
+        run: |
+          julia --project=. case_studies/global_steadystate_build.jl
+
+      - name: Simulate ten years across the global tiles
+        env:
+          DARONE_EXAMPLE_ITERATIONS: '28800'
+          JULIA_NUM_THREADS: '1'
+          OPENBLAS_NUM_THREADS: '1'
+          OMP_NUM_THREADS: '1'
+        run: |
+          set -euo pipefail
+          parallel_jobs=$(nproc)
+          if [ "$parallel_jobs" -gt 4 ]; then parallel_jobs=4; fi
+          echo "Running four independent x-tile batches with $parallel_jobs concurrent processes"
+          mkdir -p "$DARONE_BRAY_TILE_DIR"
+          seq 1 4 | xargs -P "$parallel_jobs" -I '{}' bash -c '
+            set -euo pipefail
+            x_tile="$1"
+            export DARONE_GLOBAL_X_TILE="$x_tile"
+            log="$RUNNER_TEMP/darone-global-x${x_tile}.log"
+            if julia --project=. case_studies/global_steadystate_run.jl > "$log" 2>&1 &&
+               julia --project=. test/resources/export_bray_curtis_tiles.jl "$x_tile" >> "$log" 2>&1; then
+              echo "Finished x-tile batch $x_tile"
+            else
+              echo "Failed x-tile batch $x_tile; last 80 log lines:"
+              tail -n 80 "$log"
+              exit 1
+            fi
+          ' _ '{}'
+          count=$(find "$DARONE_BRAY_TILE_DIR" -maxdepth 1 -type f -name 'bray-*.nc' | wc -l)
+          test "$count" -eq 16
+
+      - name: Reconstruct the manuscript Bray-Curtis map
+        run: |
+          julia --project=. test/resources/plot_full_bray_curtis.jl \
+            "$DARONE_BRAY_TILE_DIR" "$DARONE_EXAMPLE_PLOT_DIR/full"
+          test -s "$DARONE_EXAMPLE_PLOT_DIR/full/Fig_Bray_Curtis.png"
+          test -s "$DARONE_EXAMPLE_PLOT_DIR/full/Fig_Bray_Curtis.nc"
+          cp "$DARONE_DATA_DIR/inputs.sha256" "$DARONE_EXAMPLE_PLOT_DIR/full/inputs.sha256"
+          cat > "$DARONE_EXAMPLE_PLOT_DIR/full/README.txt" <<'NOTES'
+          Manuscript Figure 4C: Bray-Curtis dissimilarity
+          16 independent 90x40 DAR1 tiles, 10 model years (28800 steps per tile).
+          Each tile uses the time mean of its final two annual output records.
+          The reference is the annual-mean Darwin biomass from the pinned Docker image.
+          Compare biomass tracers 21-29 and 35-70, excluding diazotrophs.
+          Darwin3: a3709ed096ea1309c32ee3385d71f19e6368f990
+          dar_one_config: 4629088e1c0ea752ca820ae655a04588c25d0d50
+          Docker: birdy1123/dar1@sha256:9eb6f57a9647e3667deb2c1670ef6426876b72da6b11808a604d8771662389b3
+          Original data hashes: inputs.sha256
+          NOTES
+
+      - name: Upload the full Bray-Curtis result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: darone-bray-curtis-full
+          if-no-files-found: ignore
+          retention-days: 14
+          path: ${{ runner.temp }}/darone-example-plots/full/
+
+      - name: Include exact documentation figures with the CI plots
+        if: always()
+        run: |
+          mkdir -p "$DARONE_EXAMPLE_PLOT_DIR/documentation"
+          cp docs/src/images/*.png "$DARONE_EXAMPLE_PLOT_DIR/documentation/"
+          cp test/resources/figure_artifact_README.md "$DARONE_EXAMPLE_PLOT_DIR/README.md"
+          for source in docs/src/images/*.png; do
+            cmp "$source" "$DARONE_EXAMPLE_PLOT_DIR/documentation/$(basename "$source")"
+          done
+
       - name: Upload example plots
         if: always()
         uses: actions/upload-artifact@v4
@@ -73,7 +163,7 @@ jobs:
           name: darone-example-plots
           if-no-files-found: ignore
           retention-days: 14
-          path: ${{ runner.temp }}/darone-example-plots/*.png
+          path: ${{ runner.temp }}/darone-example-plots/
 
       - name: Upload failure logs
         if: failure()
@@ -85,6 +175,7 @@ jobs:
           path: |
             ${{ runner.temp }}/package-tests.log
             ${{ runner.temp }}/darone-example-logs/*.log
+            ${{ runner.temp }}/darone-global-x*.log
             ${{ runner.temp }}/darwin3/verification/dar_one_config/build/genmake.log
             ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/STDOUT.*
             ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/thread-*-output.txt

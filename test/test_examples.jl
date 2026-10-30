@@ -72,8 +72,25 @@ end
 plot_dir = get(ENV, "DARONE_EXAMPLE_PLOT_DIR", joinpath(tempdir(), "darone-example-plots-$(getpid())"))
 mkpath(plot_dir)
 
+@testset "Documentation image references" begin
+    source_dir = joinpath(ROOT, "docs", "src")
+    references = Set{String}()
+    for file in filter(f -> endswith(f, ".md"), readdir(source_dir; join=true))
+        for match in eachmatch(r"!\[[^\]]*\]\((images/[^)]+)\)", read(file, String))
+            push!(references, match.captures[1])
+        end
+    end
+    @test !isempty(references)
+    for reference in references
+        image = joinpath(source_dir, reference)
+        @test isfile(image) && filesize(image) > 0
+    end
+end
+
 mktempdir() do data_dir
-    plot_file = joinpath(plot_dir, "beginner_tutorial.png")
+    generated_dir = joinpath(plot_dir, "generated")
+    mkpath(generated_dir)
+    plot_file = joinpath(generated_dir, "beginner_tutorial.png")
     environment = [
         "DARONE_MITGCM_PATH" => DARWIN,
         "DARONE_DATA_DIR" => data_dir,
@@ -107,10 +124,12 @@ mktempdir() do data_dir
         end
 
         @testset "Bottle experiment" begin
+            bottle_environment = [key == "DARONE_EXAMPLE_ITERATIONS" ? key => "56" : key => value
+                                  for (key, value) in environment]
             run_case_study("case_studies/bottle_experiment_build.jl",
                            "case_studies/bottle_experiment_run.jl",
                            ["bottle-$treatment-203-109" for treatment in ("control", "with-no3", "with-nh4")],
-                           environment)
+                           bottle_environment)
         end
 
         @testset "Global steady state" begin
@@ -127,9 +146,8 @@ mktempdir() do data_dir
 
         @testset "Example plots" begin
             @test run_example("test/resources/plot_example_outputs.jl", environment)
-            for name in ("beginner_plankton.png", "bottle_experiment.png",
-                         "global_steady_state.png", "nitrogen_fixers.png")
-                file = joinpath(plot_dir, name)
+            for name in ("bottle_experiment_ci.png", "Fig_Bray_Curtis_ci.png", "NfixerPhase_ci.png")
+                file = joinpath(generated_dir, name)
                 @test isfile(file) && filesize(file) > 0
             end
             @info "Example plots saved in $plot_dir"

@@ -5,7 +5,7 @@ using NCDatasets
 MITgcm_path[1] = get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3")
 
 # set up size of your grid
-# running the 360x180 world in 16 quadrants in case something goes wrong midway
+# running the 360x160 world in 16 quadrants in case something goes wrong midway
 nX = 90
 nY = 40
 
@@ -35,7 +35,12 @@ t = 1 # yearly averages, only have one timepoint
 x_idxs = [(1,90), (91,180), (181, 270), (271,360)]
 y_idxs = [(1,40), (41,80), (81, 120), (121, 160)]
 
-# cycle through all 16 quadrants
+# Each x-tile batch contains four independent quadrants for parallel CI execution.
+if haskey(ENV, "DARONE_GLOBAL_X_TILE")
+    x_idxs = [x_idxs[parse(Int, ENV["DARONE_GLOBAL_X_TILE"])]]
+end
+
+# cycle through the selected quadrants
 for x_idx in x_idxs
     for y_idx in y_idxs
         # what slice do we want?

@@ -62,6 +62,8 @@ DARONE_MITGCM_PATH=/path/to/darwin3 julia --project=. test/test_examples.jl
 
 Inside the existing Docker image, the default `/dar_one_docker/darwin3` path is used automatically. Test runs receive unique experiment names; their results are written under Darwin's `verification/dar_one_config/run` directory. The runner also updates the Darwin configuration source files when rebuilding each example.
 
+It generates PNG sanity-check plots for the tutorial, bottle treatments, global tiles, and nitrogen-fixer gradients. Set `DARONE_EXAMPLE_PLOT_DIR` to choose the output directory, or download the `darone-example-plots` artifact from a GitHub Actions run. The CI figures use short simulations and generated test inputs.
+
 # Contributing 
 
 We have three main branches: `main`, `test`, and `dev`.
@@ -69,3 +71,15 @@ We have three main branches: `main`, `test`, and `dev`.
 All other branches are feature branches. Once a feature has been implemented, tested, and documented you can make a pull request to merge it into the `dev` branch. 
 
 `main` is the most stable version of the code. This branch is used for the docker image. 
+
+## Full Bray-Curtis comparison in CI
+
+The Tests workflow reproduces the calculation behind manuscript Figure 4C using
+original Darwin input data from `birdy1123/dar1`. After the package tests, it
+runs 16 independent 90x40 DAR1 tiles for 10 model years, with up to four tile
+batches running concurrently on one GitHub Actions runner. It averages the last
+two annual outputs and compares the 45 non-diazotroph biomass tracers (21-29,
+35-70) against the Darwin reference community.
+
+The result is available as `darone-bray-curtis-full` on the workflow Summary
+page, containing `Fig_Bray_Curtis.png` and `Fig_Bray_Curtis.nc`.
