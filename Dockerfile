@@ -7,9 +7,9 @@ RUN apt-get install wget -y
 RUN apt-get install vim -y
 
 # download, install, and link julia 
-RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.8/julia-1.8.2-linux-x86_64.tar.gz
-RUN tar zxvf julia-1.8.2-linux-x86_64.tar.gz
-ENV PATH="${PATH}:/dar_one_docker/julia-1.8.2/bin"
+RUN wget https://julialang-s3.julialang.org/bin/linux/x64/1.10/julia-1.10.13-linux-x86_64.tar.gz
+RUN tar zxvf julia-1.10.13-linux-x86_64.tar.gz
+ENV PATH="${PATH}:/dar_one_docker/julia-1.10.13/bin"
 # Use the DAR1 package environment from anywhere in the container.
 ENV JULIA_PROJECT=/dar_one_docker/Dar_One
 RUN julia --project=/dar_one_docker/Dar_One -e 'using Pkg; Pkg.instantiate()'

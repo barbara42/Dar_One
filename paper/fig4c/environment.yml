@@ -1,0 +1,9 @@
+name: darone-fig4c
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy
+  - xarray
+  - netcdf4
+  - matplotlib

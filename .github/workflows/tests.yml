@@ -1,0 +1,101 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 360
+    env:
+      # Compile packages when used by tests rather than precompiling everything.
+      JULIA_PKG_PRECOMPILE_AUTO: '0'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Load pinned Darwin revisions
+        run: cat darwin-sources.env >> "$GITHUB_ENV"
+
+      - name: Configure Darwin path
+        run: |
+          echo "DARONE_MITGCM_PATH=$RUNNER_TEMP/darwin3" >> "$GITHUB_ENV"
+          echo "DARONE_EXAMPLE_LOG_DIR=$RUNNER_TEMP/darone-example-logs" >> "$GITHUB_ENV"
+
+      - name: Install Fortran and NetCDF dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gfortran make libnetcdf-dev libnetcdff-dev tcsh
+
+      # Darwin3's bundled Cog generator imports imp (removed in Python 3.12).
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - uses: julia-actions/setup-julia@v3
+        with:
+          version: '1.10'
+
+      - name: Cache Julia packages and compiled code
+        uses: julia-actions/cache@v3
+        with:
+          delete-old-caches: false
+
+      - name: Prepare Darwin configuration
+        run: |
+          # Reproduce the Darwin source/configuration pair from birdy1123/dar1.
+          git init -q "$DARONE_MITGCM_PATH"
+          git -C "$DARONE_MITGCM_PATH" remote add origin https://github.com/darwinproject/darwin3.git
+          git -C "$DARONE_MITGCM_PATH" fetch --depth 1 origin "$DARWIN_REV"
+          git -C "$DARONE_MITGCM_PATH" checkout --quiet --detach FETCH_HEAD
+          config_path="$DARONE_MITGCM_PATH/verification/dar_one_config"
+          git init -q "$config_path"
+          git -C "$config_path" remote add origin https://github.com/barbara42/dar_one_config.git
+          git -C "$config_path" fetch --depth 1 origin "$DARONE_CONFIG_REV"
+          git -C "$config_path" checkout --quiet --detach FETCH_HEAD
+          mkdir -p "$DARONE_MITGCM_PATH/verification/dar_one_config/build" "$DARONE_MITGCM_PATH/verification/dar_one_config/run"
+          git config --global user.name "DarOne CI"
+          git config --global user.email "darone-ci@localhost"
+          git -C "$DARONE_MITGCM_PATH" rev-parse HEAD
+          git -C "$DARONE_MITGCM_PATH/verification/dar_one_config" rev-parse HEAD
+
+      - name: Install Julia dependencies
+        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Test examples (all 16 global tiles, five days)
+        run: |
+          set -o pipefail
+          julia --project=. -e 'using Pkg; Pkg.test()' 2>&1 | tee "$RUNNER_TEMP/package-tests.log"
+
+      - name: Collect model diagnostic inventory on failure
+        if: failure()
+        run: |
+          find "$DARONE_MITGCM_PATH/verification/dar_one_config/run" \
+            -type f \( -name '3d*' -o -name 'data.diagnostics' \) \
+            -printf '%p %s bytes\n' | sort > "$RUNNER_TEMP/darone-diagnostic-inventory.txt"
+          head -n 100 "$RUNNER_TEMP/darone-diagnostic-inventory.txt"
+
+      - name: Upload failure logs
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: darone-test-logs
+          if-no-files-found: ignore
+          retention-days: 7
+          path: |
+            ${{ runner.temp }}/package-tests.log
+            ${{ runner.temp }}/darone-diagnostic-inventory.txt
+            ${{ runner.temp }}/darone-example-logs/*.log
+            ${{ runner.temp }}/darone-global-x*.log
+            ${{ runner.temp }}/darwin3/verification/dar_one_config/build/genmake.log
+            ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/STDOUT.*
+            ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/thread-*-output.txt

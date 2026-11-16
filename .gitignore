@@ -5,3 +5,6 @@ docs/build
 # Julia package environments: resolve dependencies locally.
 Manifest.toml
 Manifest-v*.toml
+
+# Generated NetCDF inputs for example integration tests.
+test/resources/example_data/

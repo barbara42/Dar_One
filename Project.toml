@@ -1,6 +1,6 @@
 name = "DarOne"
 uuid = "68a5c792-066c-4fa4-bf39-3229eee150df"
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 ClimateModels = "f6adb021-9183-4f40-84dc-8cea6f651bb0"
@@ -28,4 +28,4 @@ OrderedCollections = "1"
 Plots = "1"
 Setfield = "1"
 Suppressor = "0.2"
-julia = "1.8"
+julia = "1.10"

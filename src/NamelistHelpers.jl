@@ -585,13 +585,26 @@ function ed_id_to_name(id)
 end
 
 """
+    run_relative_path(config_obj, path)
+
+Express an absolute input-file `path` relative to the run directory, where
+MITgcm is launched. MITgcm truncates namelist lines at 200 characters
+(`MAX_LEN_PREC`), so absolute paths under long Darwin checkouts or run names
+silently corrupt the filename.
+"""
+function run_relative_path(config_obj, path)
+    rundir = joinpath(config_obj.folder, config_obj.ID, "run")
+    return isabspath(path) ? relpath(path, rundir) : path
+end
+
+"""
     update_ptracers_initialFile(config_obj, tracer_id, new_val)
 """
 function update_ptracers_initialFile(config_obj, tracer_id, new_val)
     file_name = "data.ptracers"
     group_name = "PTRACERS_PARM01"
     param_name = tracer_id>9 ? "PTRACERS_initialFile( $tracer_id)" : "PTRACERS_initialFile(  $tracer_id)"
-    update_param(config_obj, file_name, group_name, param_name, new_val)
+    update_param(config_obj, file_name, group_name, param_name, run_relative_path(config_obj, new_val))
 end
 
 """
@@ -601,7 +614,7 @@ function update_temperature_initialFile(config_obj, new_val)
     file_name = "data"
     group_name = "PARM05"
     param_name = "hydrogThetaFile"
-    update_param(config_obj, file_name, group_name, param_name, new_val)
+    update_param(config_obj, file_name, group_name, param_name, run_relative_path(config_obj, new_val))
 end
 
 """
@@ -610,7 +623,7 @@ end
 function update_radtrans_initialFile(config_obj, param_name, new_val)
     file_name = "data.radtrans"
     group_name = "RADTRANS_FORCING_PARAMS"
-    update_param(config_obj, file_name, group_name, param_name, new_val)
+    update_param(config_obj, file_name, group_name, param_name, run_relative_path(config_obj, new_val))
 end
 
 """

@@ -96,13 +96,13 @@ Biology
 
 Using a "Seed" netCDF File 
 
-Often, I use the output of a global Darwin run to initialize (or seed) the values of DAR1. The tracer values from Darwin are output in a file called `3d.nc`. When working with netCDF files, I use the package NCDatasets. 
+Often, I use the output of a global Darwin run to initialize (or seed) the values of DAR1. A set of annual-mean Darwin surface tracer values ships with DAR1 as `data/darwin/surface_tracers.nc` (alongside `surface_temperature.nc` and `par_upper4.nc`). When working with netCDF files, I use the package NCDatasets. 
 
 First, we need to include NCDatasets, then load up the contents of the file into a Dataset.
 ```
 using NCDatasets
 
-seed_file_3d = "path/to/file/3d.nc"
+seed_file_3d = "path/to/Dar_One/data/darwin/surface_tracers.nc"
 seed_ds_3d = Dataset(seed_file_3d)
 ```
 To be finished soon... 
