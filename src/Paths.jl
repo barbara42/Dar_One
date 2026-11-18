@@ -2,29 +2,44 @@
     darwin_root()
 
 Resolve the Darwin3 source directory. `DARONE_MITGCM_PATH` takes precedence over
-`MITgcm_path[1]`, which remains supported for existing scripts. Cycle 1 resolves
-existing checkouts; downloading sources will be added in the next cycle.
+legacy `MITgcm_path[1]`. Without an existing explicit checkout, download/cache
+the pinned Darwin3 revision automatically (see `source_revisions()`).
 """
 function darwin_root()
-    path = get(ENV, "DARONE_MITGCM_PATH", MITgcm_path[1])
-    isempty(strip(path)) && throw(ArgumentError("Darwin3 path is empty; set DARONE_MITGCM_PATH or MITgcm_path[1]."))
+    if haskey(ENV, "DARONE_MITGCM_PATH")
+        path = ENV["DARONE_MITGCM_PATH"]
+        isempty(strip(path)) && throw(ArgumentError("DARONE_MITGCM_PATH cannot be empty."))
+        return abspath(expanduser(path))
+    end
+    path = MITgcm_path[1]
+    isempty(strip(path)) && throw(ArgumentError("MITgcm_path[1] cannot be empty."))
+    # The historical Docker default is not a user-configured checkout. On a
+    # normal machine, fall back to the managed Darwin3 sources instead.
+    if path == _LEGACY_DOCKER_ROOT &&
+       (!isdir(path) || haskey(ENV, "DARONE_DARWIN_REV") || haskey(ENV, "DARWIN_REV"))
+        return _managed_darwin_root()
+    end
     return abspath(expanduser(path))
 end
 
 """
     configuration_root(name=base_configuration)
 
-Resolve a verification configuration directory. Set `DARONE_CONFIG_PATH` to use
-`dar_one_config` from an independent checkout, without placing it under
-`darwin3/verification`. Other MITgcm verification configurations continue to be
-resolved relative to Darwin3.
+Resolve the verification configuration. `DARONE_CONFIG_PATH` selects a local
+checkout. An existing nested Darwin3 verification configuration remains usable;
+otherwise the pinned `dar_one_config` revision is staged in a writable cache.
 """
 function configuration_root(name::AbstractString=base_configuration)
     isempty(strip(name)) && throw(ArgumentError("Configuration name cannot be empty."))
-    if name == base_configuration && haskey(ENV, "DARONE_CONFIG_PATH")
-        path = ENV["DARONE_CONFIG_PATH"]
-        isempty(strip(path)) && throw(ArgumentError("DARONE_CONFIG_PATH cannot be empty."))
-        return abspath(expanduser(path))
+    if name == base_configuration
+        if haskey(ENV, "DARONE_CONFIG_PATH")
+            path = ENV["DARONE_CONFIG_PATH"]
+            isempty(strip(path)) && throw(ArgumentError("DARONE_CONFIG_PATH cannot be empty."))
+            return abspath(expanduser(path))
+        end
+        nested = joinpath(darwin_root(), "verification", name)
+        (isdir(nested) && !haskey(ENV, "DARONE_CONFIG_REV")) && return nested
+        return _managed_configuration_root()
     end
     return joinpath(darwin_root(), "verification", name)
 end

@@ -7,6 +7,7 @@ using DarOne
         separate = joinpath(root, "independent dar_one_config")
         mkpath(darwin)
         mkpath(separate)
+        mkpath(joinpath(darwin, "verification", "dar_one_config"))
 
         # An externally checked-out configuration needs no link under verification/.
         withenv("DARONE_MITGCM_PATH" => darwin,

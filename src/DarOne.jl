@@ -6,6 +6,7 @@ module DarOne
 using OrderedCollections, Printf, Suppressor, ClimateModels, DelimitedFiles
 
 include("Types.jl")
+include("Sources.jl")
 include("Paths.jl")
 include("ReadFiles.jl")
 include("ModelSteps.jl")
@@ -13,7 +14,7 @@ include("NamelistHelpers.jl")
 include("GridBinHelpers.jl")
 
 export MITgcm_path, base_configuration, filexe
-export darwin_root, configuration_root, executable_path
+export darwin_root, configuration_root, executable_path, source_revisions
 
 # Types 
 export MITgcm_config, MITgcm_namelist
@@ -81,7 +82,11 @@ Use `executable_path()` to resolve the current path after changing
 `MITgcm_path[1]` or the environment.
 """
 # Legacy path snapshot; internal code resolves executable_path() at call time.
-filexe=executable_path()
+# Preserve the legacy string without provisioning sources during `using DarOne`.
+# `executable_path()` gives the current managed/external build location.
+filexe = haskey(ENV, "DARONE_CONFIG_PATH") ?
+    joinpath(abspath(expanduser(ENV["DARONE_CONFIG_PATH"])), "build", "mitgcmuv") :
+    joinpath(MITgcm_path[1], "verification", base_configuration, "build", "mitgcmuv")
 
 
 """

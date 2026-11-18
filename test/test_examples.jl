@@ -1,8 +1,9 @@
 using Test
+using DarOne
 
 const ROOT = normpath(joinpath(@__DIR__, ".."))
-const DARWIN = abspath(get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3"))
-const CONFIG_ROOT = abspath(get(ENV, "DARONE_CONFIG_PATH", joinpath(DARWIN, "verification", "dar_one_config")))
+const DARWIN = darwin_root()
+const CONFIG_ROOT = configuration_root()
 const RUN_ROOT = joinpath(CONFIG_ROOT, "run")
 const RUN_SUFFIX = "-test-$(getpid())-$(time_ns())"
 
@@ -81,6 +82,7 @@ mktempdir() do plot_dir
     plot_file = joinpath(plot_dir, "beginner_tutorial.png")
     environment = [
         "DARONE_MITGCM_PATH" => DARWIN,
+        "DARONE_CONFIG_PATH" => CONFIG_ROOT,
         "DARONE_DATA_DIR" => DATA_DIR,
         "DARONE_EXAMPLE_ITERATIONS" => "12",
         "DARONE_EXAMPLE_ID_SUFFIX" => RUN_SUFFIX,

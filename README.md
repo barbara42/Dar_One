@@ -54,46 +54,76 @@ You're now ready for the [beginner tutorial](beginner_tutorial)!
 
 See instructions in the documentation: https://barbara42.github.io/Dar_One/build/getting_started/#Setting-up-on-local-machine
 
-## Darwin3 and configuration paths (PR1, Cycle 1)
+## Darwin3 and configuration paths (PR1, Cycle 2)
 
-DarOne supports a `dar_one_config` checkout either under Darwin3's `verification/`
-folder or in a completely independent location. The Julia build and experiment
-functions resolve both paths consistently:
+DarOne automatically fetches the Darwin3 and `dar_one_config` Git revisions
+recorded in [`darwin-sources.env`](darwin-sources.env) on first use. Git is
+required to retrieve sources; GNU Fortran, `make`, NetCDF and Python 3.11
+are needed to compile and run the existing examples. Julia's `Scratch.jl`
+keeps the downloaded checkouts cached across sessions, and a separate writable
+configuration workspace holds builds, source modifications and experiments.
+No manual symlinks or installation paths are needed for the default workflow.
 
 ```bash
-export DARONE_MITGCM_PATH="$HOME/src/darwin3"
-export DARONE_CONFIG_PATH="$HOME/src/dar_one_config"  # optional
+julia --project=. -e 'using Pkg; Pkg.instantiate()'
+julia --project=. -e 'using DarOne; println(darwin_root()); println(configuration_root())'
 ```
 
-The default configuration location remains
-`$DARONE_MITGCM_PATH/verification/dar_one_config`. Existing scripts that assign
-`MITgcm_path[1]` continue to work when `DARONE_MITGCM_PATH` is unset. The
-`DARONE_MITGCM_PATH` environment variable takes precedence when set. In Julia,
-`darwin_root()`, `configuration_root()`, and `executable_path()` return the
-resolved paths. For example:
+The existing API remains unchanged:
 
 ```julia
 using DarOne
-
 update_grid_size(1, 1)
-config, rundir = create_MITgcm_config("example")
 build(base_configuration)
-setup(config)  # both use the same configuration location
+config, rundir = create_MITgcm_config("example")
+setup(config)
 ```
 
-The build invokes Darwin3's `genmake2` with explicit source (`-rootdir`) and
-configuration (`-mods`) directories. The current cycle uses checkouts you
-already have; package-managed downloads will be added in Cycle 2.
+To use local source checkouts (including the previous Docker layout), set
+`DARONE_MITGCM_PATH` and optionally `DARONE_CONFIG_PATH`:
 
-Lightweight path tests, without compiling Fortran, can be run with
-`julia --project=. test/test_paths.jl`.
+```bash
+export DARONE_MITGCM_PATH="$HOME/src/darwin3"
+export DARONE_CONFIG_PATH="$HOME/src/dar_one_config"
+```
+
+An existing configuration under `$DARONE_MITGCM_PATH/verification/dar_one_config`
+is still recognised. Legacy scripts assigning `MITgcm_path[1]` remain supported.
+`DARONE_MITGCM_PATH` takes precedence when set.
+
+For future Darwin3 commits, specify the full 40-character Git revisions before
+starting Julia. Each revision is downloaded into a separate cache directory;
+previous versions remain available. Defaults remain pinned in
+`darwin-sources.env`:
+
+```bash
+export DARONE_DARWIN_REV="<40-character-Darwin3-commit>"
+export DARONE_CONFIG_REV="<40-character-dar_one_config-commit>"
+```
+
+`source_revisions()` reports the requested managed commits (an explicitly
+selected local checkout may be at a different commit). You can change either
+revision independently. Custom Git remotes are supported with
+`DARONE_DARWIN_URL` and `DARONE_CONFIG_URL` for development or offline tests.
+Environment overrides select local paths first; the managed source workspaces
+are used when an explicit local checkout is not configured.
+
+Lightweight tests, including offline Git-fixture tests, run without a Fortran
+compiler:
+
+```bash
+julia --project=. test/test_paths.jl
+julia --project=. test/test_sources.jl
+```
 
 ## Example integration tests
 
-The example test runner executes all nine beginner tutorial and case-study scripts, including Fortran builds, simulations, and the tutorial plot. It uses Darwin reference inputs and short simulation durations. Run it with a Darwin checkout, the matching configuration (nested or specified by `DARONE_CONFIG_PATH`), and a working GNU Fortran toolchain:
+The example test runner executes all nine beginner tutorial and case-study scripts, including Fortran builds, simulations, and the tutorial plot. It uses Darwin reference inputs and short simulation durations. With Git and
+the GNU Fortran/NetCDF toolchain installed, the test runner automatically
+provisions the pinned source/configuration pair:
 
 ```bash
-DARONE_MITGCM_PATH=/path/to/darwin3 julia --project=. test/test_examples.jl
+julia --project=. -e 'using Pkg; Pkg.test()'
 ```
 
 # Contributing 
