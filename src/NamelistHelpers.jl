@@ -278,9 +278,9 @@ Returns
 """
 function create_MITgcm_config(config_id::AbstractString)
     config_name = base_configuration
-    println("mitgcm path ", MITgcm_path[1])
+    println("mitgcm path ", darwin_root())
     println("base configuration = ", base_configuration)
-    folder = joinpath(MITgcm_path[1], "verification/$(config_name)/run")
+    folder = run_directory(config_name)
     config_obj = MITgcm_config(configuration=config_name, ID=config_id, folder=folder)
     rundir = joinpath(folder, config_id, "run")
     return config_obj, rundir 

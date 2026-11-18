@@ -15,26 +15,15 @@ testreport(MITgcm_config(configuration="front_relax"),"-norun")
 """
 function testreport(config::MITgcm_config,ext="")
     nm=config.configuration
-    try
-        pth=pwd()
-    catch e
-        cd()
+    lst = nm == "all" ? [c.configuration for c in verification_experiments()] : [nm]
+    testreport_script = joinpath(darwin_root(), "verification", "testreport")
+    cd(tempdir()) do
+        for name in lst
+            experiment = configuration_root(name)
+            cmd = isempty(ext) ? `$testreport_script -t $experiment` : `$testreport_script -t $experiment $ext`
+            run(cmd)
+        end
     end
-    pth=pwd()
-    cd(tempdir())
-    println(pwd())
-    if nm!=="all"
-        lst=[nm]
-    else
-        exps=verification_experiments()
-        lst=[exps[i].configuration for i in 1:length(exps)]
-    end
-    for nm in lst
-        c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm) $ext`
-        isempty(ext) ? c=`$(MITgcm_path[1])/verification/testreport -t $(MITgcm_path[1])/verification/$(nm)` : nothing
-        run(c)
-    end
-    cd(pth)
     return true
 end
 
@@ -71,31 +60,26 @@ function build(config::MITgcm_config)
 end
 
 function build(config_name::String)
-    nam=config_name
-    # why was this originally in a try? 
-    try
-        pth=pwd()
-    catch e
-        cd()
+    build_dir = build_directory(config_name)
+    code_dir = joinpath(configuration_root(config_name), "code")
+    genmake = joinpath(darwin_root(), "tools", "genmake2")
+    isfile(genmake) || throw(ArgumentError("Darwin3 genmake2 not found at $genmake; set DARONE_MITGCM_PATH."))
+    isdir(code_dir) || throw(ArgumentError("Configuration code directory not found at $code_dir; set DARONE_CONFIG_PATH for an external dar_one_config checkout."))
+    mkpath(build_dir)
+    cd(build_dir) do
+        @info "$(Threads.threadid()) Build Directory: $(build_dir)!"
+        foreach(f -> rm(f, force=true, recursive=true), readdir())
+        @info "$(Threads.threadid()) building with genmake2..."
+        run(`$genmake -rootdir=$(darwin_root()) -mods=$code_dir`)
+        @info "$(Threads.threadid()) genmake2 build done"
+        @suppress run(`make clean`)
+        @info "$(Threads.threadid()) Running make depend..."
+        @suppress run(`make depend`)
+        @info "$(Threads.threadid()) make depend done"
+        @info "$(Threads.threadid()) running make -j 4"
+        run(`make -j 4`)
     end
-    pth=pwd()
-    build_dir = joinpath(MITgcm_path[1], "verification", nam, "build")
-    cd(build_dir)
-    @info "$(Threads.threadid()) Build Directory: $(build_dir)!"
-    # clean out build folder 
-    foreach(f->rm(f, force=true, recursive=true), readdir())
-    @info "$(Threads.threadid()) building with genmake2..."
-    # TODO: do not suppress? proper error message 
-    run(`../../../tools/genmake2 -mods=../code`) #$ext
-    @info "$(Threads.threadid()) genmake2 build done"
-    @suppress run(`make clean`)
-    @info "$(Threads.threadid()) Running make depend..."
-    @suppress run(`make depend`)
-    @info "$(Threads.threadid()) make depend done"
-    @info "$(Threads.threadid()) running make -j 4"
-    run(`make -j 4`)
     @info "$(Threads.threadid()) Make done! SUCCESSFUL BUILD!"
-    cd(pth)
     return true
 end
 
@@ -111,7 +95,7 @@ code files, headers, etc  in the `build/` folder before `make` compiles the mode
 function build(config::MITgcm_config,options::String)
     nam=config.configuration
     if options=="--allow-skip"
-        tst=!isfile(joinpath(MITgcm_path[1],"verification",nam,"build","mitgcmuv"))
+        tst=!isfile(executable_path(nam))
         tst ? build(config) : nothing
     else
         build(config)
@@ -127,20 +111,11 @@ Compile the model using `make` in `build/` that has already been setup.
 (part of the climate model interface as specialized for `MITgcm`)
 """
 function compile(config::MITgcm_config)
-    nam=config.configuration
-    try
-        pth=pwd()
-    catch e
-        cd()
-    end
-    pth=pwd()
-    cd("$(MITgcm_path[1])/verification/$(nam)/build")
-    try
+    build_dir = build_directory(config.configuration)
+    isdir(build_dir) || throw(ArgumentError("Build directory not found at $build_dir; call build(config) first."))
+    cd(build_dir) do
         @suppress run(`make -j 4`)
-    catch e
-        println("model compilation may have failed")
     end
-    cd(pth)
     return true
 end
 
@@ -156,7 +131,7 @@ Call `ClimateModels.git_log_init(config)` to setup git tracker and
 """
 function setup(config::MITgcm_config)
     # check for existence of "verification/$(config_name)/run", else makes it
-    !isdir(joinpath(config.folder)) ? mkdir(joinpath(config.folder)) : nothing
+    mkpath(config.folder)
     # check for existence of "verification/$(config_name)/run/$(config_ID)", else makes it
     # TODO: if config_id folder already exists, add an int to the end and make that one
     # avoid "file already exists" error  
@@ -182,77 +157,34 @@ function setup(config::MITgcm_config)
     end
 
     # links data* files in /run/UUID/run to /{config}/input 
-    p="$(MITgcm_path[1])/verification/$(config.configuration)/input"
+    p=input_directory(config.configuration)
+    isdir(p) || throw(ArgumentError("Configuration input directory not found at $p; set DARONE_CONFIG_PATH for an external checkout."))
     tmpA=readdir(p)
     f=tmpA[findall([!isfile(joinpath(pth_run,tmpA[i])) for i in 1:length(tmpA)])]
     [symlink(joinpath(p,f[i]),joinpath(pth_run,f[i])) for i in 1:length(f)]
 
-    #replace relative paths with absolutes then exe prepare_run
-    if isfile(joinpath(pth_run,"prepare_run"))
-		try
-			pth=pwd()
-		catch e
-			cd()
-		end
-        pth=pwd()
-        cd(pth_run)
-        fil="prepare_run"
-        meta = read(fil,String)
-        meta = split(meta,"\n")
-        ii=findall(occursin.("../../",meta))
-        for i in ii
-            meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
-        end
-        ii=findall(occursin.("../",meta))
-        for i in ii
-            meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)")
-        end
-
-        #rm old file from run dir
+    # Rewrite input-local relative paths against the resolved source/configuration
+    # roots. Always replace the symlink, never mutate the source input file.
+    if isfile(joinpath(pth_run, "prepare_run"))
+        fil = joinpath(pth_run, "prepare_run")
+        meta = _expand_input_paths(read(fil, String), config.configuration)
         rm(fil)
-        #write new file in run dir
-        txt=["$(meta[i])\n" for i in 1:length(meta)]
-        fid = open(fil, "w")
-		[write(fid,txt[i]) for i in 1:length(txt)]
-    	close(fid)
-        #execute prepare_run
-        chmod(fil,0o777)
-        @suppress run(`./$(fil)`)
-        #
-        cd(pth)
+        write(fil, meta)
+        chmod(fil, 0o755)
+        cd(pth_run) do
+            @suppress run(`./prepare_run`)
+        end
     end
 
-    # replace relative path with absolutes in data.radtrans 
-    if isfile(joinpath(pth_run,"data.radtrans"))
-        try
-			pth=pwd()
-		catch e
-			cd()
-		end
-        pth=pwd()
-        cd(pth_run)
-        fil="data.radtrans"
-        meta = read(fil,String)
-        meta = split(meta,"\n")
-        ii=findall(occursin.("../../",meta))
-        for i in ii
-            meta[i]=replace(meta[i],"../../" => "$(MITgcm_path[1])/verification/")
-        end
-        ii=findall(occursin.("../",meta))
-        for i in ii
-            meta[i]=replace(meta[i],"../" => "$(MITgcm_path[1])/verification/$(config.configuration)/")
-        end
-        #rm old file from run dir
+    if isfile(joinpath(pth_run, "data.radtrans"))
+        fil = joinpath(pth_run, "data.radtrans")
+        meta = _expand_input_paths(read(fil, String), config.configuration)
         rm(fil)
-        #write new file in run dir
-        txt=["$(meta[i])\n" for i in 1:length(meta)]
-        fid = open(fil, "w")
-		[write(fid,txt[i]) for i in 1:length(txt)]
-    	close(fid)
+        write(fil, meta)
     end
 
     if !islink(joinpath(pth_run,"mitgcmuv"))
-        f="$(MITgcm_path[1])/verification/$(config.configuration)/build/mitgcmuv"
+        f=executable_path(config.configuration)
         symlink(f,joinpath(pth_run,"mitgcmuv")) 
     end
 

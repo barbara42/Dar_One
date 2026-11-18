@@ -54,9 +54,43 @@ You're now ready for the [beginner tutorial](beginner_tutorial)!
 
 See instructions in the documentation: https://barbara42.github.io/Dar_One/build/getting_started/#Setting-up-on-local-machine
 
+## Darwin3 and configuration paths (PR1, Cycle 1)
+
+DarOne supports a `dar_one_config` checkout either under Darwin3's `verification/`
+folder or in a completely independent location. The Julia build and experiment
+functions resolve both paths consistently:
+
+```bash
+export DARONE_MITGCM_PATH="$HOME/src/darwin3"
+export DARONE_CONFIG_PATH="$HOME/src/dar_one_config"  # optional
+```
+
+The default configuration location remains
+`$DARONE_MITGCM_PATH/verification/dar_one_config`. Existing scripts that assign
+`MITgcm_path[1]` continue to work when `DARONE_MITGCM_PATH` is unset. The
+`DARONE_MITGCM_PATH` environment variable takes precedence when set. In Julia,
+`darwin_root()`, `configuration_root()`, and `executable_path()` return the
+resolved paths. For example:
+
+```julia
+using DarOne
+
+update_grid_size(1, 1)
+config, rundir = create_MITgcm_config("example")
+build(base_configuration)
+setup(config)  # both use the same configuration location
+```
+
+The build invokes Darwin3's `genmake2` with explicit source (`-rootdir`) and
+configuration (`-mods`) directories. The current cycle uses checkouts you
+already have; package-managed downloads will be added in Cycle 2.
+
+Lightweight path tests, without compiling Fortran, can be run with
+`julia --project=. test/test_paths.jl`.
+
 ## Example integration tests
 
-The example test runner executes all nine beginner tutorial and case-study scripts, including Fortran builds, simulations, and the tutorial plot. It uses Darwin reference inputs and short simulation durations. Run it with a Darwin checkout containing `verification/dar_one_config` and a working GNU Fortran toolchain:
+The example test runner executes all nine beginner tutorial and case-study scripts, including Fortran builds, simulations, and the tutorial plot. It uses Darwin reference inputs and short simulation durations. Run it with a Darwin checkout, the matching configuration (nested or specified by `DARONE_CONFIG_PATH`), and a working GNU Fortran toolchain:
 
 ```bash
 DARONE_MITGCM_PATH=/path/to/darwin3 julia --project=. test/test_examples.jl
