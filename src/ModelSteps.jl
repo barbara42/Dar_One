@@ -62,22 +62,24 @@ end
 function build(config_name::String)
     build_dir = build_directory(config_name)
     code_dir = joinpath(configuration_root(config_name), "code")
-    genmake = joinpath(darwin_root(), "tools", "genmake2")
-    isfile(genmake) || throw(ArgumentError("Darwin3 genmake2 not found at $genmake; set DARONE_MITGCM_PATH."))
     isdir(code_dir) || throw(ArgumentError("Configuration code directory not found at $code_dir; set DARONE_CONFIG_PATH for an external dar_one_config checkout."))
-    mkpath(build_dir)
-    cd(build_dir) do
-        @info "$(Threads.threadid()) Build Directory: $(build_dir)!"
-        foreach(f -> rm(f, force=true, recursive=true), readdir())
-        @info "$(Threads.threadid()) building with genmake2..."
-        run(`$genmake -rootdir=$(darwin_root()) -mods=$code_dir`)
-        @info "$(Threads.threadid()) genmake2 build done"
-        @suppress run(`make clean`)
-        @info "$(Threads.threadid()) Running make depend..."
-        @suppress run(`make depend`)
-        @info "$(Threads.threadid()) make depend done"
-        @info "$(Threads.threadid()) running make -j 4"
-        run(`make -j 4`)
+    _with_build_source(config_name) do source
+        genmake = joinpath(source, "tools", "genmake2")
+        isfile(genmake) || throw(ArgumentError("Darwin3 genmake2 not found at $genmake; set DARONE_MITGCM_PATH."))
+        mkpath(build_dir)
+        cd(build_dir) do
+            @info "$(Threads.threadid()) Build Directory: $(build_dir)!"
+            foreach(f -> rm(f, force=true, recursive=true), readdir())
+            @info "$(Threads.threadid()) building with genmake2..."
+            run(`$genmake -rootdir=$source -mods=$code_dir`)
+            @info "$(Threads.threadid()) genmake2 build done"
+            @suppress run(`make clean`)
+            @info "$(Threads.threadid()) Running make depend..."
+            @suppress run(`make depend`)
+            @info "$(Threads.threadid()) make depend done"
+            @info "$(Threads.threadid()) running make -j 4"
+            run(`make -j 4`)
+        end
     end
     @info "$(Threads.threadid()) Make done! SUCCESSFUL BUILD!"
     return true
@@ -113,8 +115,10 @@ Compile the model using `make` in `build/` that has already been setup.
 function compile(config::MITgcm_config)
     build_dir = build_directory(config.configuration)
     isdir(build_dir) || throw(ArgumentError("Build directory not found at $build_dir; call build(config) first."))
-    cd(build_dir) do
-        @suppress run(`make -j 4`)
+    _with_build_lock(config.configuration) do _
+        cd(build_dir) do
+            @suppress run(`make -j 4`)
+        end
     end
     return true
 end

@@ -8,6 +8,7 @@ using OrderedCollections, Printf, Suppressor, ClimateModels, DelimitedFiles
 include("Types.jl")
 include("Sources.jl")
 include("Paths.jl")
+include("BuildSources.jl")
 include("ReadFiles.jl")
 include("ModelSteps.jl")
 include("NamelistHelpers.jl")

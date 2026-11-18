@@ -58,11 +58,19 @@ See instructions in the documentation: https://barbara42.github.io/Dar_One/build
 
 DarOne automatically fetches the Darwin3 and `dar_one_config` Git revisions
 recorded in [`darwin-sources.env`](darwin-sources.env) on first use. Git is
-required to retrieve sources; GNU Fortran, `make`, NetCDF and Python 3.11
+required to retrieve sources; GNU Fortran, `make`, `tar`, NetCDF and Python
 are needed to compile and run the existing examples. Julia's `Scratch.jl`
 keeps the downloaded checkouts cached across sessions, and a separate writable
 configuration workspace holds builds, source modifications and experiments.
 No manual symlinks or installation paths are needed for the default workflow.
+
+DarOne stages a fresh, writable Darwin3 source tree for each build. When a
+pinned Darwin3 revision contains Cog 2.3, it applies the minimal Python 3.12+
+compatibility fix **only to that build copy**. Newer Cog versions are used
+unchanged. The original downloaded Git revision stays intact, and the build
+source location, commit, and compatibility status are recorded in
+`source-provenance.txt` within DarOne's Scratch build workspace. This allows
+modern Python versions without a dedicated Python 3.11 environment.
 
 ```bash
 julia --project=. -e 'using Pkg; Pkg.instantiate()'
@@ -114,6 +122,7 @@ compiler:
 ```bash
 julia --project=. test/test_paths.jl
 julia --project=. test/test_sources.jl
+julia --project=. test/test_build_sources.jl
 ```
 
 ## Example integration tests

@@ -31,10 +31,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gfortran make libnetcdf-dev libnetcdff-dev tcsh
 
-      # Darwin3's bundled Cog generator imports imp (removed in Python 3.12).
+      # Exercise the legacy Cog compatibility adapter with Python 3.12+.
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - uses: julia-actions/setup-julia@v3
         with:
@@ -66,6 +66,17 @@ jobs:
           '
           git config --global user.name "DarOne CI"
           git config --global user.email "darone-ci@localhost"
+
+      - name: Smoke-test Darwin3 Cog with Python 3.12
+        run: |
+          python --version
+          julia --project=. -e '
+            using DarOne
+            DarOne._with_build_source(base_configuration) do source
+              cog = joinpath(source, "tools", "darwin", "cog")
+              run(`$cog -v`)
+            end
+          '
 
       - name: Test examples (all 16 global tiles, five days)
         run: |
