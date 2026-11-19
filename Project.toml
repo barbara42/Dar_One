@@ -15,7 +15,7 @@ Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
 Suppressor = "fd094767-a336-5f1f-9728-57cf17d0bbfb"
 
 [compat]
-ClimateModels = "0.2"
+ClimateModels = "0.3"
 Glob = "1"
 NCDatasets = "0.12, 0.13, 0.14"
 OrderedCollections = "1"
