@@ -9,7 +9,7 @@ Documentation is published from the `gh-pages` branch.
 Workflow for updating documentation 
 - modify `make.jl` or  files in `/src` folder 
 - build the docs 
-    - from the `Dar_One` folder, run `julia --project=docs -e 'using Pkg; Pkg.develop(path=pwd()); Pkg.instantiate()'` to set up the documentation environment
+    - from the `DarOne.jl` folder, run `julia --project=docs -e 'using Pkg; Pkg.develop(path=pwd()); Pkg.instantiate()'` to set up the documentation environment
     - run command `julia --project=docs docs/make.jl`
 - check that everything looks good and works well! 
 - create a PR to the `test` branch (should NOT contain docs/build folder)

@@ -1,8 +1,6 @@
-# Dar_One Beginner Tutorial
+# DarOne.jl Beginner Tutorial
 
-BEFORE YOU START:
-
-Follow the setup guide for using the [dar_one_docker image](../README.md/#setting-up-with-docker) or for [local machine setup](../README.md/#setting-up-on-local-machine). (HIGHLY recommend using docker over setting up your own machine) 
+Start with the [getting-started guide](https://daronemodel.github.io/DarOne.jl/build/getting_started/) to install DarOne and prepare Darwin3.
 ## Overview 
 
 In this tutorial, we are going to set up an experiment with a small amount of nitrate (NO3),
@@ -12,26 +10,23 @@ how the steady-state changes.
 
 ## Building and Dependencies 
 
-If you're using the `dar_one_docker`...
-- you don't have to do anything! 
-- I already built the mitgcm executable for the docker container
-    - the executable is called `mitgcmuv` and lives in the `darwin3/verification/dar_one_config/build` directory 
-- all the julia depencies have also been install already!
-    - if there are issues with dependencies not being installed, from the `Dar_One` folder run `julia --project=. -e 'using Pkg; Pkg.instantiate()'`
-- navigate to the `beginner_tutorial` folder using the command line (`# cd Dar_One/beginner_tutorial`)
+From your local DarOne.jl checkout, install the Julia dependencies and run the example scripts:
 
-If you're doing it locally... 
-- install julia dependencies
-    - from the `Dar_One` folder run `julia --project=. -e 'using Pkg; Pkg.instantiate()'` 
-- from the `Dar_One` folder run `julia --project=. beginner_tutorial/1_build_example.jl`
+```bash
+julia --project=. -e 'using Pkg; Pkg.instantiate()'
+export DARONE_MITGCM_PATH="/absolute/path/to/darwin3"
+julia --project=. beginner_tutorial/1_build_example.jl
+julia --project=. beginner_tutorial/2_run_example.jl
+```
+
+The Darwin3 checkout and Fortran toolchain are described in the getting-started guide.
 
 ## Setting up run folders 
 
 This is a very simple tutorial, so I'll walk you through line-by-line whats going on in the 
 `2_run_example.jl` file. 
 
-If you're using docker, to open up the file using the commandline, run 
-`# vim 2_run_example.jl`. Then you can use [vim commands](https://coderwall.com/p/adv71w/basic-vim-commands-for-getting-started) to explore and edit the file. 
+To open the file from the `beginner_tutorial` directory, run `vim 2_run_example.jl`. Then you can use [vim commands](https://coderwall.com/p/adv71w/basic-vim-commands-for-getting-started) to explore and edit the file. 
 
 (1) First, we have to import our dependencies.
 
@@ -43,12 +38,11 @@ using ClimateModels
 ```
 The `using` statement loads `DarOne` from the project environment (selected with `--project=..` when running from `beginner_tutorial`).
 
-(2) After including our dependencies, we have to specify the `MITgcm_path`. This tells `Dar_One` where 
-to look for the Darwin MITgcm code. The default value will work if using the docker. Otherwise, 
-paste in the path to where you downloaded `darwin3`. 
+(2) After including our dependencies, we have to specify the `MITgcm_path`. This tells `DarOne.jl` where 
+to look for the Darwin MITgcm code. Set the path to your Darwin3 checkout when using an installation that requires an explicit path. 
 ```
 # the path to the Darwin version of the MITgcm 
-MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
+MITgcm_path[1] = "/absolute/path/to/darwin3"
 ```
 Next, we create a unique identifier for our run. 
 ```
@@ -73,9 +67,9 @@ Awesome! Now we have a `config_obj` that points to all the files and folders nee
 
 ## Modifying Parameters 
 
-For a full list of parameters to modify, including more in-depth descriptions, see [DOCUMENTAION](https://barbara42.github.io/Dar_One/build/darwin_background).
+For a full list of parameters, see the [parameter reference](https://daronemodel.github.io/DarOne.jl/build/).
 
-Whenever you update a parameter, the function first takes in the `config_obj` of type `MITgcm_config` that we created in the previous step. This tells `Dar_One` where the files are that we are 
+Whenever you update a parameter, the function first takes in the `config_obj` of type `MITgcm_config` that we created in the previous step. This tells `DarOne.jl` where the files are that we are 
 aiming to modify. 
 
 For this tutorial, we are keeping it simple. First, we are going to specify how long the model will run by setting the end time. 
@@ -90,7 +84,7 @@ Next we will set the temperature to a constant value.
 new_temp = 30 # celius
 update_temperature(config_obj, new_temp)
 ```
-`Dar_One` by default doesn't have many nutrients available, only salinity, alkalinity, and oxygen 
+`DarOne.jl` by default doesn't have many nutrients available, only salinity, alkalinity, and oxygen 
 are initialized. We need to add in starting nutrient concentrations, so our little plankton 
 don't die off. We're going to set the initial concentrations of nitrate (NO3), phosphate (PO4), and iron (FeT) using the following code. These values are in mmol per m^3. These values were chosen 
 by looking at the range of nutrient concentrations we see in the Northern Pacific gyre.  
@@ -118,7 +112,7 @@ Now that we have all of our desired parameters set, we are ready to run the mode
 dar_one_run(config_obj)
 ```
 
-If you're using docker, you can run this file by using the command (in the docker bash prompt)
+You can run this file from the `beginner_tutorial` directory with
 `julia --project=.. 2_run_example.jl` 
 
 You should see output similar to this:
@@ -136,16 +130,16 @@ STOP NORMAL END
 [ Info: 1 run did not fail!!!!! 
 [ Info: 1 run completed
 [ Info: 1 time elapsed: 50.518673042 seconds
-[ Info: 1 Output in directory /dar_one_docker/darwin3/verification/dar_one_config/run/beginner_tutorial/run, most recent ecco folder 
+[ Info: 1 Output in directory .../darwin3/verification/dar_one_config/run/beginner_tutorial/run, most recent ecco folder 
 ```
-Don't worry, those warnings are totally normal :) 
+These warnings can occur during a successful run; check for `STOP NORMAL END` and the expected diagnostics.
 
 ## Understanding and Plotting Results 
 
-As the output from the previous run suggests, all of the information about your simulation lives in the folder `/dar_one_docker/darwin3/verification/dar_one_config/run/beginner_tutorial/run` (or, if running locally, underneath your `darwin3` folder). 
+The simulation output is saved under `darwin3/verification/dar_one_config/run/<experiment-name>/run` in your source checkout. 
 
 Let's look at the contents of this folder
-`# cd /dar_one_docker/darwin3/verification/dar_one_config/run/beginner_tutorial/run`
+`cd /absolute/path/to/darwin3/verification/dar_one_config/run/<experiment-name>/run`
 `# ls`
 
 You'll see a lot of files, but look for the folder that starts with `ecco_gud_[DATE]_0001`. 
@@ -156,7 +150,7 @@ Let's move inside this folder and look at its contents.
 
 `# ls` 
 
-Here's all our output, in [netCDF](https://www.unidata.ucar.edu/software/netcdf/) form! You can tell by the `.nc` filetype extension at the end of each file name. Each of these files contains different information about whats going on inside `Dar_One`, but for now **we are just going to focus on the `3d.some_number.nc` file.** (For a more in-depth description of all the forms of output we get, see [DOCUMENTATION](https://barbara42.github.io/Dar_One/build/darwin_background/))
+Here's all our output, in [netCDF](https://www.unidata.ucar.edu/software/netcdf/) form! You can tell by the `.nc` filetype extension at the end of each file name. Each of these files contains different information about whats going on inside `DarOne.jl`, but for now **we are just going to focus on the `3d.some_number.nc` file.** (For a more in-depth description of all the forms of output we get, see [Darwin background](https://daronemodel.github.io/DarOne.jl/build/darwin_background/))
 
 The `3d.nc` file contains information about nutrient levels and the biomass of all the phytoplankton types. 
 
