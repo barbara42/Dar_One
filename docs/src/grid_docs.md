@@ -1,6 +1,6 @@
-# Using DarOne in a Grid 
+# Using DarOne.jl in a Grid
 
-Running multiple `DarOne` experiments in parallel.
+Running multiple `Dar_One` experiments in parallel.
 
 Setting ptracer initial values 
 -  `PTRACERS_initialFile ` instead of `PTRACERS_ref`

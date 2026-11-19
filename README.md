@@ -2,41 +2,77 @@
 
 [![Tests](https://github.com/DarOneModel/DarOne.jl/actions/workflows/tests.yml/badge.svg)](https://github.com/DarOneModel/DarOne.jl/actions/workflows/tests.yml)
 
-**DarOne.jl** provides a Julia interface for building, configuring, and running experiments with the [MITgcm DARWIN ecosystem model](https://darwinproject.mit.edu/), from a single well-mixed water parcel to grids of independent columns.
+Built off of Gael Forget's MITgcmTools! (https://github.com/gaelforget/MITgcmTools.jl)
 
-[Getting started](https://daronemodel.github.io/DarOne.jl/build/getting_started/) · [Beginner tutorials](https://daronemodel.github.io/DarOne.jl/build/beginner_tutorials/) · [Case studies](https://daronemodel.github.io/DarOne.jl/build/case_studies/)
+[DarOne.jl Documentation](https://daronemodel.github.io/DarOne.jl/build/getting_started/)
+- [tutorials](https://daronemodel.github.io/DarOne.jl/build/beginner_tutorials/)
+- [case studies](https://daronemodel.github.io/DarOne.jl/build/case_studies/)
 
-## Installation
-
-Install the Julia package from the General registry:
+Install the registered Julia package with:
 
 ```julia
-import Pkg
+using Pkg
 Pkg.add("DarOne")
 ```
 
-Load it with `using DarOne`. Running the Fortran model also requires a Darwin3 source checkout, its [`dar_one_config` configuration](https://github.com/barbara42/dar_one_config), and a working Fortran/NetCDF toolchain. The [getting-started guide](https://daronemodel.github.io/DarOne.jl/build/getting_started/) explains how to prepare the model and run an experiment.
 
-## Tutorials and examples
+Documentation for the darwin3 MITgcm fortran model can be found [here](https://darwin3.readthedocs.io/en/latest/phys_pkgs/darwin_bacteria.html) 
+##  Overview of program structure 
 
-The repository contains a [beginner tutorial](beginner_tutorial/) and [case studies](case_studies/) for nutrient amendments, global steady states, and nitrogen fixation. To run these example scripts from a development checkout:
+
+DarOne.jl is a tool for designing and running experiments simulating the marine microbiome within a single cube of water. The biogeochemical forcing is powered by the [MIT Darwin Model](https://darwinproject.mit.edu/), and DarOne.jl provides a Julia interface to build, configure, and run experiments with a simple, streamlined workflow. DarOne.jl is composed of two main parts:
+
+- [DarOne.jl](https://github.com/DarOneModel/DarOne.jl) - Julia interface for organizing experiments and setting up parameters for model runs
+    - `MITgcm_path` variable should point to darwin3
+- [darwin3](https://github.com/darwinproject/darwin3) - MITgcm source code set up to include all things Darwin 
+    - `DAR1_config` - folder for the base configuration files for DAR1, which lives in the darwin3/verification/ folder. ([DAR1_config github](https://github.com/barbara42/dar_one_config))
+
+
+DAR1 can be run in one of two ways. 
+1) In a **docker container** using the DAR1_docker image, where all dependencies are handled for you 
+2) On your local machine, where you have to set up the environment, download dependencies, etc 
+    - this is more time consuming, and I strongly recommend using the docker image
+    - instructions for local setup are below
+
+# Setting up with docker
+
+(1) Download and install [docker desktop](https://www.docker.com/).
+- Run the docker application, which will start up the docker "daemon" 
+- The docker daemon must be running in order to download the DAR1 image
+
+(2) Get the [DAR1_docker image](https://hub.docker.com/repository/docker/birdy1123/dar1).
+- using the command line, run 
+
+    `docker pull birdy1123/DAR1_docker`
+
+- If you go to the "Images" tab in the docker desktop UI, you should see "birdy1123/DAR1_docker"
+
+(3) Run a container based on the DAR1_docker image
+- using the command line, run 
+
+    `docker run -it birdy1123/DAR1_docker` 
+- this runs the container in interactive mode (`-i`) with terminal access (`-t`) 
+- you should see the prompt change to `root@some-number:/DAR1_docker#`
+    - if the container is already running, you can connect to it with `docker exec -it [CONTAINER_ID] bash`
+    - Note: connecting with `bash` rather than `sh` gives you more a powerful terminal (i.e. with tab completion) 
+  
+You're now ready for the [beginner tutorial](beginner_tutorial)!
+# Setting up on local machine
+
+See instructions in the documentation: https://daronemodel.github.io/DarOne.jl/build/getting_started/#Setting-up-on-local-machine
+
+## Example integration tests
+
+The example test runner executes all nine beginner tutorial and case-study scripts, including Fortran builds, simulations, and the tutorial plot. It uses Darwin reference inputs and short simulation durations. Run it with a Darwin checkout containing `verification/dar_one_config` and a working GNU Fortran toolchain:
 
 ```bash
-git clone https://github.com/DarOneModel/DarOne.jl.git
-cd DarOne.jl
-julia --project=. -e 'using Pkg; Pkg.instantiate()'
+DARONE_MITGCM_PATH=/path/to/darwin3 julia --project=. test/test_examples.jl
 ```
 
-Prepare Darwin3 as described in the getting-started guide, then run `beginner_tutorial/1_build_example.jl` followed by `beginner_tutorial/2_run_example.jl`.
+# Contributing 
 
-## Testing
+We have three main branches: `main`, `test`, and `dev`.
 
-The example integration tests compile and run Darwin3 and inspect diagnostic output. With the Fortran toolchain and Darwin3 checkout configured, run:
+All other branches are feature branches. Once a feature has been implemented, tested, and documented you can make a pull request to merge it into the `dev` branch. 
 
-```bash
-julia --project=. -e 'using Pkg; Pkg.test()'
-```
-
-## Development and attribution
-
-Contributions are welcome through [GitHub pull requests](https://github.com/DarOneModel/DarOne.jl/pulls). DarOne incorporates code originally from [MITgcmTools.jl](https://github.com/gaelforget/MITgcmTools.jl), now developed as [MITgcm.jl](https://github.com/gaelforget/MITgcm.jl). The original copyright and MIT licence notice are retained in [LICENSE](LICENSE).
+`main` is the most stable version of the code. This branch is used for the docker image. 

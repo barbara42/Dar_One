@@ -9,16 +9,16 @@ Contents
 
 # Before you begin
 
-If you haven't already, follow the [getting started](getting_started.md) instructions, which will guide you through installation, general program structure, and workflow. 
+If you haven't already, follow the [getting started](https://daronemodel.github.io/DarOne.jl/build/getting_started/) instructions, which will guide you through installation, general program structure, and workflow.
 
-This guide uses the command line; you can also open the repository and run the scripts in VS Code. 
+This guide to the case studies assumes you are using docker or otherwise working from a command line. If you would rather have a graphical interface, you can use the [Docker extension in VS Code](https://code.visualstudio.com/docs/containers/overview). 
 
 For each case study, there is a build file and a run file. These instructions will have you open each file, explain the contents, then close it and execute it with the `julia` command from the command line. 
 
-From the repository root, open the `case_studies/` directory: 
+If you are using the docker, you can find the code for the case students in the `/dar_one_docker/Dar_One/case_studies` directory. 
 
 ```bash
-cd case_studies
+cd /dar_one_docker/Dar_One/case_studies
 ls
 ```
 You should see the following six files listed. 
@@ -31,7 +31,7 @@ global_steadystate_run.jl
 nitrogen_fixers_run.jl
 nitrogen_fixers_build.jl
 ```
-You can also find the code on github [here](https://github.com/DarOneModel/DarOne.jl/tree/main/case_studies). 
+You can also find the code on github [here](https://github.com/DarOneModel/DarOne.jl/tree/main/case_studies).
 
 Each case study has a file to build the Darwin model and a file to run it. As explained in the getting started document, you only need to run the build step when making structural changes to your experiments -  such as a new grid size, setting ambient nutrients to be constant or cycling, or a new number of plankton tracers. After building once, you can change other parameters from run to run without building again - such as nutrient levels, plankton abundances, temperature, and light. 
 
@@ -40,19 +40,19 @@ Each case study has a file to build the Darwin model and a file to run it. As ex
 A simple nutrient amendment experiment. What happens if we take a plankton community that is nitrogen limited and add nitrogen? 
 
 ## Overview 
-In this experiment, DarOne is initialized with values from a global DARWIN run. Initial parameter values were taken from location X=203 and Y=108 (lon = 203.5, lat = 28.5). In the control run, nothing was modified. For the bottle experiment run, nitrate values were increased 10x. 
+In this experiment, DAR1 is initialized with values from a global DARWIN run. Initial parameter values were taken from location X=203 and Y=108 (lon = 203.5, lat = 28.5). In the control run, nothing was modified. For the bottle experiment run, nitrate values were increased 10x. 
 
 ![bottle experiment](images/bottle_experiment.png)
 
-The initial parameters that were set include all nutrient tracers (TRAC01-TRAC20), all biomass tracers excluding diazotrophs (TRAC21-TRAC29, TRAC35-TRAC70), PAR at a depth of 45m, and temperature. It was set to run for 7 days (56 iterations), writing to diagnostic files every 4 hours (14400 seconds). Reminder that you can find a list of all nutrient and plankton tracers in  [Darwin background](darwin_background.md)
+The initial parameters that were set include all nutrient tracers (TRAC01-TRAC20), all biomass tracers excluding diazotrophs (TRAC21-TRAC29, TRAC35-TRAC70), PAR at a depth of 45m, and temperature. It was set to run for 7 days (56 iterations), writing to diagnostic files every 4 hours (14400 seconds). Reminder that you can find a list of all nutrient and plankton tracers in  [Darwin background](https://daronemodel.github.io/DarOne.jl/build/darwin_background/)
 
 ## Code Walkthrough 
 
-From the terminal in the `case_studies/` directory, we can open up the bottle_experiment_build.jl file using the following command
+From the Docker command line, we can open up the bottle_experiment_build.jl file using the following command
 ```bash
 vim bottle_experiment_build.jl
 ```
-Reminder that we are in the `case_studies/` directory of your checkout. Use the arrow keys to navigate the cursor around with vim, `i` to enter insert mode, `esc` to exit the mode, and `:q` to close the file. We will walk through all the code in this file before running it. 
+Reminder that we are in the `/dar_one_docker/Dar_One/case_studies` directory. Use the arrow keys to navigate the cursor around with vim, `i` to enter insert mode, `esc` to exit the mode, and `:q` to close the file. We will walk through all the code in this file before running it. 
 
 You will see these lines of code at the top of the file. 
 
@@ -67,11 +67,11 @@ This loads up DarOne, then imports it along with the ClimateModels and NCDataset
 
 Next we have to let  `MITgcm_path[1]` point to the directory where the Darwin Fortran code lives, establish that we are working with a 1x1 parcel of water (instead of running multiple grid cells at once), and we want to allow all nutrients to freely cycle (intead of holding the concentrations in the water constant). 
 
-Point `MITgcm_path[1]` to the Darwin3 checkout prepared in the [getting-started guide](getting_started.md). 
+Note that if you are not using Docker, you will have to change the `MITgcm_path[1] = "directory/to/darwin"` line of code to contain the directory in which the Darwin fortran code is. 
 
 ```
 # the path to the Darwin version of the MITgcm
-MITgcm_path[1] = "/absolute/path/to/darwin3"
+MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME if not using Docker
 
 nX = 1
 nY = 1
@@ -87,18 +87,18 @@ build(base_configuration)
 ```
 With the `build` command, we are done with the `bottle_experiment_build.jl` file! With vim, make sure you are not in insert mode by pressing `esc` then close the file by typing `:q` + enter. 
 
-Back in the terminal, we will run the bottle experiment build file with the command 
+Back in the Docker bash command line, we will run the bottle experiment build file with the command 
 ```bash
 julia --project=.. bottle_experiment_build.jl
 ```
-Build progress is printed to the terminal; check for successful completion before running the experiment. 
+A bunch of info will be printed to the console as the model is building. Just hang tight for a minute or two and wait until you see a "successful build" message. 
 
 Next we will open the bottle experiment run file.
 ```bash
 vim bottle_experiment_run.jl
 ```
 
-We will go through every line of code in this file before we close it and run it from the terminal. 
+We will go through every line of code in this file before we close it and run it from the docker command line. 
 
 Again you will see the lines of code loading and importing DarOne and the NCDatasets and ClimateModels packages, along with the line of code that points to the Darwin fortran directory. 
 
@@ -109,10 +109,10 @@ using ClimateModels
 using NCDatasets
 
 # the path to the Darwin version of the MITgcm
-MITgcm_path[1] = "/absolute/path/to/darwin3" 
+MITgcm_path[1] = "/dar_one_docker/darwin3" 
 ```
 
-Next, we load up the files using to set initial values for tracers, taken from a surface point in a global MITgcm Darwin run. Annual-mean versions of these files ship with DarOne in the `data/darwin` directory (`surface_tracers.nc`, `surface_temperature.nc`, and `par_upper4.nc`), and the case studies read them from there by default. To seed from other Darwin output, set the `DARONE_DATA_DIR` environment variable to a directory containing files with those names.
+Next, we load up the files using to set initial values for tracers, taken from a surface point in a global MITgcm Darwin run. Annual-mean versions of these files ship with DAR1 in the `data/darwin` directory (`surface_tracers.nc`, `surface_temperature.nc`, and `par_upper4.nc`), and the case studies read them from there by default. To seed from other Darwin output, set the `DARONE_DATA_DIR` environment variable to a directory containing files with those names.
 
 ```
 # load seed files - these are from global darwin runs 
@@ -189,7 +189,7 @@ We initialize all of the nutrients and the plankton community from the seed file
     update_tracers(config_obj, zoo, seed_ds_3d, lon, lat, depth, t)
     update_tracers(config_obj, bacteria, seed_ds_3d, lon, lat, depth, t)
 ```
-For the second iteration, we add extra NO3. For the third, we add extra NH4. Note that here, we are using the "tracer id" to change the nutrients - NO3 is tracer 2, NH4 is tracer 4. You can find a list of all tracers and their corresponding IDs in the [darwin background](darwin_background.md) section. 
+For the second iteration, we add extra NO3. For the third, we add extra NH4. Note that here, we are using the "tracer id" to change the nutrients - NO3 is tracer 2, NH4 is tracer 4. You can find a list of all tracers and their corresponding IDs in the [darwin background](https://daronemodel.github.io/DarOne.jl/build/darwin_background/) section.
 
 ```
     if i == 2
@@ -213,19 +213,21 @@ dar_one_run(config_obj)
 ```
 With the `run` command, we are done with the `bottle_experiment_run.jl` file! With vim, make sure you are not in insert mode by pressing `esc` then close the file by typing `:q` + enter. 
 
-Back in the terminal, we will run the bottle experiment run file with the command 
+Back in the Docker bash command line, we will run the bottle experiment run file with the command 
 ```bash
 julia --project=.. bottle_experiment_run.jl
 ```
 It will take a few seconds to start up, but eventually you will see output being printed to the console. 
 
 ## Output 
-The NetCDF output is saved under `darwin3/verification/dar_one_config/run/bottle-with-no3-203-109/run/ecco_gud_DATE/` in your checkout. 
+The final output will be in netcdf files in the `ecco_gud_DATE` directory in `/dar_one_docker/darwin3/verification/dar_one_config/run/bottle-with-no3-203-109/run`. In order to copy it back over to your local machine, you will need to open a terminal on your machine (NOT within the docker container) and use the `docker cp` command (`docker cp container-id:/path/filename.txt ~/Desktop/filename.txt`). You can get the container id from the docker command prompt (root@container-id:/dar_one_docker). 
 
 The `3d.0000000000.nc` file contains nutrients and plankton abundances, so that's the one we want for now!
 
-Open the `3d.*.nc` files from that directory using your preferred NetCDF analysis tool.
-Now you have a netcdf file on your local machine to explore however you prefer! In depth descriptions of all the output files can be found in [Darwin Background](darwin_background.md).
+```
+docker cp container-id:/dar_one_docker/darwin3/verification/dar_one_config/run/bottle-with-no3-203-109/run/ecco_gud_20230622_0001/3d.0000000000.t001.nc ~/Desktop/
+```
+Now you have a netcdf file on your local machine to explore however you prefer! In depth descriptions of all the output files can be found in [Darwin Background](https://daronemodel.github.io/DarOne.jl/build/darwin_background/).
 
 
 
@@ -234,9 +236,9 @@ Now you have a netcdf file on your local machine to explore however you prefer! 
 
 ![steady-state](images/Fig_Bray_Curtis.png)
 
-(A) The average total biomass over the course of a year in the DARWIN model. Parameters from the DARWIN model, such as nutrients, species abundance, sunlight, and temperature, are used to initialize a matrix of DarOne runs, shown in (B).  The DarOne grid is 360x160 large, with each DarOne "cell" corresponding to a lat/lon point in the DARWIN model. The grid of DarOne runs is run 10 years forward, with final "steady state" values calculated from the average of the last two years. (C) shows the Bray-Curtis Dissimilarity index of the steady state community versus the initial community. The steady state is highly dissimilar to DARWIN in regions with high values (yellow), and low valued (blue) indicate areas where the community structure of the two models are comparable.
+(A) The average total biomass over the course of a year in the DARWIN model. Parameters from the DARWIN model, such as nutrients, species abundance, sunlight, and temperature, are used to initialize a matrix of DAR1s, shown in (B).  The DAR1 grid is 360x160 large, with each DAR1 "cell" corresponding to a lat/lon point in the DARWIN model. The grid of DAR1s is run 10 years forward, with final "steady state" values calculated from the average of the last two years. (C) shows the Bray-Curtis Dissimilarity index of the steady state community versus the initial community. The steady state is highly dissimilar to DARWIN in regions with high values (yellow), and low valued (blue) indicate areas where the community structure of the two models are comparable.
 
-See the grid section of the [beginner tutorials](beginner_tutorials.md) to learn the details of how to run DarOne in parallel in this grid format. 
+See the grid section of the [beginner tutorials](https://daronemodel.github.io/DarOne.jl/build/beginner_tutorials/) to learn the details of how to run DAR1 in parallel in this grid format.
 
 ## Code Walkthrough
 
@@ -245,7 +247,7 @@ First we will open and examine the `global_steadystate_build.jl` file.
 ```bash
 vim global_steadystate_build.jl
 ```
-Reminder that we are in the `case_studies/` directory of your checkout.
+Reminder that we are in the `/dar_one_docker/Dar_One/case_studies` directory.
 
 The 360 x 160 matrix was divided in 16 parts, each 90 x 40. After running, the 16 tiles were stitched together again. Prior to building, we specify this grid size, and make sure all nutients are allowed to cycle normally (i.e. the available amount in the water is not held constant)
 
@@ -254,7 +256,7 @@ using DarOne
 using NCDatasets
 
 # set path to MITgcm 
-MITgcm_path[1] = "/absolute/path/to/darwin3" # Set to your Darwin3 checkout
+MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 
 # set up size of your grid
 # running the 360x180 world in 16 quadrants in case something goes wrong midway
@@ -273,19 +275,19 @@ build(base_configuration)
 ```
 we are done with the `global_steadystate_build.jl` file! With vim, make sure you are not in insert mode by pressing `esc` then close the file by typing `:q` + enter. 
 
-Back in the terminal, we will run the bottle experiment build file with the command 
+Back in the Docker bash command line, we will run the bottle experiment build file with the command 
 ```bash
 julia --project=.. global_steadystate_build.jl
 ```
-Build progress is printed to the terminal; check for successful completion before running the experiment. 
+A bunch of info will be printed to the console as the model is building. Just hang tight for a minute or two and wait until you see a "successful build" message. 
 
 Next we will open the global steady state run file.
 ```bash
 vim global_steadystate_run.jl
 ```
-We will go through every line of code in this file before we close it and run it from the terminal. 
+We will go through every line of code in this file before we close it and run it from the docker command line. 
 
-The yearly averages from a global DARWIN run were used to initialize a grid of DarOne runs. Here, we load up those seed files. 
+The yearly averages from a global DARWIN run were used to initialize a grid of DAR1s. Here, we load up those seed files. 
 ```
 # load seed files - these are from global darwin runs
 # yearly average!  
@@ -375,7 +377,7 @@ Finally we can run!
 
 With the `run` function, we are done with the `global_steadystate_run.jl` file! With vim, make sure you are not in insert mode by pressing `esc` then close the file by typing `:q` + enter. 
 
-Back in the terminal, we will run the bottle experiment run file with the command 
+Back in the Docker bash command line, we will run the bottle experiment run file with the command 
 ```bash
 julia --project=.. global_steadystate_run.jl
 ```
@@ -394,16 +396,16 @@ This is the experiment that inspired the ability to hold the nutients readily av
 
 ## Overview 
 
-We will run a 30x30 grid of DarOne runs each initialized with the same plankton community and nutrients, with the exception of nitrate and phosphate. Nitrate levels in each grid cell will increase along one axis, while phosphate levels will increase along the y-axis. Nutrient values are grabbed from the MITgcm Darwin output, but with iron at 100x and all other nutrients at 10x, and other sources of nitrogen besides NO3 (NO2, NH4, and DON) set to zero. The goal is to flood the system with nutrients, making sure it that nitogen and phosphate are the limiting factors. The simulation is run forward for 5 years with the average of the last year taken to represent the steady state result. 
+We will run a 30x30 grid of DAR1s each initialized with the same plankton community and nutrients, with the exception of nitrate and phosphate. Nitrate levels in each grid cell will increase along one axis, while phosphate levels will increase along the y-axis. Nutrient values are grabbed from the MITgcm Darwin output, but with iron at 100x and all other nutrients at 10x, and other sources of nitrogen besides NO3 (NO2, NH4, and DON) set to zero. The goal is to flood the system with nutrients, making sure it that nitogen and phosphate are the limiting factors. The simulation is run forward for 5 years with the average of the last year taken to represent the steady state result. 
 
 ## Code Walkthrough 
-From the `case_studies/` directory of your checkout, we can open the nitrogen_fixers_build.jl file with vim. Because we are changing the number of grid cells we are running, we have to build the model again with these new dimensions. 
+From the `/dar_one_docker/Dar_One/case_studies` directory, we can open the nitrogen_fixers_build.jl file with vim. Because we are changing the number of grid cells we are running, we have to build the model again with these new dimensions. 
 
 ```bash
 vim nitrogen_fixers_build.jl
 ```
 
-You should see the same imports at the top of the file as previously mentioned, in addition to the line `MITgcm_path[1] = "/absolute/path/to/darwin3"`. (Reminder that you will have to point this to your local directory containing the Darwin code if you are not using the docker.)
+You should see the same imports at the top of the file as previously mentioned, in addition to the line `MITgcm_path[1] = "/dar_one_docker/darwin3"`. (Reminder that you will have to point this to your local directory containing the Darwin code if you are not using the docker.)
 
 First we update our grid size to be 30x30
 ```
@@ -412,7 +414,7 @@ nX = 30
 nY = 30 
 update_grid_size(nX, nY)
 ```
-Next, we specify that we want all 19 nutrient tracers to be held constant by passing in a param list of all zeros. If we wanted to allow all nutrients to cycle normally, we would pass in a list of all ones. See the section on constant nutrients in the [beginner tutorial](beginner_tutorials.md) page for more information. 
+Next, we specify that we want all 19 nutrient tracers to be held constant by passing in a param list of all zeros. If we wanted to allow all nutrients to cycle normally, we would pass in a list of all ones. See the section on constant nutrients in the [beginner tutorial](https://daronemodel.github.io/DarOne.jl/build/beginner_tutorials/) page for more information.
 ```
 # which nutrients can change?
 param_list = zeros(19) # hold everything constant (0 = constant, 1=cycle)
@@ -426,24 +428,24 @@ build(base_configuration)
 
 Now we can close the nitrogen_fixers_build.jl file. With vim, make sure you are not in insert mode by pressing `esc` then close the file by typing `:q` + enter. 
 
-Back in the terminal, we will run the file with the command 
+Back in the Docker bash command line, we will run the file with the command 
 ```bash
 julia --project=.. nitrogen_fixers_build.jl
 ```
-Build progress is printed to the terminal; check for successful completion before running the experiment. 
+A bunch of info will be printed to the console as the model is building. Just hang tight for a minute or two and wait until you see a "successful build" message. 
 
 Now we will take a look at the `nitrogen_fixers_run.jl` file. Open it using the command 
 
 ```bash
 vim nitrogen_fixers_run.jl
 ```
-First up are the import statements for DarOne and other packages. 
+First up in the file is the import statements for Dar1 and other packages. 
 
-Next we do the typical set-up for a DarOne run - set the path for MITgcm to point to where the MITgcm code is, choose a unique config name for the experiment, and set up the config object. 
+Next we do the typical set-up for a DAR1 run - set the path for MITgcm to point to where the MITgcm code is, choose a unique config name for the experiment, and set up the config object. 
 
 ```
 # set path to MITgcm 
-MITgcm_path[1] = "/absolute/path/to/darwin3" # Set to your Darwin3 checkout
+MITgcm_path[1] = "/dar_one_docker/darwin3" # CHANGE ME (unless using docker)
 
 # create and set up config 
 config_name = "n_30x30"
@@ -485,7 +487,7 @@ y = 135
 z= 1
 t = 1 # using yearly averages 
 ```
-Next, we initialize the plankton community, excluding mixotrophic dinoflagellates. Each grid cell starts out with the same quantity of plankton. Reminder that you can see a list of all the plankton tracers, their IDs, and functional groups on the [darwin backgroung](darwin_background.md) page. 
+Next, we initialize the plankton community, excluding mixotrophic dinoflagellates. Each grid cell starts out with the same quantity of plankton. Reminder that you can see a list of all the plankton tracers, their IDs, and functional groups on the [darwin backgroung](https://daronemodel.github.io/DarOne.jl/build/darwin_background/) page.
 
 ```
 # start with the same plankton community in each cell 
@@ -562,7 +564,10 @@ It will take a few seconds for it to begin running, but you will eventually see 
 
 ## Output 
 
-The final NetCDF output is saved under `darwin3/verification/dar_one_config/run/n_30x30/run/ecco_gud_DATE/` in your checkout. 
+The final output will be in the `ecco_gud_DATE` folder in the directory `/dar_one_docker/darwin3/verification/dar_one_config/run/n_30x30/run/`. In order to copy it back over to your local machine, you will need to open a terminal on your machine (NOT within the docker container) and use the `docker cp` command (`docker cp container-id:/path/filename.txt ~/Desktop/filename.txt`). You can get the container id from the docker command prompt (root@container-id:/dar_one_docker). 
 
-There is a `3d` file for each year. For the five-year experiment, the final file is `3d.0000014400.t001.nc`. Open it directly from the output directory to analyse the final state.
-Now you have a netcdf file on your local machine to explore however you prefer! In depth descriptions of all the output files can be found in [Darwin Background](darwin_background.md).
+There is a 3d file created for each year we ran. We are mainly interested in the last 3d file, i.e. the 5th year (3d.0000014400.t001.nc). Here is an example of the full docker copy command. 
+```
+docker cp 631c2b348d93:/dar_one_docker/darwin3/verification/dar_one_config/run/n_30x30/run/ecco_gud_20230602_0001/3d.0000014400.t001.nc ~/Desktop
+```
+Now you have a netcdf file on your local machine to explore however you prefer! In depth descriptions of all the output files can be found in [Darwin Background](https://daronemodel.github.io/DarOne.jl/build/darwin_background/).
