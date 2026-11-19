@@ -1,8 +1,8 @@
-# Tests for MITgcmTools/ReadFiles.jl 
+# Tests for DarOne/ReadFiles.jl
 # specifically for read_namelist 
 
 
-using MITgcmTools
+using DarOne
 using Test
 using OrderedCollections
 
