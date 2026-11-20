@@ -2,7 +2,7 @@ using NCDatasets
 
 """
 Methods related to creating and assigning the initial conditions 
-for a grid of Dar1s. 
+for a grid of DarOnes. 
 
 For a grid of size (X, Y), the initial conditions for each grid cell are
 set in a binary file with X*Y number of floats, in big-endian format, with no headers.
