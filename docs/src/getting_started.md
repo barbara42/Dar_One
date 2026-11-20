@@ -2,22 +2,22 @@
 
 DarOne.jl is a tool for designing and running experiments simulating the marine microbiome within a single cube of water. The biogeochemical forcing is powered by the [MIT Darwin Model](https://darwinproject.mit.edu/), and DarOne.jl provides a Julia interface to build, configure, and run experiments with a simple, streamlined workflow.
 
-![dar1 ecosystem](images/dar1_ecosystem.png)
+![DarOne ecosystem](images/DarOne_ecosystem.png)
 
-DAR1 Model Configuration: The DAR1 system models a single, well mixed parcel of water. The standard configuration consists of the DARWIN ecosystem-biogeochemical model, with free gas exchange with the atmosphere. Horizontal and other vertical fluxes are set to zero. These conditions can be modified by the user.
+DarOne Model Configuration: The DarOne system models a single, well mixed parcel of water. The standard configuration consists of the DARWIN ecosystem-biogeochemical model, with free gas exchange with the atmosphere. Horizontal and other vertical fluxes are set to zero. These conditions can be modified by the user.
 
 # Basic Structure 
 
-DAR1 is composed of three main parts: the MITgcm Darwin code, a configuration made for DAR1, and the julia interface to modify the configuration and run the model. 
+DarOne is composed of three main parts: the MITgcm Darwin code, a configuration made for DarOne, and the julia interface to modify the configuration and run the model. 
 
 - [DarOne.jl](https://github.com/DarOneModel/DarOne.jl) - Julia interface for organizing experiments and setting up parameters for model runs
     - `MITgcm_path` variable needs to point to darwin3
 - [darwin3](https://github.com/darwinproject/darwin3) - MITgcm source code set up to include all things Darwin 
-    - `dar_one_config` - folder for the base configuration files for DAR1, which lives in the darwin3/verification/ folder. ([DAR1_config github](https://github.com/barbara42/dar_one_config))
+    - `dar_one_config` - folder for the base configuration files for DarOne, which lives in the darwin3/verification/ folder. ([DarOne_config github](https://github.com/barbara42/dar_one_config))
 
-Experiments are designed and run in a Julia file using the DAR1 Julia interface. This will create a unique run folder nested underneath the MITgcm darwin code and the dar_one_config folder. You will never have to look at the fortran of MITgcm Darwin or at the configuration files! However, output of the experiment is saved underneath that unique run folder that is created in `darwin3/verification/dar_one_config/run`.
+Experiments are designed and run in a Julia file using the DarOne Julia interface. This will create a unique run folder nested underneath the MITgcm darwin code and the dar_one_config folder. You will never have to look at the fortran of MITgcm Darwin or at the configuration files! However, output of the experiment is saved underneath that unique run folder that is created in `darwin3/verification/dar_one_config/run`.
 
-![DAR1 Anatomy](images/dar1_anatomy.png)
+![DarOne Anatomy](images/DarOne_anatomy.png)
 
 
 # Installation 
@@ -29,8 +29,8 @@ using Pkg
 Pkg.add("DarOne")
 ```
 
-DAR1 can be run in one of two ways. 
-1) In a **docker container** using the DAR1_docker image, where all dependencies are handled for you 
+DarOne can be run in one of two ways. 
+1) In a **docker container** using the DarOne_docker image, where all dependencies are handled for you 
 2) On your local machine, where you have to set up the environment, download dependencies, etc 
     - this is more time consuming, and I strongly recommend using the docker image
     - instructions for local setup are below
@@ -39,16 +39,16 @@ DAR1 can be run in one of two ways.
 
 (1) Download and install [docker desktop](https://www.docker.com/).
 - Run the docker application, which will start up the docker "daemon" 
-- The docker daemon must be running in order to download the DAR1 image and to start up a container
+- The docker daemon must be running in order to download the DarOne image and to start up a container
 
-(2) Get the [DAR1_docker image](https://hub.docker.com/repository/docker/birdy1123/dar1).
+(2) Get the [DarOne docker image](https://hub.docker.com/repository/docker/birdy1123/dar1).
 - using the command line, run 
 
     `docker pull birdy1123/dar1`
 
-- If you go to the "Images" tab in the docker desktop UI, you should see "birdy1123/DAR1_docker"
+- If you go to the "Images" tab in the docker desktop UI, you should see "birdy1123/dar1"
 
-(3) Run a container based on the DAR1_docker image
+(3) Run a container based on the DarOne docker image
 - using the command line, run 
 
     `docker run -it birdy1123/dar1` 
@@ -90,7 +90,7 @@ git clone https://github.com/barbara42/dar_one_config.git
 ```
 
 After these steps, you should have 
-1. the DAR1 source code 
+1. the DarOne source code 
 2. the darwin3 source code
 3. the `dar_one_config` code nested under `darwin3/verification`
 
@@ -142,7 +142,7 @@ RUN apt-get install -y libnetcdff-dev
 
 For more in-depth instructions, check out the [beginner tutorials](https://daronemodel.github.io/DarOne.jl/build/beginner_tutorials/)
 
-In general, experiments with DAR1 are divided into two main steps 
+In general, experiments with DarOne are divided into two main steps 
 1. Building
     - grid size
     - nutrient cycling
@@ -154,7 +154,7 @@ I like to separate these out into two scripts because the build step only has to
 
 I recommend creating a folder at the top level of the `DarOne.jl` directory with the name `your-name-experiments`, and putting all scripts you create in there.
 
-For every DAR1 script, you will first import DarOne. Run scripts using `julia --project=.` from the `DarOne.jl` folder.
+For every DarOne script, you will first import DarOne. Run scripts using `julia --project=.` from the `DarOne.jl` folder.
 ```
 using DarOne
 ```

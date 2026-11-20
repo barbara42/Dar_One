@@ -14,7 +14,7 @@ export DARONE_PAPER_OUTPUT_DIR="$(cd "$output" && pwd)"
 export DARONE_EXAMPLE_ITERATIONS="${DARONE_EXAMPLE_ITERATIONS:-28800}"
 export JULIA_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1
 
-echo "Running 16 DAR1 tiles using $workers concurrent processes"
+echo "Running 16 DarOne tiles using $workers concurrent processes"
 seq 1 16 | xargs -P "$workers" -n 1 bash -c '
   set -euo pipefail
   tile="$1"

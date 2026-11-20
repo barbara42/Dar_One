@@ -25,11 +25,11 @@ DarOne.jl is a tool for designing and running experiments simulating the marine 
 - [DarOne.jl](https://github.com/DarOneModel/DarOne.jl) - Julia interface for organizing experiments and setting up parameters for model runs
     - `MITgcm_path` variable should point to darwin3
 - [darwin3](https://github.com/darwinproject/darwin3) - MITgcm source code set up to include all things Darwin 
-    - `DAR1_config` - folder for the base configuration files for DAR1, which lives in the darwin3/verification/ folder. ([DAR1_config github](https://github.com/barbara42/dar_one_config))
+    - `DarOne_config` - folder for the base configuration files for DarOne, which lives in the darwin3/verification/ folder. ([DarOne_config github](https://github.com/barbara42/dar_one_config))
 
 
-DAR1 can be run in one of two ways. 
-1) In a **docker container** using the DAR1_docker image, where all dependencies are handled for you 
+DarOne can be run in one of two ways. 
+1) In a **docker container** using the DarOne_docker image, where all dependencies are handled for you 
 2) On your local machine, where you have to set up the environment, download dependencies, etc 
     - this is more time consuming, and I strongly recommend using the docker image
     - instructions for local setup are below
@@ -38,21 +38,21 @@ DAR1 can be run in one of two ways.
 
 (1) Download and install [docker desktop](https://www.docker.com/).
 - Run the docker application, which will start up the docker "daemon" 
-- The docker daemon must be running in order to download the DAR1 image
+- The docker daemon must be running in order to download the DarOne image
 
-(2) Get the [DAR1_docker image](https://hub.docker.com/repository/docker/birdy1123/dar1).
+(2) Get the [DarOne docker image](https://hub.docker.com/repository/docker/birdy1123/dar1).
 - using the command line, run 
 
-    `docker pull birdy1123/DAR1_docker`
+    `docker pull birdy1123/dar1`
 
-- If you go to the "Images" tab in the docker desktop UI, you should see "birdy1123/DAR1_docker"
+- If you go to the "Images" tab in the docker desktop UI, you should see "birdy1123/dar1"
 
-(3) Run a container based on the DAR1_docker image
+(3) Run a container based on the DarOne docker image
 - using the command line, run 
 
-    `docker run -it birdy1123/DAR1_docker` 
+    `docker run -it birdy1123/dar1` 
 - this runs the container in interactive mode (`-i`) with terminal access (`-t`) 
-- you should see the prompt change to `root@some-number:/DAR1_docker#`
+- you should see the prompt change to `root@some-number:/DarOne_docker#`
     - if the container is already running, you can connect to it with `docker exec -it [CONTAINER_ID] bash`
     - Note: connecting with `bash` rather than `sh` gives you more a powerful terminal (i.e. with tab completion) 
   

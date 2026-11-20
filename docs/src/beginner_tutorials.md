@@ -136,9 +136,9 @@ The `3d.nc` file contains information about nutrient levels and the biomass of a
 
 # Grid 
 
-MITgcm DARWIN is built to run in a grid, calculating the fluxes as things flow from one grid cell to another. By turning off advection and diffusion between grid cells, we can essentially run DAR1 in parallel. That is, multiple blocks of water that do not interact with each other. 
+MITgcm DARWIN is built to run in a grid, calculating the fluxes as things flow from one grid cell to another. By turning off advection and diffusion between grid cells, we can essentially run DarOne in parallel. That is, multiple blocks of water that do not interact with each other. 
 
-In order to run DAR1 in parallel, you first must specify the number of cells in the X and Y direction before building. In this example, we're creating a 4x4 grid.
+In order to run DarOne in parallel, you first must specify the number of cells in the X and Y direction before building. In this example, we're creating a 4x4 grid.
 
 ```
 nX = 4
@@ -225,14 +225,14 @@ And finally, we can run!
 dar_one_run(config_obj)
 ```
 
-To recap, in this example we created a 4x4 grid of DAR1s, each with the same initial amount of nutrients (with the exception of NO3) and prochlorococcus. Along one axis, we initialized each grid cell to have 3.0, 4.67, 6.33, and 8.0 mmol NO3, and along the other axis we set the temperature to be 20.0, 26.67, 33.33, and 40.0 degrees C. 
+To recap, in this example we created a 4x4 grid of DarOnes, each with the same initial amount of nutrients (with the exception of NO3) and prochlorococcus. Along one axis, we initialized each grid cell to have 3.0, 4.67, 6.33, and 8.0 mmol NO3, and along the other axis we set the temperature to be 20.0, 26.67, 33.33, and 40.0 degrees C. 
 
 
 # Constant Nutrients 
 
-In a normal DAR1 configuration, the nutrients cycle through organic pathways and are then remineralized. When organisms grow, they take the nutrients out of the water and turn them into biomass. In a "constant nutrient" state, however, we can hold the amount of nutrients available in the water constant, so that the uptake by organisms doesn't deplete the reserve. 
+In a normal DarOne configuration, the nutrients cycle through organic pathways and are then remineralized. When organisms grow, they take the nutrients out of the water and turn them into biomass. In a "constant nutrient" state, however, we can hold the amount of nutrients available in the water constant, so that the uptake by organisms doesn't deplete the reserve. 
 
-With DAR1 you can hold any subset of the nutrients constant. As with a grid setup, this requires built-time changes, made by using the `hold_nutrients_constant` method before building. There are 19 nutrient tracers (DIC, NO3, NO2, NH4, PO4, SiO2, FeT, DOC, DON, DOP, DOFe, PIC, POC, PON, PIP, PISi, POFe, ALK, O2), and `hold_nutrients_constant` takes a list of length 19, each element representing the nutrients in the order they are listed. In that list, a 0 represents holding a nutrient constant (dN/dt = 0), and 1 means that the concentration of that nutrient will be depleted and replentished with biomass growth and remineralization. 
+With DarOne you can hold any subset of the nutrients constant. As with a grid setup, this requires built-time changes, made by using the `hold_nutrients_constant` method before building. There are 19 nutrient tracers (DIC, NO3, NO2, NH4, PO4, SiO2, FeT, DOC, DON, DOP, DOFe, PIC, POC, PON, PIP, PISi, POFe, ALK, O2), and `hold_nutrients_constant` takes a list of length 19, each element representing the nutrients in the order they are listed. In that list, a 0 represents holding a nutrient constant (dN/dt = 0), and 1 means that the concentration of that nutrient will be depleted and replentished with biomass growth and remineralization. 
 
 To set all nutrients constant, use the following code 
 
