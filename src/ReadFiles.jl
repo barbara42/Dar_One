@@ -1,3 +1,6 @@
+import NCDatasets
+
+
 # This file is derived from MITgcm.jl (https://github.com/gaelforget/MITgcm.jl)
 # Copyright (c) 2020 gaelforget <gforget@mit.edu>
 # SPDX-License-Identifier: MIT
@@ -97,7 +100,7 @@ function scan_stdout(filout::String)
         ioSize[1]=size(tmp)
     end
     if tst_mnc
-        tmp=MITgcmTools.read_mnc(pth_mnc,"grid","XC")
+        tmp=read_mnc(pth_mnc,"grid","XC")
         ioSize[1]=size(tmp)
     end
 
@@ -170,7 +173,7 @@ Read a `MITgcm` namelist file, parse it, and return as a NamedTuple
 - assumes a single variable definition per line
 
 ```
-using MITgcmTools
+using DarOne
 testreport("advect_xy")
 fil=joinpath(MITgcm_path[1],"verification","advect_xy","run","data")
 namelist=read_namelist(fil)
@@ -280,7 +283,7 @@ end
 Save a `MITgcm` namelist file. In the example below, one is read from file, modified, and then saved to a new file using write_namelist.
 
 ```
-using MITgcmTools
+using DarOne
 fil=joinpath(MITgcm_path[1],"verification","advect_xy","run","data")
 nml=read_namelist(fil)
 write_namelist(fil*"_new",namelist)
@@ -433,52 +436,34 @@ Read variable `var` from a set of `MITgcm` MNC-type files (netcdf files), combin
 return as an Array. This method will search within `pth` for files that start with `fil`.
 """
 function read_mnc(pth::String,fil::String,var::String)
-    lst=readdir(pth)
-    lst=lst[findall(occursin.(fil,lst).*occursin.(".nc",lst))]
+    files = sort(filter(f -> startswith(f, fil) && endswith(f, ".nc"), readdir(pth)))
+    isempty(files) && throw(ArgumentError("No MNC files beginning with '$fil' found in $pth"))
 
-    fil=joinpath(pth,lst[1])
-    ncfile=MITgcmTools.NetCDF.open(fil)
-    ncatts=ncfile.gatts
+    result = nothing
+    for file in files
+        NCDatasets.NCDataset(joinpath(pth, file), "r") do ds
+            attrs = ds.attrib
+            tile = Array(ds[var].var)  # Raw values, without CF scaling or missing-value conversion
+            ndims(tile) >= 2 || throw(ArgumentError("MNC variable $var needs at least two dimensions"))
+            nx, ny = Int(attrs["Nx"]), Int(attrs["Ny"])
+            sx, sy = Int(attrs["sNx"]), Int(attrs["sNy"])
+            size(tile, 1) == sx && size(tile, 2) == sy ||
+                throw(DimensionMismatch("Tile dimensions disagree with sNx/sNy in $file"))
 
-    v = MITgcmTools.NetCDF.open(fil, var)
-    if haskey(v.atts,"coordinates")
-        has_RC=occursin("RC",v.atts["coordinates"])
-        has_iter=occursin("iter",v.atts["coordinates"])
-    else
-        has_RC=false
-        has_iter=false
-    end
+            shape = (nx, ny, size(tile)[3:end]...)
+            if isnothing(result)
+                result = fill(NaN, shape)
+            else
+                size(result) == shape || throw(DimensionMismatch("Inconsistent MNC dimensions in $file"))
+            end
 
-    if has_RC*has_iter
-        s=(ncatts["Nx"],ncatts["Ny"],Int64(v.dim[3].dimlen),Int64(v.dim[4].dimlen))
-    elseif has_RC|has_iter
-        s=(ncatts["Nx"],ncatts["Ny"],Int64(v.dim[3].dimlen))
-    else
-        s=(ncatts["Nx"],ncatts["Ny"])
-    end
-
-    T = Float64
-    x = Array{T,length(s)}(undef,s)
-
-    for f in lst
-        fil=joinpath(pth,f)
-        ncfile=MITgcmTools.NetCDF.open(fil)
-        ncatts=ncfile.gatts
-        b=(ncatts["bi"],ncatts["bj"])
-        s=(ncatts["sNx"],ncatts["sNy"])
-        ii=(b[1]-1)*s[1] .+ collect(1:s[1])
-        jj=(b[2]-1)*s[2] .+ collect(1:s[2])
-        v = MITgcmTools.NetCDF.open(fil, var)
-        if has_RC*has_iter
-            x[ii,jj,:,:]=v[:,:,:,:]
-        elseif has_RC|has_iter
-            x[ii,jj,:]=v[:,:,:]
-        elseif has_RC|has_iter
-            x[ii,jj]=v[:,:]
+            bi, bj = Int(attrs["bi"]), Int(attrs["bj"])
+            ii = (bi - 1) * sx .+ (1:sx)
+            jj = (bj - 1) * sy .+ (1:sy)
+            result[ii, jj, ntuple(_ -> Colon(), ndims(tile) - 2)...] = tile
         end
     end
-
-    x
+    return result
 end
 
 

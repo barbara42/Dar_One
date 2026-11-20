@@ -13,7 +13,7 @@ Run the testreport script for one model config `nam` (or "all"),
 with additional options (optional) speficied in `ext`
 
 ```
-using MITgcmTools
+using DarOne
 testreport(MITgcm_config(configuration="front_relax"),"-norun")
 #testreport(MITgcm_config(configuration="all"),"-norun")
 ```
