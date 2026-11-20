@@ -9,7 +9,7 @@ Contents
 
 # Before you begin
 
-If you haven't already, follow the [getting started](https://barbara42.github.io/Dar_One/build/getting_started/) instructions, which will guide you through installation, general program structure, and workflow. 
+If you haven't already, follow the [getting started](https://daronemodel.github.io/DarOne.jl/build/getting_started/) instructions, which will guide you through installation, general program structure, and workflow.
 
 This guide to the case studies assumes you are using docker or otherwise working from a command line. If you would rather have a graphical interface, you can use the [Docker extension in VS Code](https://code.visualstudio.com/docs/containers/overview). 
 
@@ -31,7 +31,7 @@ global_steadystate_run.jl
 nitrogen_fixers_run.jl
 nitrogen_fixers_build.jl
 ```
-You can also find the code on github [here](https://github.com/barbara42/Dar_One/tree/main/case_studies). 
+You can also find the code on github [here](https://github.com/DarOneModel/DarOne.jl/tree/main/case_studies).
 
 Each case study has a file to build the Darwin model and a file to run it. As explained in the getting started document, you only need to run the build step when making structural changes to your experiments -  such as a new grid size, setting ambient nutrients to be constant or cycling, or a new number of plankton tracers. After building once, you can change other parameters from run to run without building again - such as nutrient levels, plankton abundances, temperature, and light. 
 
@@ -44,7 +44,7 @@ In this experiment, DAR1 is initialized with values from a global DARWIN run. In
 
 ![bottle experiment](images/bottle_experiment.png)
 
-The initial parameters that were set include all nutrient tracers (TRAC01-TRAC20), all biomass tracers excluding diazotrophs (TRAC21-TRAC29, TRAC35-TRAC70), PAR at a depth of 45m, and temperature. It was set to run for 7 days (56 iterations), writing to diagnostic files every 4 hours (14400 seconds). Reminder that you can find a list of all nutrient and plankton tracers in  [Darwin background](https://barbara42.github.io/Dar_One/build/darwin_background/)
+The initial parameters that were set include all nutrient tracers (TRAC01-TRAC20), all biomass tracers excluding diazotrophs (TRAC21-TRAC29, TRAC35-TRAC70), PAR at a depth of 45m, and temperature. It was set to run for 7 days (56 iterations), writing to diagnostic files every 4 hours (14400 seconds). Reminder that you can find a list of all nutrient and plankton tracers in  [Darwin background](https://daronemodel.github.io/DarOne.jl/build/darwin_background/)
 
 ## Code Walkthrough 
 
@@ -189,7 +189,7 @@ We initialize all of the nutrients and the plankton community from the seed file
     update_tracers(config_obj, zoo, seed_ds_3d, lon, lat, depth, t)
     update_tracers(config_obj, bacteria, seed_ds_3d, lon, lat, depth, t)
 ```
-For the second iteration, we add extra NO3. For the third, we add extra NH4. Note that here, we are using the "tracer id" to change the nutrients - NO3 is tracer 2, NH4 is tracer 4. You can find a list of all tracers and their corresponding IDs in the [darwin background](https://barbara42.github.io/Dar_One/build/darwin_background/) section. 
+For the second iteration, we add extra NO3. For the third, we add extra NH4. Note that here, we are using the "tracer id" to change the nutrients - NO3 is tracer 2, NH4 is tracer 4. You can find a list of all tracers and their corresponding IDs in the [darwin background](https://daronemodel.github.io/DarOne.jl/build/darwin_background/) section.
 
 ```
     if i == 2
@@ -227,7 +227,7 @@ The `3d.0000000000.nc` file contains nutrients and plankton abundances, so that'
 ```
 docker cp container-id:/dar_one_docker/darwin3/verification/dar_one_config/run/bottle-with-no3-203-109/run/ecco_gud_20230622_0001/3d.0000000000.t001.nc ~/Desktop/
 ```
-Now you have a netcdf file on your local machine to explore however you prefer! In depth descriptions of all the output files can be found in [Darwin Background](https://barbara42.github.io/Dar_One/build/darwin_background/).
+Now you have a netcdf file on your local machine to explore however you prefer! In depth descriptions of all the output files can be found in [Darwin Background](https://daronemodel.github.io/DarOne.jl/build/darwin_background/).
 
 
 
@@ -238,7 +238,7 @@ Now you have a netcdf file on your local machine to explore however you prefer! 
 
 (A) The average total biomass over the course of a year in the DARWIN model. Parameters from the DARWIN model, such as nutrients, species abundance, sunlight, and temperature, are used to initialize a matrix of DAR1s, shown in (B).  The DAR1 grid is 360x160 large, with each DAR1 "cell" corresponding to a lat/lon point in the DARWIN model. The grid of DAR1s is run 10 years forward, with final "steady state" values calculated from the average of the last two years. (C) shows the Bray-Curtis Dissimilarity index of the steady state community versus the initial community. The steady state is highly dissimilar to DARWIN in regions with high values (yellow), and low valued (blue) indicate areas where the community structure of the two models are comparable.
 
-See the grid section of the [beginner tutorials](https://barbara42.github.io/Dar_One/build/beginner_tutorials/) to learn the details of how to run DAR1 in parallel in this grid format. 
+See the grid section of the [beginner tutorials](https://daronemodel.github.io/DarOne.jl/build/beginner_tutorials/) to learn the details of how to run DAR1 in parallel in this grid format.
 
 ## Code Walkthrough
 
@@ -414,7 +414,7 @@ nX = 30
 nY = 30 
 update_grid_size(nX, nY)
 ```
-Next, we specify that we want all 19 nutrient tracers to be held constant by passing in a param list of all zeros. If we wanted to allow all nutrients to cycle normally, we would pass in a list of all ones. See the section on constant nutrients in the [beginner tutorial](https://barbara42.github.io/Dar_One/build/beginner_tutorials/) page for more information. 
+Next, we specify that we want all 19 nutrient tracers to be held constant by passing in a param list of all zeros. If we wanted to allow all nutrients to cycle normally, we would pass in a list of all ones. See the section on constant nutrients in the [beginner tutorial](https://daronemodel.github.io/DarOne.jl/build/beginner_tutorials/) page for more information.
 ```
 # which nutrients can change?
 param_list = zeros(19) # hold everything constant (0 = constant, 1=cycle)
@@ -487,7 +487,7 @@ y = 135
 z= 1
 t = 1 # using yearly averages 
 ```
-Next, we initialize the plankton community, excluding mixotrophic dinoflagellates. Each grid cell starts out with the same quantity of plankton. Reminder that you can see a list of all the plankton tracers, their IDs, and functional groups on the [darwin backgroung](https://barbara42.github.io/Dar_One/build/darwin_background/) page. 
+Next, we initialize the plankton community, excluding mixotrophic dinoflagellates. Each grid cell starts out with the same quantity of plankton. Reminder that you can see a list of all the plankton tracers, their IDs, and functional groups on the [darwin backgroung](https://daronemodel.github.io/DarOne.jl/build/darwin_background/) page.
 
 ```
 # start with the same plankton community in each cell 
@@ -570,4 +570,4 @@ There is a 3d file created for each year we ran. We are mainly interested in the
 ```
 docker cp 631c2b348d93:/dar_one_docker/darwin3/verification/dar_one_config/run/n_30x30/run/ecco_gud_20230602_0001/3d.0000014400.t001.nc ~/Desktop
 ```
-Now you have a netcdf file on your local machine to explore however you prefer! In depth descriptions of all the output files can be found in [Darwin Background](https://barbara42.github.io/Dar_One/build/darwin_background/).
+Now you have a netcdf file on your local machine to explore however you prefer! In depth descriptions of all the output files can be found in [Darwin Background](https://daronemodel.github.io/DarOne.jl/build/darwin_background/).

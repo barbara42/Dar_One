@@ -1,7 +1,7 @@
 using Documenter, DarOne
 
 makedocs(
-    sitename="Dar_One",
+    sitename="DarOne.jl",
     pages = [
         "Getting Started" => "getting_started.md",
         "Beginner Tutorials" => "beginner_tutorials.md",
