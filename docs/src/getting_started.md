@@ -41,7 +41,7 @@ DarOne can be run in one of two ways.
 - Run the docker application, which will start up the docker "daemon" 
 - The docker daemon must be running in order to download the DarOne image and to start up a container
 
-(2) Get the [DarOne docker image](https://hub.docker.com/repository/docker/birdy1123/dar1).
+(2) Get the [DarOne docker image](https://hub.docker.com/r/birdy1123/dar1).
 - using the command line, run 
 
     `docker pull birdy1123/dar1`
