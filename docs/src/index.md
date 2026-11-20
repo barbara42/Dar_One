@@ -1,6 +1,6 @@
 # Modifying Parameters 
 
-**Organzied descriptions of how to modify certain parameters for Dar_One**
+**Organzied descriptions of how to modify certain parameters for DarOne.jl**
 
 Darwin has many ways to control and tweak a simulation. You can change things such as how hot or cold
 it is, the intensity of the sunlight, how much of a nutrient is available, etc. Below you will find an explanation of the most commonly used parameters to design your own unique experiments! 
@@ -60,7 +60,7 @@ update_temperature(config_obj, 25.5)
 
 The term "tracer" refers to anything that's in the water that isn't H2O itself. This includes nutients and biomass. There are a number of named functions for nutrients and biomass, which are listed below! 
 
-If the tracer you want to update doesn't have its own function, you can update any tracer you know the "id" of using the following function. Tracer IDs can be found under Darwin Background > [Tracers](https://barbara42.github.io/Dar_One/build/darwin_background/#Nutrients-TRAC01-TRAC20)
+If the tracer you want to update doesn't have its own function, you can update any tracer you know the "id" of using the following function. Tracer IDs can be found under Darwin Background > [Tracers](https://daronemodel.github.io/DarOne.jl/build/darwin_background/#Nutrients-TRAC01-TRAC20)
 
 ```@docs
 update_tracer

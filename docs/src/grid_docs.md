@@ -1,4 +1,4 @@
-# Using Dar_One in a Grid 
+# Using DarOne.jl in a Grid
 
 Running multiple `Dar_One` experiments in parallel.
 
