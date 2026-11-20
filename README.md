@@ -23,9 +23,9 @@ Documentation for the darwin3 MITgcm fortran model can be found [here](https://d
 DarOne.jl is a tool for designing and running experiments simulating the marine microbiome within a single cube of water. The biogeochemical forcing is powered by the [MIT Darwin Model](https://darwinproject.mit.edu/), and DarOne.jl provides a Julia interface to build, configure, and run experiments with a simple, streamlined workflow. DarOne.jl is composed of two main parts:
 
 - [DarOne.jl](https://github.com/DarOneModel/DarOne.jl) - Julia interface for organizing experiments and setting up parameters for model runs
-    - `MITgcm_path` variable should point to darwin3
+    - Darwin3 sources are located automatically (see local setup below).
 - [darwin3](https://github.com/darwinproject/darwin3) - MITgcm source code set up to include all things Darwin 
-    - `DarOne_config` - folder for the base configuration files for DarOne, which lives in the darwin3/verification/ folder. ([DarOne_config github](https://github.com/barbara42/dar_one_config))
+    - [`dar_one_config`](https://github.com/barbara42/dar_one_config) - base configuration, managed independently of the Darwin3 source tree.
 
 
 DarOne can be run in one of two ways. 
@@ -61,76 +61,34 @@ You're now ready for the [beginner tutorial](beginner_tutorial)!
 
 See instructions in the documentation: https://daronemodel.github.io/DarOne.jl/build/getting_started/#Setting-up-on-local-machine
 
-## Darwin3 and configuration paths (PR1, Cycle 2)
+## Darwin3 sources
 
-DarOne automatically fetches the Darwin3 and `dar_one_config` Git revisions
-recorded in [`darwin-sources.env`](darwin-sources.env) on first use. Git is
-required to retrieve sources; GNU Fortran, `make`, `tar`, NetCDF and Python
-are needed to compile and run the existing examples. Julia's `Scratch.jl`
-keeps the downloaded checkouts cached across sessions, and a separate writable
-configuration workspace holds builds, source modifications and experiments.
-No manual symlinks or installation paths are needed for the default workflow.
-
-DarOne stages a fresh, writable Darwin3 source tree for each build. When a
-pinned Darwin3 revision contains Cog 2.3, it applies the minimal Python 3.12+
-compatibility fix **only to that build copy**. Newer Cog versions are used
-unchanged. The original downloaded Git revision stays intact, and the build
-source location, commit, and compatibility status are recorded in
-`source-provenance.txt` within DarOne's Scratch build workspace. This allows
-modern Python versions without a dedicated Python 3.11 environment.
-
-```bash
-julia --project=. -e 'using Pkg; Pkg.instantiate()'
-julia --project=. -e 'using DarOne; println(darwin_root()); println(configuration_root())'
-```
-
-The existing API remains unchanged:
+DarOne automatically downloads the pinned Darwin3 and `dar_one_config`
+revisions in [`darwin-sources.env`](darwin-sources.env) on first use. Sources
+are cached separately from writable build and experiment directories. Building
+requires Git, GNU Fortran, `make`, NetCDF and Python.
 
 ```julia
 using DarOne
-update_grid_size(1, 1)
 build(base_configuration)
-config, rundir = create_MITgcm_config("example")
-setup(config)
 ```
 
-To use local source checkouts (including the previous Docker layout), set
-`DARONE_MITGCM_PATH` and optionally `DARONE_CONFIG_PATH`:
+To use existing local checkouts, set `DARONE_MITGCM_PATH` and optionally
+`DARONE_CONFIG_PATH` for a configuration outside the Darwin3 tree:
 
 ```bash
 export DARONE_MITGCM_PATH="$HOME/src/darwin3"
 export DARONE_CONFIG_PATH="$HOME/src/dar_one_config"
 ```
 
-An existing configuration under `$DARONE_MITGCM_PATH/verification/dar_one_config`
-is still recognised. Legacy scripts assigning `MITgcm_path[1]` remain supported.
-`DARONE_MITGCM_PATH` takes precedence when set.
-
-For future Darwin3 commits, specify the full 40-character Git revisions before
-starting Julia. Each revision is downloaded into a separate cache directory;
-previous versions remain available. Defaults remain pinned in
-`darwin-sources.env`:
+To use different managed source revisions, specify their full Git commit hashes:
 
 ```bash
 export DARONE_DARWIN_REV="<40-character-Darwin3-commit>"
 export DARONE_CONFIG_REV="<40-character-dar_one_config-commit>"
 ```
 
-`source_revisions()` reports the requested managed commits (an explicitly
-selected local checkout may be at a different commit). You can change either
-revision independently. Custom Git remotes are supported with
-`DARONE_DARWIN_URL` and `DARONE_CONFIG_URL` for development or offline tests.
-Environment overrides select local paths first; the managed source workspaces
-are used when an explicit local checkout is not configured.
-
-Lightweight tests, including offline Git-fixture tests, run without a Fortran
-compiler:
-
-```bash
-julia --project=. test/test_paths.jl
-julia --project=. test/test_sources.jl
-julia --project=. test/test_build_sources.jl
-```
+Existing scripts that assign `MITgcm_path[1]` remain supported.
 
 ## Example integration tests
 
