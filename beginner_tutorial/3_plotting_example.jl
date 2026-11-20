@@ -3,7 +3,6 @@ using NCDatasets
 using Plots
 
 # the path to the Darwin version of the MITgcm
-MITgcm_path[1] = get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3")
 
 # the unique name of your run 
 project_name = "beginner_tutorial-pro-syn-2" * get(ENV, "DARONE_EXAMPLE_ID_SUFFIX", "")

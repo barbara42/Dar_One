@@ -23,9 +23,9 @@ Documentation for the darwin3 MITgcm fortran model can be found [here](https://d
 DarOne.jl is a tool for designing and running experiments simulating the marine microbiome within a single cube of water. The biogeochemical forcing is powered by the [MIT Darwin Model](https://darwinproject.mit.edu/), and DarOne.jl provides a Julia interface to build, configure, and run experiments with a simple, streamlined workflow. DarOne.jl is composed of two main parts:
 
 - [DarOne.jl](https://github.com/DarOneModel/DarOne.jl) - Julia interface for organizing experiments and setting up parameters for model runs
-    - `MITgcm_path` variable should point to darwin3
+    - Darwin3 sources are located automatically (see local setup below).
 - [darwin3](https://github.com/darwinproject/darwin3) - MITgcm source code set up to include all things Darwin 
-    - `DarOne_config` - folder for the base configuration files for DarOne, which lives in the darwin3/verification/ folder. ([DarOne_config github](https://github.com/barbara42/dar_one_config))
+    - [`dar_one_config`](https://github.com/barbara42/dar_one_config) - base configuration, managed independently of the Darwin3 source tree.
 
 
 DarOne can be run in one of two ways. 
@@ -61,12 +61,43 @@ You're now ready for the [beginner tutorial](beginner_tutorial)!
 
 See instructions in the documentation: https://daronemodel.github.io/DarOne.jl/build/getting_started/#Setting-up-on-local-machine
 
-## Example integration tests
+## Darwin3 sources
 
-The example test runner executes all nine beginner tutorial and case-study scripts, including Fortran builds, simulations, and the tutorial plot. It uses Darwin reference inputs and short simulation durations. Run it with a Darwin checkout containing `verification/dar_one_config` and a working GNU Fortran toolchain:
+DarOne automatically downloads the pinned Darwin3 and `dar_one_config`
+revisions in [`darwin-sources.env`](darwin-sources.env) on first use. Sources
+are cached separately from writable build and experiment directories. Building
+requires Git, GNU Fortran, `make`, NetCDF and Python.
+
+```julia
+using DarOne
+build(base_configuration)
+```
+
+To use existing local checkouts, set `DARONE_MITGCM_PATH` and optionally
+`DARONE_CONFIG_PATH` for a configuration outside the Darwin3 tree:
 
 ```bash
-DARONE_MITGCM_PATH=/path/to/darwin3 julia --project=. test/test_examples.jl
+export DARONE_MITGCM_PATH="$HOME/src/darwin3"
+export DARONE_CONFIG_PATH="$HOME/src/dar_one_config"
+```
+
+To use different managed source revisions, specify their full Git commit hashes:
+
+```bash
+export DARONE_DARWIN_REV="<40-character-Darwin3-commit>"
+export DARONE_CONFIG_REV="<40-character-dar_one_config-commit>"
+```
+
+Existing scripts that assign `MITgcm_path[1]` remain supported.
+
+## Example integration tests
+
+The example test runner executes all nine beginner tutorial and case-study scripts, including Fortran builds, simulations, and the tutorial plot. It uses Darwin reference inputs and short simulation durations. With Git and
+the GNU Fortran/NetCDF toolchain installed, the test runner automatically
+provisions the pinned source/configuration pair:
+
+```bash
+julia --project=. -e 'using Pkg; Pkg.test()'
 ```
 
 # Contributing 

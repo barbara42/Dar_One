@@ -6,12 +6,16 @@ module DarOne
 using OrderedCollections, Printf, Suppressor, ClimateModels, DelimitedFiles
 
 include("Types.jl")
+include("Sources.jl")
+include("Paths.jl")
+include("BuildSources.jl")
 include("ReadFiles.jl")
 include("ModelSteps.jl")
 include("NamelistHelpers.jl")
 include("GridBinHelpers.jl")
 
 export MITgcm_path, base_configuration, filexe
+export darwin_root, configuration_root, executable_path, source_revisions
 
 # Types 
 export MITgcm_config, MITgcm_namelist
@@ -60,7 +64,7 @@ export scan_rundir, scan_stdout
 Path to a MITgcm folder. `MITgcm_path[1]` should generally be used. `MITgcm_path[2]` is mostly 
 meant to facilitate comparisons between e.g. MITgcm releases when needed.
 """
-MITgcm_path = ["/Users/birdy/Documents/eaps_research/darwin3"]
+MITgcm_path = [get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3")]
 
 """
     base_configuration
@@ -74,11 +78,16 @@ base_configuration = "dar_one_config"
 """
     filexe
 
-Path to the file that contains the built MITgcm, normally named "mitgcmuv".
-The executable should be compiled on whatever machine you're using to run the model, 
-unless using the docker container [TODO: link]
+Legacy snapshot of the default MITgcm executable path at module load.
+Use `executable_path()` to resolve the current path after changing
+`MITgcm_path[1]` or the environment.
 """
-filexe=joinpath(MITgcm_path[1],"verification",base_configuration,"build","mitgcmuv")
+# Legacy path snapshot; internal code resolves executable_path() at call time.
+# Preserve the legacy string without provisioning sources during `using DarOne`.
+# `executable_path()` gives the current managed/external build location.
+filexe = haskey(ENV, "DARONE_CONFIG_PATH") ?
+    joinpath(abspath(expanduser(ENV["DARONE_CONFIG_PATH"])), "build", "mitgcmuv") :
+    joinpath(MITgcm_path[1], "verification", base_configuration, "build", "mitgcmuv")
 
 
 """
@@ -90,7 +99,7 @@ NOTE: dangerous! no copies of files are made
 Default grid size is 1 x 1. 
 
 """
-function update_grid_size(x, y, file=joinpath(MITgcm_path[1], "verification", base_configuration, "code", "SIZE.h"))
+function update_grid_size(x, y, file=joinpath(configuration_root(), "code", "SIZE.h"))
     meta = read(file, String)
     meta = split(meta, "\n")
     
@@ -132,7 +141,7 @@ To allow all nutrients to vary, the parameter would be `ones(19)`.
 The indices in the param_list correspond to the following nutrients, in order: 
 [DIC, NO3, NO2, NH4, PO4, SiO2, FeT, DOC, DON, DOP, DOFe, PIC, POC, PON, PIP, PISi, POFe, ALK, O2]
 """
-function hold_nutrients_constant(param_list, file=joinpath(MITgcm_path[1], "verification", base_configuration, "code", "darwin_plankton.F"))
+function hold_nutrients_constant(param_list, file=joinpath(configuration_root(), "code", "darwin_plankton.F"))
     # TODO: add check that para is 19 long 
     meta = read(file, String)
     meta = split(meta, "\n")

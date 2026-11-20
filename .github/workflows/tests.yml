@@ -23,23 +23,18 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Load pinned Darwin revisions
-        run: cat darwin-sources.env >> "$GITHUB_ENV"
-
-      - name: Configure Darwin path
-        run: |
-          echo "DARONE_MITGCM_PATH=$RUNNER_TEMP/darwin3" >> "$GITHUB_ENV"
-          echo "DARONE_EXAMPLE_LOG_DIR=$RUNNER_TEMP/darone-example-logs" >> "$GITHUB_ENV"
+      - name: Configure example logs
+        run: echo "DARONE_EXAMPLE_LOG_DIR=$RUNNER_TEMP/darone-example-logs" >> "$GITHUB_ENV"
 
       - name: Install Fortran and NetCDF dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y gfortran make libnetcdf-dev libnetcdff-dev tcsh
 
-      # Darwin3's bundled Cog generator imports imp (removed in Python 3.12).
+      # Exercise the legacy Cog compatibility adapter with Python 3.12+.
       - uses: actions/setup-python@v6
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - uses: julia-actions/setup-julia@v3
         with:
@@ -50,26 +45,38 @@ jobs:
         with:
           delete-old-caches: false
 
-      - name: Prepare Darwin configuration
-        run: |
-          # Reproduce the Darwin source/configuration pair from birdy1123/dar1.
-          git init -q "$DARONE_MITGCM_PATH"
-          git -C "$DARONE_MITGCM_PATH" remote add origin https://github.com/darwinproject/darwin3.git
-          git -C "$DARONE_MITGCM_PATH" fetch --depth 1 origin "$DARWIN_REV"
-          git -C "$DARONE_MITGCM_PATH" checkout --quiet --detach FETCH_HEAD
-          config_path="$DARONE_MITGCM_PATH/verification/dar_one_config"
-          git init -q "$config_path"
-          git -C "$config_path" remote add origin https://github.com/barbara42/dar_one_config.git
-          git -C "$config_path" fetch --depth 1 origin "$DARONE_CONFIG_REV"
-          git -C "$config_path" checkout --quiet --detach FETCH_HEAD
-          mkdir -p "$DARONE_MITGCM_PATH/verification/dar_one_config/build" "$DARONE_MITGCM_PATH/verification/dar_one_config/run"
-          git config --global user.name "DarOne CI"
-          git config --global user.email "darone-ci@localhost"
-          git -C "$DARONE_MITGCM_PATH" rev-parse HEAD
-          git -C "$DARONE_MITGCM_PATH/verification/dar_one_config" rev-parse HEAD
-
       - name: Install Julia dependencies
         run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
+      - name: Prepare pinned Darwin sources through DarOne
+        run: |
+          # Fetches and validates both commits from darwin-sources.env; it
+          # stages a writable configuration outside the pristine source tree.
+          julia --project=. -e '
+            using DarOne
+            darwin = darwin_root()
+            config = configuration_root()
+            @assert isfile(joinpath(darwin, "tools", "genmake2"))
+            @assert isfile(joinpath(config, "code", "SIZE.h"))
+            open(ENV["GITHUB_ENV"], "a") do io
+              println(io, "DARONE_MITGCM_PATH=", darwin)
+              println(io, "DARONE_CONFIG_PATH=", config)
+            end
+            println("Darwin3: ", darwin, "\nConfiguration: ", config)
+          '
+          git config --global user.name "DarOne CI"
+          git config --global user.email "darone-ci@localhost"
+
+      - name: Smoke-test Darwin3 Cog with Python 3.12
+        run: |
+          python --version
+          julia --project=. -e '
+            using DarOne
+            DarOne._with_build_source(base_configuration) do source
+              cog = joinpath(source, "tools", "darwin", "cog")
+              run(`$cog -v`)
+            end
+          '
 
       - name: Test examples (all 16 global tiles, five days)
         run: |
@@ -79,10 +86,15 @@ jobs:
       - name: Collect model diagnostic inventory on failure
         if: failure()
         run: |
-          find "$DARONE_MITGCM_PATH/verification/dar_one_config/run" \
-            -type f \( -name '3d*' -o -name 'data.diagnostics' \) \
-            -printf '%p %s bytes\n' | sort > "$RUNNER_TEMP/darone-diagnostic-inventory.txt"
-          head -n 100 "$RUNNER_TEMP/darone-diagnostic-inventory.txt"
+          if [ -d "$DARONE_CONFIG_PATH/run" ]; then
+            find "$DARONE_CONFIG_PATH/run" \
+              -type f \( -name '3d*' -o -name 'data.diagnostics' \) \
+              -printf '%p %s bytes\n' | sort > "$RUNNER_TEMP/darone-diagnostic-inventory.txt"
+            head -n 100 "$RUNNER_TEMP/darone-diagnostic-inventory.txt"
+          fi
+          if [ -f "$DARONE_CONFIG_PATH/build/genmake.log" ]; then
+            cp "$DARONE_CONFIG_PATH/build/genmake.log" "$RUNNER_TEMP/darone-genmake.log"
+          fi
 
       - name: Upload failure logs
         if: failure()
@@ -96,6 +108,4 @@ jobs:
             ${{ runner.temp }}/darone-diagnostic-inventory.txt
             ${{ runner.temp }}/darone-example-logs/*.log
             ${{ runner.temp }}/darone-global-x*.log
-            ${{ runner.temp }}/darwin3/verification/dar_one_config/build/genmake.log
-            ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/STDOUT.*
-            ${{ runner.temp }}/darwin3/verification/dar_one_config/run/**/thread-*-output.txt
+            ${{ runner.temp }}/darone-genmake.log

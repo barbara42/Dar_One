@@ -1,6 +1,5 @@
 using DarOne
 
-MITgcm_path[1] = get(ENV, "DARONE_MITGCM_PATH", "/dar_one_docker/darwin3")
 
 # restore the 1x1 grid and freely cycling nutrients used by this tutorial
 update_grid_size(1, 1)
